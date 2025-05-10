@@ -59,6 +59,13 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
           <div>
             <span className="font-semibold">Price:</span> {packageData.price}
           </div>
+          {packageData.yearly_price > 0 && (
+            <div>
+              <span className="font-semibold">Yearly price:</span>
+              {"  "}
+              {packageData.yearly_price}
+            </div>
+          )}
           <div>
             <span className="font-semibold">Duration:</span>{" "}
             {packageData.duration}

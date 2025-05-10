@@ -8,6 +8,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
     package_name: "",
     currency_id: "",
     price: "",
+    yearly_price: "",
     duration: "",
     description: "",
     language: [],
@@ -39,6 +40,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
       package_name: "",
       currency_id: "",
       price: "",
+      yearly_price: "",
       duration: "",
       description: "",
       language: [],
@@ -53,6 +55,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
       package_name: data.package_name || "",
       currency_id: data.currency_id || "",
       price: data.price || "",
+      yearly_price: data.yearly_price || "",
       duration: data.duration || "",
       description: data.description || "",
       language: data.language || [],
@@ -110,6 +113,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
         package_name: form.package_name,
         currency_id: form.currency_id,
         price: form.price,
+        yearly_price: form.yearly_price,
         duration: form.duration,
         description: form.description,
         language: form.language,
@@ -202,24 +206,35 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
           </div>
 
           {/* Duration */}
-          <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm">Duration</label>
-            <select
-              name="duration"
-              value={form.duration}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-            >
-              <option value="">Select Duration</option>
-              <option value="Free">Free</option>
-              <option value="1 Month">1 Month</option>
-              <option value="3 Months">3 Months</option>
-              <option value="6 Months">6 Months</option>
-              <option value="1 Year">1 Year</option>
-            </select>
-            {errors.duration && (
-              <p className="text-sm text-red-500">{errors.duration}</p>
-            )}
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="flex flex-col">
+              <label className="font-medium mb-1 text-sm">Duration</label>
+              <select
+                name="duration"
+                value={form.duration}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+              >
+                <option value="">Select Duration</option>
+                <option value="free">Free</option>
+                <option value="month">Month</option>
+                <option value="year">Year</option>
+              </select>
+              {errors.duration && (
+                <p className="text-sm text-red-500">{errors.duration}</p>
+              )}
+            </div>
+            <div className="flex flex-col">
+              <label className="font-medium mb-1 text-sm">Yearly Price</label>
+              <input
+                type="number"
+                name="yearly_price"
+                placeholder="Yearly Price"
+                value={form.yearly_price}
+                onChange={handleChange}
+                className="w-full border rounded px-3 py-2 text-sm focus:ring-2 focus:rung-red-500 focus:outline-none"
+              />
+            </div>
           </div>
 
           {/* Description */}

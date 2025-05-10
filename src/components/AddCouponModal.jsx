@@ -60,7 +60,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value.trim() });
+    setForm({ ...form, [name]: value });
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 

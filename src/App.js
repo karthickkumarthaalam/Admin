@@ -12,11 +12,14 @@ import Packages from "./pages/Packages";
 import ForgotPassword from "./pages/ForgotPassword";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
+import LoadingComponent from "./components/LoadingComponent";
 
 function AppRoutes() {
+  const { user, loading } = useAuth();
 
-  const { user } = useAuth();
-
+  if (loading) {
+    return <LoadingComponent />;
+  }
 
   return (
     <Routes>

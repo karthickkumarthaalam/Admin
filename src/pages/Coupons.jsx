@@ -95,7 +95,7 @@ const Coupons = () => {
           title={"Coupon Report"}
           paths={["Programs", "Coupon Report"]}
         />
-        <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto">
+        <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Coupon Report
@@ -170,10 +170,14 @@ const Coupons = () => {
                             {coupon.description}
                           </td>
                           <td className="py-2 px-4 border">
-                            {coupon.start_date}
+                            {new Date(coupon.start_date).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </td>
                           <td className="py-2 px-4 border">
-                            {coupon.end_date}
+                            {new Date(coupon.end_date).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </td>
                           <td className="py-2 px-4 border">
                             <span

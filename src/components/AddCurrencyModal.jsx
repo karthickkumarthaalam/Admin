@@ -30,7 +30,6 @@ const AddCurrencyModal = ({ isOpen, onClose, editCurrencyData, onSuccess }) => {
   };
 
   const populateForm = (data) => {
-    console.log(data);
     setForm({
       country_name: data.country_name || "",
       currency_name: data.currency_name || "",

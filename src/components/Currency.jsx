@@ -80,7 +80,7 @@ const Currency = () => {
           paths={["Packages", "Currency Management"]}
         />
 
-        <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto">
+        <div className="mt-4 rounded-sm shadow-md md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto">
           <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Currency Report

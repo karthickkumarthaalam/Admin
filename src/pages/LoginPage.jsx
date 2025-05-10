@@ -34,7 +34,7 @@ const LoginPage = () => {
       let data = await apiCall("/auth/login", "POST", form);
       localStorage.setItem("user", JSON.stringify(data));
       navigate("/dashboard");
-      setuser(data.user);
+      setuser(data);
       toast.success("Login successful!");
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");
@@ -70,7 +70,7 @@ const LoginPage = () => {
         {/* Email Field */}
         <div className="relative">
           <input
-            type="email"
+            type="text"
             name="email"
             value={form.email}
             onChange={handleChange}
@@ -145,12 +145,6 @@ const LoginPage = () => {
         >
           Login
         </button>
-        <p className="text-center text-sm">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-red-600 hover:underline">
-            Signup
-          </Link>
-        </p>
       </form>
       <ToastContainer />
     </div>

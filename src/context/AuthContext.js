@@ -4,6 +4,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setuser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -11,6 +12,8 @@ export const AuthProvider = ({ children }) => {
         if (storedUser) {
             setuser(JSON.parse(storedUser));
         }
+        setLoading(false);
+
     }, []);
 
     const logout = () => {
@@ -18,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("user");
     };
 
-    return <AuthContext.Provider value={{ user, setuser, logout }}>
+    return <AuthContext.Provider value={{ user, setuser, logout, loading, setLoading }}>
         {children}
     </AuthContext.Provider>;
 };
