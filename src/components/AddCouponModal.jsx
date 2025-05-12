@@ -26,7 +26,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
   const fetchPackages = async () => {
     try {
-      const res = await apiCall("/package", "GET");
+      const res = await apiCall("/package?status=active", "GET");
       setPackages(res.data);
     } catch (error) {
       toast.error("Failed to fetch packages");

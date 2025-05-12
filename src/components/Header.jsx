@@ -26,7 +26,7 @@ const Header = () => {
       </h5>
       <div
         className="relative flex items-center space-x-4"
-        onClick={() => setShowMenu(true)}
+        onClick={() => setShowMenu(!showMenu)}
       >
         <h5 className="text-gray-700 font-medium">Admin</h5>
         <img
