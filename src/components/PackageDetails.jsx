@@ -3,6 +3,7 @@ import { apiCall } from "../utils/apiCall";
 
 const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
   const [currencies, setCurrencies] = useState([]);
+  const [symbol, setSymbol] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -25,6 +26,17 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
       ? `${currency.country_name} - ${currency.currency_name}`
       : "Currency not found";
   };
+
+  useEffect(() => {
+    if (packageData?.currency_id && currencies.length > 0) {
+      const currency = currencies.find(
+        (curr) => curr.id === packageData.currency_id
+      );
+      if (currency) {
+        setSymbol(currency.symbol);
+      }
+    }
+  }, [packageData, currencies]);
 
   if (!isOpen) return null;
 
@@ -57,13 +69,14 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
             {getCurrency(packageData.currency_id)}
           </div>
           <div>
-            <span className="font-semibold">Price:</span> {packageData.price}
+            <span className="font-semibold">Price:</span>{" "}
+            {`${symbol} ${packageData.price}`}
           </div>
           {packageData.yearly_price > 0 && (
             <div>
               <span className="font-semibold">Yearly price:</span>
               {"  "}
-              {packageData.yearly_price}
+              {`${symbol} ${packageData.yearly_price}`}
             </div>
           )}
           <div>
