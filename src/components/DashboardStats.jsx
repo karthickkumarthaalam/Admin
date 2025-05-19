@@ -10,7 +10,7 @@ const DashboardContent = () => {
         </div>
         <div>
           <p className="text-gray-600 text-sm font-medium">Total Users</p>
-          <h3 className="text-2xl font-bold text-gray-800">{10}</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{11}</h3>
         </div>
       </div>
 
@@ -20,7 +20,7 @@ const DashboardContent = () => {
         </div>
         <div>
           <p className="text-gray-600 text-sm font-medium">Total RJs</p>
-          <h3 className="text-2xl font-bold text-gray-800">{12}</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{9}</h3>
         </div>
       </div>
 
@@ -30,7 +30,7 @@ const DashboardContent = () => {
         </div>
         <div>
           <p className="text-gray-600 text-sm font-medium">Total Programs</p>
-          <h3 className="text-2xl font-bold text-gray-800">{10}</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{11}</h3>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ const DashboardContent = () => {
         </div>
         <div>
           <p className="text-gray-600 text-sm font-medium">Total Events</p>
-          <h3 className="text-2xl font-bold text-gray-800">{13}</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{11}</h3>
         </div>
       </div>
     </div>

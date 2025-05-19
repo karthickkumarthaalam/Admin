@@ -67,7 +67,7 @@ const ResetPassword = () => {
     if (!validateForm()) return;
 
     let payload = {
-      email: user.email,
+      email: user?.user?.email,
       currentPassword: formData.currentPassword,
       newPassword: formData.newPassword,
       confirmPassword: formData.confirmPassword,
