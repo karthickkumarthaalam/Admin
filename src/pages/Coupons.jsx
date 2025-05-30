@@ -155,62 +155,69 @@ const Coupons = () => {
                         </td>
                       </tr>
                     ) : (
-                      coupons.map((coupon, index) => (
-                        <tr key={coupon.id}>
-                          <td className="py-2 px-4 border">
-                            {(currentPage - 1) * pageSize + index + 1}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {coupon.coupon_name}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {coupon.coupon_code}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {coupon.description}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {new Date(coupon.start_date).toLocaleDateString(
-                              "en-GB"
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {new Date(coupon.end_date).toLocaleDateString(
-                              "en-GB"
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            <span
-                              onClick={() => handleStatusToggle(coupon)}
-                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                                coupon.status === "active"
-                                  ? "bg-green-500 text-white"
-                                  : "bg-red-500 text-white"
-                              }`}
-                            >
-                              {coupon.status}
-                            </span>
-                          </td>
-                          <td className="py-2 px-4 border">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => handleEdit(coupon.id)}
-                                className="text-blue-600 hover:text-blue-800"
-                                title="Edit"
+                      coupons.map((coupon, index) => {
+                        const isExpired = coupon.status === "expired";
+                        return (
+                          <tr key={coupon.id}>
+                            <td className="py-2 px-4 border">
+                              {(currentPage - 1) * pageSize + index + 1}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              {coupon.coupon_name}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              {coupon.coupon_code}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              {coupon.description}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              {new Date(coupon.start_date).toLocaleDateString(
+                                "en-GB"
+                              )}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              {new Date(coupon.end_date).toLocaleDateString(
+                                "en-GB"
+                              )}
+                            </td>
+                            <td className="py-2 px-4 border">
+                              <span
+                                onClick={() =>
+                                  !isExpired && handleStatusToggle(coupon)
+                                }
+                                className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                                  coupon.status === "active"
+                                    ? "bg-green-500 text-white"
+                                    : coupon.status === "expired"
+                                    ? "bg-gray-500 text-white"
+                                    : "bg-red-500 text-white"
+                                }`}
                               >
-                                <Edit2 size={16} />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(coupon.id)}
-                                className="text-red-600 hover:text-red-800"
-                                title="Delete"
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
+                                {coupon.status}
+                              </span>
+                            </td>
+                            <td className="py-2 px-4 border">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => handleEdit(coupon.id)}
+                                  className="text-blue-600 hover:text-blue-800"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={16} />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(coupon.id)}
+                                  className="text-red-600 hover:text-red-800"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     )}
                   </tbody>
                 </table>

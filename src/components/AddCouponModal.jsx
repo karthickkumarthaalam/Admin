@@ -79,6 +79,23 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
     if (!form.coupon_code) newErrors.coupon_code = "Coupon code is required.";
     if (!form.start_date) newErrors.start_date = "Start date is required.";
     if (!form.end_date) newErrors.end_date = "End date is required.";
+
+    if (form.start_date && form.end_date) {
+      const startDate = new Date(form.start_date);
+      const endDate = new Date(form.end_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (startDate > endDate) {
+        newErrors.start_date = "Start date must be before end date.";
+        newErrors.end_date = "End date must be after start date.";
+      }
+
+      if (endDate < today) {
+        newErrors.end_date = "End date must be today or future date.";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

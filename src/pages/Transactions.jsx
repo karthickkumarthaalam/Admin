@@ -6,6 +6,7 @@ import { Search, Loader2 } from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import CopyrightFooter from "../components/CopyRightsComponent";
+import { toast } from "react-toastify";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -13,6 +14,8 @@ const Transactions = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [activeRefundTxnId, setActiveRefundTxnId] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const pageSize = 20;
 
   const fetchTransactions = async () => {
@@ -40,6 +43,49 @@ const Transactions = () => {
   }, 500);
 
   const totalPages = Math.ceil(totalRecords / pageSize);
+
+  const handleRefundRequestedClick = (e, txnId) => {
+    e.stopPropagation();
+    const rect = e.target.getBoundingClientRect();
+    if (activeRefundTxnId === txnId) {
+      setActiveRefundTxnId(null);
+    } else {
+      setActiveRefundTxnId(txnId);
+      setTooltipPosition({
+        x: rect.left,
+        y: rect.bottom + window.scrollY,
+      });
+    }
+  };
+
+  const handleProcessRefund = async (txn) => {
+    try {
+      const payload = {
+        transaction_id: txn.transaction_id,
+        refund_reason: txn.refund_reason,
+      };
+      await apiCall(`/transactions/process-refund`, "POST", payload);
+      toast.success("Refund processed successfully");
+      setActiveRefundTxnId(null);
+      fetchTransactions();
+    } catch (error) {
+      toast.error("Failed to process refund");
+    }
+  };
+
+  const handleCancelRefund = async (txn) => {
+    try {
+      const payload = {
+        transaction_id: txn.transaction_id,
+      };
+      await apiCall(`/transactions/reject-refund`, "POST", payload);
+      toast.success("Refund Cancelled successfully");
+      setActiveRefundTxnId(null);
+      fetchTransactions();
+    } catch (error) {
+      toast.error("Failed to cancel refund");
+    }
+  };
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -90,6 +136,7 @@ const Transactions = () => {
                       <th className="py-2 px-4 border">Transaction Date</th>
                       <th className="py-2 px-4 border">Amount</th>
                       <th className="py-2 px-4 border">Status</th>
+                      <th className="py-2 px-4 border">Refund Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -131,8 +178,38 @@ const Transactions = () => {
                                   : "bg-red-500 text-white"
                               }`}
                             >
-                              {txn.payment_status}
+                              {txn.payment_status.toUpperCase()}
                             </span>
+                          </td>
+                          <td className="py-2 px-4 border relative">
+                            {txn.refund_requested_at ? (
+                              txn.refund_status === "pending" ? (
+                                <>
+                                  <span
+                                    className="cursor-pointer text-blue-500 underline"
+                                    onClick={(e) =>
+                                      handleRefundRequestedClick(e, txn.id)
+                                    }
+                                  >
+                                    Refund requested
+                                  </span>
+                                </>
+                              ) : (
+                                <span
+                                  className={`px-2 py-1 text-xs rounded font-semibold ${
+                                    txn.refund_status === "completed"
+                                      ? "bg-green-500 text-white"
+                                      : txn.refund_status === "pending"
+                                      ? "bg-yellow-400 text-white"
+                                      : "bg-red-500 text-white"
+                                  }`}
+                                >
+                                  {txn.refund_status.toUpperCase()}
+                                </span>
+                              )
+                            ) : (
+                              "-"
+                            )}
                           </td>
                         </tr>
                       ))
@@ -140,6 +217,37 @@ const Transactions = () => {
                   </tbody>
                 </table>
               </div>
+
+              {activeRefundTxnId && (
+                <div
+                  className="fixed z-50 bg-white border border-gray-300 shadow rounded p-2 flex flex-col gap-2 w-40"
+                  style={{
+                    top: tooltipPosition.y + 4,
+                    left: tooltipPosition.x,
+                  }}
+                >
+                  <button
+                    className="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                    onClick={() =>
+                      handleProcessRefund(
+                        transactions.find((txn) => txn.id === activeRefundTxnId)
+                      )
+                    }
+                  >
+                    Process Refund
+                  </button>
+                  <button
+                    className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    onClick={() =>
+                      handleCancelRefund(
+                        transactions.find((txn) => txn.id === activeRefundTxnId)
+                      )
+                    }
+                  >
+                    Cancel Refund
+                  </button>
+                </div>
+              )}
 
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-4 mt-4">
