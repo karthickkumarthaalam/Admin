@@ -167,7 +167,7 @@ const Transactions = () => {
                           <td className="py-2 px-4 border">
                             {new Date(txn.transaction_date).toLocaleString()}
                           </td>
-                          <td className="py-2 px-4 border">${txn.amount}</td>
+                          <td className="py-2 px-4 border">CHF {txn.amount}</td>
                           <td className="py-2 px-4 border capitalize">
                             <span
                               className={`px-2 py-1 text-xs rounded font-semibold ${

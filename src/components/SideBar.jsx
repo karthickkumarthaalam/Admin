@@ -9,6 +9,7 @@ import {
   BadgeDollarSign,
   X,
   Settings,
+  UserCheck,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -17,7 +18,8 @@ const Sidebar = () => {
   const menus = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { label: "Transactions", icon: CreditCard, path: "/transactions" },
-    { label: "Subscribers", icon: Users, path: "/subscribers" },
+    { label: "Paid Subscribers", icon: Users, path: "/subscribers" },
+    { label: "Members", icon: UserCheck, path: "/members" },
     { label: "Coupons", icon: Ticket, path: "/coupons" },
     { label: "Packages", icon: BadgeDollarSign, path: "/packages" },
     { label: "Settings", icon: Settings, path: "/settings" },

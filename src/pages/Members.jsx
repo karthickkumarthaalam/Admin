@@ -2,37 +2,38 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
 import BreadCrumb from "../components/BreadCrum";
-import { Search, Loader2 } from "lucide-react";
-import { apiCall } from "../utils/apiCall";
+import { Loader2, Search } from "lucide-react";
 import debounce from "lodash.debounce";
+import { toast } from "react-toastify";
+import { apiCall } from "../utils/apiCall";
 import CopyrightFooter from "../components/CopyRightsComponent";
 
-const Subscribers = () => {
-  const [subscribers, setSubscribers] = useState([]);
-  const [loading, setLoading] = useState(true);
+const Members = () => {
+  const [members, setMembers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const pageSize = 20;
 
-  const fetchSubscribers = async () => {
+  const fetchMembers = async () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/memberPackage?page=${currentPage}&search=${searchQuery}`,
+        `/members?page=${currentPage}&search=${searchQuery}`,
         "GET"
       );
-      setSubscribers(response.data);
+      setMembers(response.data);
       setTotalRecords(response.pagination.totalRecords);
     } catch (error) {
-      console.error("Error fetching subscribers:", error);
+      toast.error("Failed to fetch members details");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSubscribers();
+    fetchMembers();
   }, [currentPage, searchQuery]);
 
   const handleSearch = debounce((value) => {
@@ -46,15 +47,12 @@ const Subscribers = () => {
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header />
-        <BreadCrumb
-          title={"Subscribers"}
-          paths={["Programs", "Subscribers List"]}
-        />
+        <BreadCrumb title={"Members"} paths={["Programs", "Members List"]} />
 
         <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
-              Subscribers List
+              Members List
             </p>
           </div>
 
@@ -66,7 +64,7 @@ const Subscribers = () => {
               />
               <input
                 type="text"
-                placeholder="Search Subscribers..."
+                placeholder="Search Members..."
                 onChange={(e) => handleSearch(e.target.value)}
                 className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
               />
@@ -88,77 +86,36 @@ const Subscribers = () => {
                       <th className="py-2 px-4 border">Name</th>
                       <th className="py-2 px-4 border">Email</th>
                       <th className="py-2 px-4 border">Mobile</th>
-                      <th className="py-2 px-4 border">Package Name</th>
-                      <th className="py-2 px-4 border">Start Date</th>
-                      <th className="py-2 px-4 border">End Date</th>
-                      <th className="py-2 px-4 border">Purchase Date</th>
-                      <th className="py-2 px-4 border">Status</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {subscribers.length === 0 ? (
+                    {members.length === 0 ? (
                       <tr>
                         <td
-                          colSpan="10"
+                          colSpan="5"
                           className="text-center py-6 text-gray-500"
                         >
-                          No subscribers available.
+                          No Members available
                         </td>
                       </tr>
                     ) : (
-                      subscribers.map((subscriber, index) => (
-                        <tr key={subscriber.id}>
+                      members.map((member, index) => (
+                        <tr key={member.id}>
                           <td className="py-2 px-4 border">
                             {(currentPage - 1) * pageSize + index + 1}
                           </td>
                           <td className="py-2 px-4 border">
-                            {subscriber.member.member_id}
+                            {member.member_id}
                           </td>
-                          <td className="py-2 px-4 border">
-                            {subscriber.member.name}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {subscriber.member.email}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {subscriber.member.phone}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {subscriber.package.package_name}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {new Date(subscriber.start_date).toLocaleDateString(
-                              "en-GB"
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {new Date(subscriber.end_date).toLocaleDateString(
-                              "en-GB"
-                            )}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            {new Date(
-                              subscriber.purchase_date
-                            ).toLocaleDateString("en-GB")}
-                          </td>
-                          <td className="py-2 px-4 border">
-                            <span
-                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                                subscriber.status === "active"
-                                  ? "bg-green-500 text-white"
-                                  : "bg-red-500 text-white"
-                              }`}
-                            >
-                              {subscriber.status}
-                            </span>
-                          </td>
+                          <td className="py-2 px-4 border">{member.name}</td>
+                          <td className="py-2 px-4 border">{member.email}</td>
+                          <td className="py-2 px-4 border">{member.phone}</td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
               </div>
-
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-4 mt-4">
                   <button
@@ -193,4 +150,4 @@ const Subscribers = () => {
   );
 };
 
-export default Subscribers;
+export default Members;

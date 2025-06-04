@@ -69,7 +69,7 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
             {getCurrency(packageData.currency_id)}
           </div>
           <div>
-            <span className="font-semibold">Price:</span>{" "}
+            <span className="font-semibold">Monthly Price:</span>{" "}
             {`${symbol} ${packageData.price}`}
           </div>
           {packageData.yearly_price > 0 && (

@@ -10,7 +10,16 @@ export const AuthProvider = ({ children }) => {
         const storedUser = localStorage.getItem("user");
 
         if (storedUser) {
-            setuser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            const loginTime = parsedUser.loginTime;
+            const currentTime = new Date().getTime();
+
+            if (currentTime - loginTime > 30 * 60 * 1000) {
+                logout();
+            } else {
+                setuser(parsedUser);
+            }
+
         }
         setLoading(false);
 

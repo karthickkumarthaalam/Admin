@@ -168,7 +168,8 @@ const Package = () => {
                     <th className="py-2 px-4 border">Package Id</th>
                     <th className="py-2 px-4 border">Package Name</th>
                     <th className="py-2 px-4 border">Duration</th>
-                    <th className="py-2 px-4 border">Price</th>
+                    <th className="py-2 px-4 border">Monthly Price</th>
+                    <th className="py-2 px-4 border">Yearly Price</th>
                     <th className="py-2 px-4 border">Status</th>
                     <th className="py-2 px-4 border">Actions</th>
                   </tr>
@@ -197,7 +198,10 @@ const Package = () => {
                         </td>
                         <td className="py-2 px-4 border">{pkg.package_name}</td>
                         <td className="py-2 px-4 border">{pkg.duration}</td>
-                        <td className="py-2 px-4 border">{pkg.price}</td>
+                        <td className="py-2 px-4 border">CHF {pkg.price}</td>
+                        <td className="py-2 px-4 border">
+                          CHF {pkg.yearly_price}
+                        </td>
                         <td className="py-2 px-4 border">
                           <span
                             onClick={() => handleStatusToggle(pkg)}

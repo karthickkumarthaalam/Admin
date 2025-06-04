@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
 import LoadingComponent from "./components/LoadingComponent";
+import Members from "./pages/Members";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -29,6 +30,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
       <Route path="/transactions" element={user ? <Transactions /> : <Navigate to="/" />} />
       <Route path="/subscribers" element={user ? <Subscribers /> : <Navigate to="/" />} />
+      <Route path="/members" element={user ? <Members /> : <Navigate to="/" />} />
       <Route path="/coupons" element={user ? <Coupons /> : <Navigate to="/" />} />
       <Route path="/packages" element={user ? <Packages /> : <Navigate to="/" />} />
       <Route path="/settings" element={user ? <ResetPassword /> : <Navigate to="/" />} />
@@ -39,7 +41,7 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/thaalam-admin">
         <AppRoutes />
         <ToastContainer position="top-right" autoClose={3000} />
       </BrowserRouter>
