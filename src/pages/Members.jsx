@@ -7,6 +7,7 @@ import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
 import { apiCall } from "../utils/apiCall";
 import CopyrightFooter from "../components/CopyRightsComponent";
+import ViewMemberModal from "../components/ViewMemberModal";
 
 const Members = () => {
   const [members, setMembers] = useState([]);
@@ -14,6 +15,8 @@ const Members = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const pageSize = 20;
 
   const fetchMembers = async () => {
@@ -86,6 +89,7 @@ const Members = () => {
                       <th className="py-2 px-4 border">Name</th>
                       <th className="py-2 px-4 border">Email</th>
                       <th className="py-2 px-4 border">Mobile</th>
+                      <th className="py-2 px-4 border">Country</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -104,12 +108,19 @@ const Members = () => {
                           <td className="py-2 px-4 border">
                             {(currentPage - 1) * pageSize + index + 1}
                           </td>
-                          <td className="py-2 px-4 border">
+                          <td
+                            className="py-2 px-4 border text-blue-600 cursor-pointer hover:underline"
+                            onClick={() => {
+                              setSelectedMember(member);
+                              setIsViewModalOpen(true);
+                            }}
+                          >
                             {member.member_id}
                           </td>
                           <td className="py-2 px-4 border">{member.name}</td>
                           <td className="py-2 px-4 border">{member.email}</td>
                           <td className="py-2 px-4 border">{member.phone}</td>
+                          <td className="py-2 px-4 border">{member.country}</td>
                         </tr>
                       ))
                     )}
@@ -143,6 +154,11 @@ const Members = () => {
               )}
             </>
           )}
+          <ViewMemberModal
+            isOpen={isViewModalOpen}
+            onClose={() => setIsViewModalOpen(false)}
+            memberData={selectedMember}
+          />
         </div>
         <CopyrightFooter />
       </div>
