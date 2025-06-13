@@ -11,18 +11,45 @@ import {
   Settings,
   UserCheck,
 } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   const menus = [
-    { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-    { label: "Transactions", icon: CreditCard, path: "/transactions" },
-    { label: "Paid Subscribers", icon: Users, path: "/subscribers" },
-    { label: "Members", icon: UserCheck, path: "/members" },
-    { label: "Coupons", icon: Ticket, path: "/coupons" },
-    { label: "Packages", icon: BadgeDollarSign, path: "/packages" },
-    { label: "Settings", icon: Settings, path: "/settings" },
+    {
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      path: "/dashboard",
+      permission: null,
+    },
+    {
+      label: "Transactions",
+      icon: CreditCard,
+      path: "/transactions",
+      permission: "transactions",
+    },
+    {
+      label: "Paid Subscribers",
+      icon: Users,
+      path: "/subscribers",
+      permission: "subscribers",
+    },
+    {
+      label: "Members",
+      icon: UserCheck,
+      path: "/members",
+      permission: "members",
+    },
+    { label: "Coupons", icon: Ticket, path: "/coupons", permission: "coupons" },
+    {
+      label: "Packages",
+      icon: BadgeDollarSign,
+      path: "/packages",
+      permission: "packages",
+    },
+    { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];
 
   return (
@@ -49,25 +76,33 @@ const Sidebar = () => {
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          {menus.map(({ label, icon: Icon, path }) => (
-            <NavLink
-              to={path}
-              key={label}
-              onClick={() => {
-                setIsOpen(false);
-              }}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded p-3 transition-all duration-300 ${
-                  isActive
-                    ? "bg-red-500 text-white"
-                    : "hover:bg-gray-100 hover:text-gray-700"
-                }`
-              }
-            >
-              <Icon size={20} />
-              {label}
-            </NavLink>
-          ))}
+          {menus.map(({ label, icon: Icon, path, permission }) => {
+            if (
+              permission &&
+              (!user || !user.acl || !user.acl.includes(permission))
+            ) {
+              return null;
+            }
+            return (
+              <NavLink
+                to={path}
+                key={label}
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded p-3 transition-all duration-300 ${
+                    isActive
+                      ? "bg-red-500 text-white"
+                      : "hover:bg-gray-100 hover:text-gray-700"
+                  }`
+                }
+              >
+                <Icon size={20} />
+                {label}
+              </NavLink>
+            );
+          })}
         </nav>
       </div>
     </>

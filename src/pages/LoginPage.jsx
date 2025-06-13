@@ -34,10 +34,10 @@ const LoginPage = () => {
       let data = await apiCall("/auth/login", "POST", form);
       localStorage.setItem(
         "user",
-        JSON.stringify({ ...data, loginTime: new Date().getTime() })
+        JSON.stringify({ ...data.user, loginTime: new Date().getTime() })
       );
       navigate("/dashboard");
-      setuser(data);
+      setuser(data.user);
       toast.success("Login successful!");
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");

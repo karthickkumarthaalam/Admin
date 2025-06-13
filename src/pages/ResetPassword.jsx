@@ -18,11 +18,19 @@ const ResetPassword = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    acl: [],
   });
-
   const [errors, setErrors] = useState({});
-
   const [newUserErrors, setNewUserErrors] = useState({});
+
+  const permissionList = [
+    "transactions",
+    "subscribers",
+    "members",
+    "coupons",
+    "packages",
+  ];
+  const [selectAll, setSelectAll] = useState(false);
 
   const { user } = useAuth();
 
@@ -67,7 +75,7 @@ const ResetPassword = () => {
     if (!validateForm()) return;
 
     let payload = {
-      email: user?.user?.email,
+      email: user?.email,
       currentPassword: formData.currentPassword,
       newPassword: formData.newPassword,
       confirmPassword: formData.confirmPassword,
@@ -103,6 +111,24 @@ const ResetPassword = () => {
     } catch (error) {
       toast.error("Failed to create user");
     }
+  };
+
+  const handleAclChange = (e) => {
+    const { value, checked } = e.target;
+    const updatedAcl = checked
+      ? [...newUserForm.acl, value]
+      : newUserForm.acl.filter((perm) => perm !== value);
+
+    setNewUserForm({ ...newUserForm, acl: updatedAcl });
+  };
+
+  const handleSelectAll = (e) => {
+    const checked = e.target.checked;
+    setSelectAll(checked);
+    setNewUserForm({
+      ...newUserForm,
+      acl: checked ? [...permissionList] : [],
+    });
   };
 
   return (
@@ -201,7 +227,7 @@ const ResetPassword = () => {
               </div>
             </form>
 
-            {user?.user?.email === "admin" && (
+            {user?.email === "admin" && (
               <>
                 <h2 className="text-lg font-semibold text-gray-800 pb-3 border-b border-gray-200 mt-10 mb-6">
                   Create User
@@ -276,6 +302,37 @@ const ResetPassword = () => {
                           {newUserErrors.confirmPassword}
                         </p>
                       )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-gray-700 mb-2 text-sm font-medium">
+                      Permission
+                    </label>
+
+                    <div className="mb-3">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={selectAll}
+                          onChange={handleSelectAll}
+                          className="form-checkbox h-4 w-4 text-red-500"
+                        />
+                        <span className="text-sm font-medium">Select All</span>
+                      </label>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {permissionList.map((perm) => (
+                        <label key={perm} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            value={perm}
+                            checked={newUserForm.acl.includes(perm)}
+                            onChange={handleAclChange}
+                            className="form-checkbox h-4 w-4 text-red-500"
+                          />
+                          <span className="text-sm capitalize">{perm}</span>
+                        </label>
+                      ))}
                     </div>
                   </div>
 

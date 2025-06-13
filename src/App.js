@@ -18,6 +18,7 @@ import Members from "./pages/Members";
 function AppRoutes() {
   const { user, loading } = useAuth();
 
+  console.log(user, "showing user");
   if (loading) {
     return <LoadingComponent />;
   }
@@ -28,11 +29,11 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
-      <Route path="/transactions" element={user ? <Transactions /> : <Navigate to="/" />} />
-      <Route path="/subscribers" element={user ? <Subscribers /> : <Navigate to="/" />} />
-      <Route path="/members" element={user ? <Members /> : <Navigate to="/" />} />
-      <Route path="/coupons" element={user ? <Coupons /> : <Navigate to="/" />} />
-      <Route path="/packages" element={user ? <Packages /> : <Navigate to="/" />} />
+      <Route path="/transactions" element={user && user?.acl.includes("transactions") ? <Transactions /> : <Navigate to="/" />} />
+      <Route path="/subscribers" element={user && user?.acl.includes("subscribers") ? <Subscribers /> : <Navigate to="/" />} />
+      <Route path="/members" element={user && user?.acl.includes("members") ? <Members /> : <Navigate to="/" />} />
+      <Route path="/coupons" element={user && user?.acl.includes("coupons") ? <Coupons /> : <Navigate to="/" />} />
+      <Route path="/packages" element={user && user?.acl.includes("packages") ? <Packages /> : <Navigate to="/" />} />
       <Route path="/settings" element={user ? <ResetPassword /> : <Navigate to="/" />} />
     </Routes>
   );

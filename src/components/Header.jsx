@@ -7,7 +7,7 @@ import { useAuth } from "../context/AuthContext";
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -28,7 +28,9 @@ const Header = () => {
         className="relative flex items-center space-x-4"
         onClick={() => setShowMenu(!showMenu)}
       >
-        <h5 className="text-gray-700 font-medium">Admin</h5>
+        {user?.email === "admin" && (
+          <h5 className="text-gray-700 font-bold">Admin</h5>
+        )}
         <img
           src="https://thaalam.ch/newfile/subscription/assets/img/user1.jpg"
           alt="admin profile"
