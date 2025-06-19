@@ -14,11 +14,11 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
 import LoadingComponent from "./components/LoadingComponent";
 import Members from "./pages/Members";
+import Banner from "./pages/Banner";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
 
-  console.log(user, "showing user");
   if (loading) {
     return <LoadingComponent />;
   }
@@ -34,6 +34,7 @@ function AppRoutes() {
       <Route path="/members" element={user && user?.acl.includes("members") ? <Members /> : <Navigate to="/" />} />
       <Route path="/coupons" element={user && user?.acl.includes("coupons") ? <Coupons /> : <Navigate to="/" />} />
       <Route path="/packages" element={user && user?.acl.includes("packages") ? <Packages /> : <Navigate to="/" />} />
+      <Route path="/banner" element={user && user?.acl.includes("banners") ? <Banner /> : <Navigate to="/" />} />
       <Route path="/settings" element={user ? <ResetPassword /> : <Navigate to="/" />} />
     </Routes>
   );
@@ -42,7 +43,7 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/thaalam-admin">
+      <BrowserRouter basename="/summerfest/thaalam-admin">
         <AppRoutes />
         <ToastContainer position="top-right" autoClose={3000} />
       </BrowserRouter>

@@ -10,6 +10,7 @@ import {
   X,
   Settings,
   UserCheck,
+  Image,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -23,6 +24,12 @@ const Sidebar = () => {
       icon: LayoutDashboard,
       path: "/dashboard",
       permission: null,
+    },
+    {
+      label: "Banner",
+      icon: Image,
+      path: "/banner",
+      permission: "banners",
     },
     {
       label: "Transactions",

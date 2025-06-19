@@ -19,7 +19,6 @@ export const apiCall = async (endpoint, method = "GET", data = null, config = {}
         return response.data;
 
     } catch (error) {
-        console.log("shoing error:", error);
         throw error.response ? error.response.data : error;
     }
 

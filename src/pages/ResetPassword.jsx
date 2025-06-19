@@ -29,6 +29,7 @@ const ResetPassword = () => {
     "members",
     "coupons",
     "packages",
+    "banners",
   ];
   const [selectAll, setSelectAll] = useState(false);
 
