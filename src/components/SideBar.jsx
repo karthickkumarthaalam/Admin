@@ -11,6 +11,7 @@ import {
   Settings,
   UserCheck,
   Image,
+  Podcast,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -30,6 +31,12 @@ const Sidebar = () => {
       icon: Image,
       path: "/banner",
       permission: "banners",
+    },
+    {
+      label: "Podcasts",
+      icon: Podcast,
+      path: "/podcasts",
+      permission: "podcasts",
     },
     {
       label: "Transactions",

@@ -153,7 +153,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
         <div className="space-y-4">
           {/* Package Name */}
           <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm">Package Name</label>
+            <label className="font-semibold mb-1 text-sm">Package Name</label>
             <input
               type="text"
               name="package_name"
@@ -170,7 +170,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
           {/* Currency & Price */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="flex flex-col">
-              <label className="font-medium mb-1 text-sm">Currency</label>
+              <label className="font-semibold mb-1 text-sm">Currency</label>
               <select
                 name="currency_id"
                 value={form.currency_id}
@@ -190,7 +190,9 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
             </div>
 
             <div className="flex flex-col">
-              <label className="font-medium mb-1 text-sm">Monthly Price</label>
+              <label className="font-semibold mb-1 text-sm">
+                Monthly Price
+              </label>
               <input
                 type="number"
                 name="price"
@@ -208,7 +210,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
           {/* Duration */}
           <div className="grid md:grid-cols-2 gap-4">
             <div className="flex flex-col">
-              <label className="font-medium mb-1 text-sm">Duration</label>
+              <label className="font-semibold mb-1 text-sm">Duration</label>
               <select
                 name="duration"
                 value={form.duration}
@@ -225,7 +227,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
               )}
             </div>
             <div className="flex flex-col">
-              <label className="font-medium mb-1 text-sm">Yearly Price</label>
+              <label className="font-semibold mb-1 text-sm">Yearly Price</label>
               <input
                 type="number"
                 name="yearly_price"
@@ -239,7 +241,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
 
           {/* Description */}
           <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm">Description</label>
+            <label className="font-semibold mb-1 text-sm">Description</label>
             <textarea
               name="description"
               placeholder="Package Description"
@@ -251,7 +253,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
 
           {/* Languages */}
           <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm">Languages</label>
+            <label className="font-semibold mb-1 text-sm">Languages</label>
             <div className="flex gap-4 flex-wrap">
               {["English", "Tamil", "French", "German"].map((lang) => (
                 <label key={lang} className="flex items-center gap-1 text-sm">
@@ -269,7 +271,7 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
 
           {/* Features */}
           <div className="flex flex-col">
-            <label className="font-medium mb-1 text-sm">Features</label>
+            <label className="font-semibold mb-1 text-sm">Features</label>
             <div className="flex gap-2">
               <input
                 type="text"

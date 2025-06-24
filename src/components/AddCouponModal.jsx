@@ -147,7 +147,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
         <div className="space-y-4">
           {/* Coupon Name */}
           <div className="flex flex-col">
-            <label htmlFor="coupon_name" className="font-medium mb-1 text-sm">
+            <label htmlFor="coupon_name" className="font-semibold mb-1 text-sm">
               Coupon Name
             </label>
             <input
@@ -166,7 +166,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
           {/* Coupon Code */}
           <div className="flex flex-col">
-            <label htmlFor="coupon_code" className="font-medium mb-1 text-sm">
+            <label htmlFor="coupon_code" className="font-semibold mb-1 text-sm">
               Coupon Code
             </label>
             <input
@@ -186,7 +186,10 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
           {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
-              <label htmlFor="start_date" className="font-medium mb-1 text-sm">
+              <label
+                htmlFor="start_date"
+                className="font-semibold mb-1 text-sm"
+              >
                 Start Date
               </label>
               <input
@@ -203,7 +206,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
             </div>
 
             <div className="flex flex-col">
-              <label htmlFor="end_date" className="font-medium mb-1 text-sm">
+              <label htmlFor="end_date" className="font-semibold mb-1 text-sm">
                 End Date
               </label>
               <input
@@ -222,7 +225,10 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
           {/* Redirect URL */}
           <div className="flex flex-col">
-            <label htmlFor="redirect_url" className="font-medium mb-1 text-sm">
+            <label
+              htmlFor="redirect_url"
+              className="font-semibold mb-1 text-sm"
+            >
               Redirect URL
             </label>
             <input
@@ -238,7 +244,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
           {/* Description */}
           <div className="flex flex-col">
-            <label htmlFor="description" className="font-medium mb-1 text-sm">
+            <label htmlFor="description" className="font-semibold mb-1 text-sm">
               Description
             </label>
             <textarea
@@ -253,7 +259,7 @@ const AddCouponModal = ({ isOpen, onClose, editCouponData, onSuccess }) => {
 
           {/* Packages */}
           <div className="flex flex-col">
-            <p className="font-medium text-sm mb-1">Select Packages:</p>
+            <p className="font-semibold text-sm mb-1">Select Packages:</p>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto border p-2 rounded">
               {packages.map((pkg) => (
                 <label key={pkg.id} className="flex items-center gap-2 text-sm">

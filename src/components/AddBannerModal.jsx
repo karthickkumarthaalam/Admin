@@ -197,7 +197,7 @@ const AddBannerModal = ({ isOpen, onClose, editBannerData, onSuccess }) => {
   function renderTextInput(label, name, value, onChange, error) {
     return (
       <div className="flex flex-col">
-        <label className="font-medium mb-1 text-sm">{label}</label>
+        <label className="font-semibold mb-1 text-sm">{label}</label>
         <input
           type="text"
           name={name}
@@ -213,7 +213,7 @@ const AddBannerModal = ({ isOpen, onClose, editBannerData, onSuccess }) => {
   function renderFileInput(label, type, onChange, preview, error) {
     return (
       <div className="flex flex-col">
-        <label className="font-medium mb-1 text-sm">{label}</label>
+        <label className="font-semibold mb-1 text-sm">{label}</label>
         <input
           type="file"
           accept="image/*"
@@ -234,7 +234,7 @@ const AddBannerModal = ({ isOpen, onClose, editBannerData, onSuccess }) => {
   function renderSelectInput(label, name, value, onChange, error) {
     return (
       <div className="flex flex-col">
-        <label className="font-medium mb-1 text-sm">{label}</label>
+        <label className="font-semibold mb-1 text-sm">{label}</label>
         <select
           name={name}
           value={value}
@@ -253,7 +253,7 @@ const AddBannerModal = ({ isOpen, onClose, editBannerData, onSuccess }) => {
   function renderLanguageCheckboxes() {
     return (
       <div className="flex flex-col">
-        <label className="font-medium mb-1 text-sm">Languages</label>
+        <label className="font-semibold mb-1 text-sm">Languages</label>
         <div className="flex gap-4 flex-wrap">
           {LANGUAGES.map((lang) => (
             <label key={lang} className="flex items-center gap-1 text-sm">

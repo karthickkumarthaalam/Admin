@@ -99,7 +99,10 @@ const AddCurrencyModal = ({ isOpen, onClose, editCurrencyData, onSuccess }) => {
         <div className="space-y-4">
           {/* Country Name */}
           <div className="flex flex-col">
-            <label htmlFor="country_name" className="font-medium mb-1 text-sm">
+            <label
+              htmlFor="country_name"
+              className="font-semibold mb-1 text-sm"
+            >
               Country Name
             </label>
             <input
@@ -118,7 +121,10 @@ const AddCurrencyModal = ({ isOpen, onClose, editCurrencyData, onSuccess }) => {
 
           {/* Currency Name */}
           <div className="flex flex-col">
-            <label htmlFor="currency_name" className="font-medium mb-1 text-sm">
+            <label
+              htmlFor="currency_name"
+              className="font-semibold mb-1 text-sm"
+            >
               Currency Name
             </label>
             <input
@@ -137,7 +143,7 @@ const AddCurrencyModal = ({ isOpen, onClose, editCurrencyData, onSuccess }) => {
 
           {/* Currency Code */}
           <div className="flex flex-col">
-            <label htmlFor="code" className="font-medium mb-1 text-sm">
+            <label htmlFor="code" className="font-semibold mb-1 text-sm">
               Code
             </label>
             <input
@@ -156,7 +162,7 @@ const AddCurrencyModal = ({ isOpen, onClose, editCurrencyData, onSuccess }) => {
 
           {/* Currency Symbol */}
           <div className="flex flex-col">
-            <label htmlFor="symbol" className="font-medium mb-1 text-sm">
+            <label htmlFor="symbol" className="font-semibold mb-1 text-sm">
               Symbol
             </label>
             <input
