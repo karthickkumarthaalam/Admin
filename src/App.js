@@ -15,7 +15,7 @@ import ResetPassword from "./pages/ResetPassword";
 import LoadingComponent from "./components/LoadingComponent";
 import Members from "./pages/Members";
 import Banner from "./pages/Banner";
-import Podcasts from "./pages/Podcasts";
+import PodcastPage from "./pages/PodcastPage";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -36,7 +36,7 @@ function AppRoutes() {
       <Route path="/coupons" element={user && user?.acl.includes("coupons") ? <Coupons /> : <Navigate to="/" />} />
       <Route path="/packages" element={user && user?.acl.includes("packages") ? <Packages /> : <Navigate to="/" />} />
       <Route path="/banner" element={user && user?.acl.includes("banners") ? <Banner /> : <Navigate to="/" />} />
-      <Route path="/podcasts" element={user && user?.acl.includes("podcasts") ? <Podcasts /> : <Navigate to="/" />} />
+      <Route path="/podcasts" element={user && user?.acl.includes("podcasts") ? <PodcastPage /> : <Navigate to="/" />} />
       <Route path="/settings" element={user ? <ResetPassword /> : <Navigate to="/" />} />
     </Routes>
   );
@@ -45,7 +45,7 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/summerfest/thaalam-admin">
+      <BrowserRouter basename="/A8J3K9Z5QW">
         <AppRoutes />
         <ToastContainer position="top-right" autoClose={3000} />
       </BrowserRouter>

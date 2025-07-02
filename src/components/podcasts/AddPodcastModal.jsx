@@ -24,6 +24,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
     "Sumi Krishnan",
     "Mithu Thillai",
     "Thusika",
+    "Deva",
   ];
 
   function initialFormState() {
@@ -129,7 +130,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
     if (!form.title) newErrors.title = "Podcast title is required.";
     if (!form.rjname) newErrors.rjname = "RJ Name is required.";
     if (!form.date) newErrors.date = "Date is required.";
-    if (!editPodcastData && !form.image) newErrors.image = "Image is required.";
+    // if (!editPodcastData && !form.image) newErrors.image = "Image is required.";
     if (!editPodcastData && !form.audio)
       newErrors.audio = "Audio file is required.";
     setErrors(newErrors);
