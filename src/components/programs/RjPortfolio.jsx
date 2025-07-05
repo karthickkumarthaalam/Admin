@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import BreadCrumb from "../components/BreadCrum";
 import {
   BadgePlus,
   Search,
@@ -8,70 +7,73 @@ import {
   Trash2,
   ScanEye,
 } from "lucide-react";
-import { apiCall } from "../utils/apiCall";
+import { apiCall } from "../../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-import Sidebar from "../components/SideBar";
-import Header from "../components/Header";
-import AddPodcastModal from "../components/podcasts/AddPodcastModal";
-import ViewPodcastModal from "../components/podcasts/ViewPodcastModal";
+import BreadCrumb from "../../components/BreadCrum";
+import AddRjProfileModal from "./AddRjProfileModal";
+import ViewRjProfileModal from "./ViewRjProfileModal";
 
-const Podcasts = () => {
+const RjPortfolio = () => {
   const [showModal, setShowModal] = useState(false);
-  const [editPodcastId, setEditPodcastId] = useState(null);
-  const [selectedPodcast, setSelectedPodcast] = useState(null);
-  const [podcasts, setPodcasts] = useState([]);
+  const [editRjId, setEditRjId] = useState(null);
+  const [selectedRj, setSelectedRj] = useState(null);
+  const [rjs, setRjs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [languageFilter, setLanguageFilter] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const pageSize = 20;
 
-  const fetchPodcasts = async () => {
+  const fetchRjProfiles = async () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/podcasts?page=${currentPage}&search=${searchQuery}&language=${languageFilter}`,
+        `/rj-profile/list?page=${currentPage}&limit=20&search=${searchQuery}`,
         "GET"
       );
-      setPodcasts(response.data?.data);
-      setTotalRecords(response.data?.pagination.totalRecords);
+      setRjs(response.data);
+      setTotalRecords(response.pagination?.totalRecords);
     } catch (error) {
-      console.error("Error fetching podcasts:", error);
+      console.error("Error fetching RJ profiles:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchPodcasts();
-  }, [currentPage, searchQuery, languageFilter]);
+    fetchRjProfiles();
+  }, [currentPage, searchQuery]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
   }, 500);
 
+  const handleAddRj = () => {
+    setEditRjId(null);
+    setSelectedRj(null);
+    setShowModal(true);
+  };
+
   const handleEdit = (id) => {
-    const podcastToEdit = podcasts.find((item) => item.id === id);
-    setEditPodcastId(id);
-    setSelectedPodcast(podcastToEdit);
+    const rjToEdit = rjs.find((item) => item.id === id);
+    setEditRjId(id);
+    setSelectedRj(rjToEdit);
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this podcast?"))
+    if (!window.confirm("Are you sure you want to delete this RJ profile?"))
       return;
     setLoading(true);
     try {
-      await apiCall(`/podcasts/delete/${id}`, "DELETE");
-      fetchPodcasts();
-      setCurrentPage(1);
-      toast.success("Podcast deleted successfully");
+      await apiCall(`/rj-profile/delete/${id}`, "DELETE");
+      toast.success("RJ profile deleted successfully");
+      fetchRjProfiles();
     } catch (error) {
-      toast.error("Failed to delete podcast");
+      toast.error("Failed to delete RJ profile");
     } finally {
       setLoading(false);
     }
@@ -81,26 +83,20 @@ const Podcasts = () => {
     const newStatus = item.status === "active" ? "inactive" : "active";
     setLoading(true);
     try {
-      await apiCall(`/podcasts/status/${item.id}`, "PATCH", {
+      await apiCall(`/rj-profile/update-status/${item.id}`, "PATCH", {
         status: newStatus,
       });
-      fetchPodcasts();
+      fetchRjProfiles();
     } catch (error) {
-      console.error("Failed to update status:", error);
+      toast.error("Failed to update status");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddPodcast = () => {
-    setEditPodcastId(null);
-    setSelectedPodcast(null);
-    setShowModal(true);
-  };
-
-  const handleViewPodcast = (item) => {
+  const handleViewRj = (item) => {
+    setSelectedRj(item);
     setIsViewModalOpen(true);
-    setSelectedPodcast(item);
   };
 
   const totalPages = Math.ceil(totalRecords / pageSize);
@@ -109,37 +105,25 @@ const Podcasts = () => {
     <div className="flex h-screen overflow-hidden">
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
-          title={"Podcast Management"}
-          paths={["Podcasts", "Podcast Management"]}
+          title={"RJ Portfolio Management"}
+          paths={["RJs", "RJ Portfolio Management"]}
         />
 
         <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-          <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
+          <div className="flex justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
-              Podcast Report
+              RJ Portfolio Report
             </p>
             <button
-              onClick={handleAddPodcast}
+              onClick={handleAddRj}
               className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
             >
               <BadgePlus size={16} />
-              <span>Add Podcast</span>
+              <span>Add RJ</span>
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
-            <div className="w-48">
-              <select
-                onChange={(e) => setLanguageFilter(e.target.value)}
-                className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
-              >
-                <option value="">All Languages</option>
-                <option value="English">English</option>
-                <option value="Tamil">Tamil</option>
-                <option value="French">French</option>
-                <option value="German">German</option>
-              </select>
-            </div>
+          <div className="flex justify-end mt-4">
             <div className="relative w-64">
               <Search
                 size={16}
@@ -147,7 +131,7 @@ const Podcasts = () => {
               />
               <input
                 type="text"
-                placeholder="Search podcasts..."
+                placeholder="Search RJ..."
                 onChange={(e) => handleSearch(e.target.value)}
                 className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
               />
@@ -164,38 +148,40 @@ const Podcasts = () => {
                 <thead>
                   <tr className="bg-gray-100 text-left">
                     <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Title</th>
-                    <th className="py-2 px-4 border">Published By</th>
-                    <th className="py-2 px-4 border">Content Creater</th>
-                    <th className="py-2 px-4 border">Published Date</th>
-                    <th className="py-2 px-4 border">Audio Duration</th>
+                    <th className="py-2 px-4 border">Image</th>
+                    <th className="py-2 px-4 border">Name</th>
+                    <th className="py-2 px-4 border">Email</th>
                     <th className="py-2 px-4 border">Status</th>
                     <th className="py-2 px-4 border">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {podcasts.length === 0 ? (
+                  {rjs.length === 0 ? (
                     <tr>
                       <td
                         colSpan="6"
                         className="py-6 px-4 border text-center text-gray-500 text-sm"
                       >
-                        No podcasts found.
+                        No RJ profiles found.
                       </td>
                     </tr>
                   ) : (
-                    podcasts.map((item, index) => (
+                    rjs.map((item, index) => (
                       <tr key={item.id}>
                         <td className="py-2 px-4 border">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">{item.title}</td>
-                        <td className="py-2 px-4 border">{item.rjname}</td>
-                        <td className="py-2 px-4 border">{item.content}</td>
                         <td className="py-2 px-4 border">
-                          {new Date(item.date).toLocaleDateString()}
+                          <img
+                            src={`${
+                              process.env.REACT_APP_API_BASE_URL
+                            }/${item.image_url.replace(/\\/g, "/")}`}
+                            alt={item.name}
+                            className="w-20 h-20 object-cover border"
+                          />
                         </td>
-                        <td className="py-2 px-4 border">{item.duration}</td>
+                        <td className="py-2 px-4 border">{item.name}</td>
+                        <td className="py-2 px-4 border">{item.email}</td>
                         <td className="py-2 px-4 border">
                           <span
                             onClick={() => handleStatusToggle(item)}
@@ -211,7 +197,7 @@ const Podcasts = () => {
                         <td className="py-2 px-4 border">
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleViewPodcast(item)}
+                              onClick={() => handleViewRj(item)}
                               className="text-green-600 hover:text-green-800"
                               title="View"
                             >
@@ -267,25 +253,25 @@ const Podcasts = () => {
         </div>
 
         {/* Modals */}
-        <AddPodcastModal
+        <AddRjProfileModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          editPodcastId={editPodcastId}
-          editPodcastData={selectedPodcast}
+          editRjId={editRjId}
+          editRjData={selectedRj}
           onSuccess={() => {
-            fetchPodcasts();
+            fetchRjProfiles();
             setShowModal(false);
           }}
         />
 
-        <ViewPodcastModal
+        <ViewRjProfileModal
           isOpen={isViewModalOpen}
           onClose={() => setIsViewModalOpen(false)}
-          podcastData={selectedPodcast}
+          rjData={selectedRj}
         />
       </div>
     </div>
   );
 };
 
-export default Podcasts;
+export default RjPortfolio;

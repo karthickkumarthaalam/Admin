@@ -1,24 +1,23 @@
 import React, { useState } from "react";
 import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
+import Banner from "./Banner";
 import CopyrightFooter from "../components/CopyRightsComponent";
-import Podcasts from "./Podcasts";
-import PodcastComments from "../components/podcasts/PodcastComments";
-import PodcastReactionStats from "../components/podcasts/PodcastReactions";
+import PopupBanner from "../components/Banner/PopupBanner";
 
-const PodcastPage = () => {
-  const [activeTab, setActiveTab] = useState("podcast");
+const BannerPage = () => {
+  const [activeTab, setActiveTab] = useState("banner");
 
   const tabs = [
-    { id: "podcast", label: "Podcasts" },
-    { id: "comment", label: "Comments" },
-    { id: "reaction", label: "Reactions" },
+    { id: "banner", label: "Banner" },
+    { id: "popup", label: "Popup Banner" },
   ];
 
   return (
     <div className="flex h-screen flex-col">
       <div className="flex flex-1">
         <Sidebar />
+
         <div className="flex flex-col flex-1 overflow-hidden">
           <Header />
 
@@ -44,9 +43,8 @@ const PodcastPage = () => {
             </div>
 
             <div className="flex-1 p-3 overflow-y-auto bg-gray-50">
-              {activeTab === "podcast" && <Podcasts />}
-              {activeTab === "comment" && <PodcastComments />}
-              {activeTab === "reaction" && <PodcastReactionStats />}
+              {activeTab === "banner" && <Banner />}
+              {activeTab === "popup" && <PopupBanner />}
             </div>
           </div>
 
@@ -57,4 +55,4 @@ const PodcastPage = () => {
   );
 };
 
-export default PodcastPage;
+export default BannerPage;

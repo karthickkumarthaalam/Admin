@@ -1,27 +1,21 @@
 import React, { useState } from "react";
-import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
+import RjPortfolio from "../components/programs/RjPortfolio";
+import Sidebar from "../components/SideBar";
 import CopyrightFooter from "../components/CopyRightsComponent";
-import Podcasts from "./Podcasts";
-import PodcastComments from "../components/podcasts/PodcastComments";
-import PodcastReactionStats from "../components/podcasts/PodcastReactions";
 
-const PodcastPage = () => {
-  const [activeTab, setActiveTab] = useState("podcast");
+const ProgramsPage = () => {
+  const [activeTab, setActiveTab] = useState("rj-profile");
 
-  const tabs = [
-    { id: "podcast", label: "Podcasts" },
-    { id: "comment", label: "Comments" },
-    { id: "reaction", label: "Reactions" },
-  ];
+  const tabs = [{ id: "rj-profile", label: "Rj Portfolio" }];
 
   return (
     <div className="flex h-screen flex-col">
       <div className="flex flex-1">
         <Sidebar />
+
         <div className="flex flex-col flex-1 overflow-hidden">
           <Header />
-
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
               <div className="flex flex-1 gap-2">
@@ -44,9 +38,7 @@ const PodcastPage = () => {
             </div>
 
             <div className="flex-1 p-3 overflow-y-auto bg-gray-50">
-              {activeTab === "podcast" && <Podcasts />}
-              {activeTab === "comment" && <PodcastComments />}
-              {activeTab === "reaction" && <PodcastReactionStats />}
+              {activeTab === "rj-profile" && <RjPortfolio />}
             </div>
           </div>
 
@@ -57,4 +49,4 @@ const PodcastPage = () => {
   );
 };
 
-export default PodcastPage;
+export default ProgramsPage;

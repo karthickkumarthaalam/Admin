@@ -7,6 +7,7 @@ import {
   Users,
   Ticket,
   BadgeDollarSign,
+  Activity,
   X,
   Settings,
   UserCheck,
@@ -31,6 +32,12 @@ const Sidebar = () => {
       icon: Image,
       path: "/banner",
       permission: "banners",
+    },
+    {
+      label: "Programs",
+      icon: Activity,
+      path: "/programs",
+      permission: "programs",
     },
     {
       label: "Podcasts",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import BreadCrumb from "../BreadCrum";
-import { Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { apiCall } from "../../utils/apiCall";
 import { toast } from "react-toastify";
 
@@ -31,15 +31,32 @@ const PodcastComments = () => {
     fetchComments();
   }, [currentPage]);
 
-  const handleStatusChange = async (commentId, newStatus) => {
+  const handleStatusChange = async (comment) => {
+    const newStatus = comment.status === "pending" ? "approved" : "pending";
     try {
-      await apiCall(`/podcasts/comments/${commentId}/status`, "PATCH", {
+      await apiCall(`/podcasts/comments/${comment.id}/status`, "PATCH", {
         status: newStatus,
       });
-      toast.success(`Comment ${newStatus} successfully`);
+      toast.success(`Comment status changed successfully`);
       fetchComments();
     } catch (error) {
       toast.error("Failed to update comment status");
+    }
+  };
+
+  const handleDelete = async (commentId) => {
+    if (!window.confirm("Are you sure you want to delete this comment ?")) {
+      return;
+    }
+    setLoading(true);
+    try {
+      await apiCall(`/podcasts/${commentId}/comments`, "DELETE");
+      fetchComments();
+      toast.success("Comment Deleted Successfully");
+    } catch (error) {
+      toast.error("Failed to delete comment");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,7 +70,7 @@ const PodcastComments = () => {
           paths={["Podcasts", "Comment Moderation"]}
         />
 
-        <div className="mt-4 rounded-sm shadow-md md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+        <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           <p className="text-sm sm:text-lg font-semibold text-gray-800 mb-3 border-b border-dashed border-gray-300 pb-2">
             Podcast Comments
           </p>
@@ -72,7 +89,8 @@ const PodcastComments = () => {
                     <th className="py-2 px-4 border">Member</th>
                     <th className="py-2 px-4 border w-[600px]">Comment</th>
                     <th className="py-2 px-4 border">Posted On</th>
-                    <th className="py-2 px-4 border">Status / Action</th>
+                    <th className="py-2 px-4 border">Status</th>
+                    <th className="py-2 px-4 border">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -104,38 +122,27 @@ const PodcastComments = () => {
                           {new Date(item.created_at).toLocaleString()}
                         </td>
                         <td className="py-2 px-4 border">
-                          {item.status === "pending" ? (
-                            <div className="flex gap-2 flex-col">
-                              <button
-                                onClick={() =>
-                                  handleStatusChange(item.id, "approved")
-                                }
-                                className="text-green-600 hover:text-green-800 flex gap-2"
-                                title="Approve"
-                              >
-                                <CheckCircle size={18} /> Approve
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleStatusChange(item.id, "rejected")
-                                }
-                                className="text-red-600 hover:text-red-800 flex gap-2"
-                                title="Reject"
-                              >
-                                <XCircle size={18} /> Reject
-                              </button>
-                            </div>
-                          ) : (
-                            <span
-                              className={`px-2 py-1 text-xs rounded font-semibold ${
-                                item.status === "approved"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
+                          <span
+                            onClick={() => handleStatusChange(item)}
+                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                              item.status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </td>
+                        <td className="py-2 px-4 border">
+                          <div className="flex items-center">
+                            <button
+                              className="text-red-600 hover:text-red-700 cursor-pointer"
+                              onClick={() => handleDelete(item.id)}
+                              title="Delete"
                             >
-                              {item.status}
-                            </span>
-                          )}
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))

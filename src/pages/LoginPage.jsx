@@ -32,7 +32,7 @@ const LoginPage = () => {
 
     try {
       let data = await apiCall("/auth/login", "POST", form);
-      localStorage.setItem(
+      sessionStorage.setItem(
         "user",
         JSON.stringify({ ...data.user, loginTime: new Date().getTime() })
       );

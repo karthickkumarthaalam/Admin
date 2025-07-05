@@ -7,19 +7,11 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
+        const storedUser = sessionStorage.getItem("user");
 
         if (storedUser) {
             const parsedUser = JSON.parse(storedUser);
-            const loginTime = parsedUser.loginTime;
-            const currentTime = new Date().getTime();
-
-            if (currentTime - loginTime > 60 * 60 * 1000) {
-                logout();
-            } else {
-                setuser(parsedUser);
-            }
-
+            setuser(parsedUser);
         }
         setLoading(false);
 
@@ -27,7 +19,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         setuser(null);
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
     };
 
     return <AuthContext.Provider value={{ user, setuser, logout, loading, setLoading }}>
