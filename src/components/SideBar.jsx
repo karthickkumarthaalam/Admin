@@ -83,12 +83,12 @@ const Sidebar = () => {
       </button>
 
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white text-gray-700 flex flex-col z-50 transition-all duration-300 ease-in-out shadow-lg
+        className={`fixed top-0 left-0 h-full w-64 md:w-24  bg-white text-gray-700 flex flex-col z-50 transition-all duration-300 ease-in-out shadow-lg
           ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           } md:translate-x-0 md:relative md:shadow-non`}
       >
-        <div className="p-4 border-b border-gray-400 flex items-center justify-center">
+        <div className="p-2 border-b border-gray-400 flex items-center justify-center">
           <img
             src="https://thaalam.ch/newfile/subscription/assets/img/thalam-logo.png"
             alt="thaalam logo"
@@ -96,7 +96,7 @@ const Sidebar = () => {
           />
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
+        <nav className="flex-1 px-2 space-y-2 mt-2">
           {menus.map(({ label, icon: Icon, path, permission }) => {
             if (
               permission &&
@@ -112,7 +112,7 @@ const Sidebar = () => {
                   setIsOpen(false);
                 }}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 rounded p-3 transition-all duration-300 ${
+                  `flex flex-row md:flex-col items-center gap-3 rounded p-4 md:px-3 md:py-1 transition-all duration-300 ${
                     isActive
                       ? "bg-red-500 text-white"
                       : "hover:bg-gray-100 hover:text-gray-700"
@@ -120,7 +120,7 @@ const Sidebar = () => {
                 }
               >
                 <Icon size={20} />
-                {label}
+                <span className="text-center text-md md:text-xs">{label}</span>
               </NavLink>
             );
           })}

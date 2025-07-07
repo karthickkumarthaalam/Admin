@@ -17,7 +17,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
   const RJ_NAMES = [
     "Dharshan Rajakobal",
     "TKR Thiyagu",
-    "Selvamari",
+    "Selva",
     "Guru Parameshwar",
     "Kavi parthi",
     "Dhusika",

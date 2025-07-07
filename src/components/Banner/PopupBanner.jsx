@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Loader2, Edit2 } from "lucide-react";
+import { Loader2, Edit2, Trash2 } from "lucide-react";
 import { apiCall } from "../../utils/apiCall";
 import BreadCrumb from "../BreadCrum";
 import { toast } from "react-toastify";
@@ -33,11 +33,27 @@ const PopupBanner = () => {
     const newStatus = popupBanner.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
-      await apiCall(`/popup-banner/status`, "PATCH", { status: newStatus });
+      await apiCall(`/popup-banner`, "PATCH", { status: newStatus });
       fetchPopupBanner();
       toast.success(`Status updated to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!popupBanner) return;
+    if (!window.confirm("Are you sure you want to delete this Popup-Banner?"))
+      return;
+    setLoading(true);
+    try {
+      await apiCall(`/popup-banner/${id}`, "DELETE");
+      fetchPopupBanner();
+      toast.success("Popup Banner deleted succssfully");
+    } catch (error) {
+      toast.error("Failed to delete Popup Banner");
     } finally {
       setLoading(false);
     }
@@ -114,6 +130,16 @@ const PopupBanner = () => {
                 }`}
               >
                 {popupBanner.status}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 mt-4">
+              <p className="font-medium text-sm">Delete:</p>
+              <span
+                onClick={() => handleDelete(popupBanner.id)}
+                className="text-red-500 hover:text-red-600"
+              >
+                <Trash2 size={24} />
               </span>
             </div>
 
