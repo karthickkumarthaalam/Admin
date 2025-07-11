@@ -13,6 +13,7 @@ import {
   UserCheck,
   Image,
   Podcast,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -69,6 +70,12 @@ const Sidebar = () => {
       icon: BadgeDollarSign,
       path: "/packages",
       permission: "packages",
+    },
+    {
+      label: "Agreements",
+      icon: FileText,
+      path: "/agreements",
+      permission: "agreements",
     },
     { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];

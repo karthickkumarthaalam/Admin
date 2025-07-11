@@ -34,7 +34,7 @@ const Podcasts = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/podcasts?page=${currentPage}&search=${searchQuery}&language=${languageFilter}`,
+        `/podcasts?page=${currentPage}&search=${searchQuery}&language=${languageFilter}&limit=${pageSize}`,
         "GET"
       );
       setPodcasts(response.data?.data);

@@ -11,12 +11,13 @@ import Coupons from "./pages/Coupons";
 import Packages from "./pages/Packages";
 import ForgotPassword from "./pages/ForgotPassword";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import ResetPassword from "./pages/ResetPassword";
 import LoadingComponent from "./components/LoadingComponent";
 import Members from "./pages/Members";
 import PodcastPage from "./pages/PodcastPage";
 import BannerPage from "./pages/BannerPage";
 import ProgramsPage from "./pages/ProgramsPage";
+import AgreementPage from "./pages/AgreementPage";
+import SettingsPage from "./pages/SettingsPage";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -38,8 +39,9 @@ function AppRoutes() {
       <Route path="/packages" element={user && user?.acl.includes("packages") ? <Packages /> : <Navigate to="/" />} />
       <Route path="/banner" element={user && user?.acl.includes("banners") ? <BannerPage /> : <Navigate to="/" />} />
       <Route path="/podcasts" element={user && user?.acl.includes("podcasts") ? <PodcastPage /> : <Navigate to="/" />} />
+      <Route path="/agreements" element={user && user?.acl.includes("agreements") ? <AgreementPage /> : <Navigate to="/" />} />
       <Route path="/programs" element={user && user?.acl.includes("programs") ? <ProgramsPage /> : <Navigate to="/" />} />
-      <Route path="/settings" element={user ? <ResetPassword /> : <Navigate to="/" />} />
+      <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
     </Routes>
   );
 }

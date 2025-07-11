@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiCall } from "../utils/apiCall";
+import { toast } from "react-toastify";
 
 const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
   const [currencies, setCurrencies] = useState([]);
@@ -16,7 +17,7 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
       const res = await apiCall("/currency", "GET");
       setCurrencies(res.data);
     } catch (error) {
-      console.log("Failed to fetch currencies");
+      toast.error("Failed to fetch currencies");
     }
   };
 
