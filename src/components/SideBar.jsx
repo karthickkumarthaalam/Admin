@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   Menu,
   LayoutDashboard,
+  BriefcaseBusiness,
   CreditCard,
   Users,
   Ticket,
@@ -27,6 +28,12 @@ const Sidebar = () => {
       icon: LayoutDashboard,
       path: "/dashboard",
       permission: null,
+    },
+    {
+      label: "Users",
+      icon: BriefcaseBusiness,
+      path: "/users",
+      permission: "users",
     },
     {
       label: "Banner",

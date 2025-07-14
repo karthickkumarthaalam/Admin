@@ -18,6 +18,7 @@ import BannerPage from "./pages/BannerPage";
 import ProgramsPage from "./pages/ProgramsPage";
 import AgreementPage from "./pages/AgreementPage";
 import SettingsPage from "./pages/SettingsPage";
+import UsersPage from "./pages/UsersPage";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -32,6 +33,7 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
+      <Route path="/users" element={user && user?.acl.includes("users") ? <UsersPage /> : <Navigate to="/" />} />
       <Route path="/transactions" element={user && user?.acl.includes("transactions") ? <Transactions /> : <Navigate to="/" />} />
       <Route path="/subscribers" element={user && user?.acl.includes("subscribers") ? <Subscribers /> : <Navigate to="/" />} />
       <Route path="/members" element={user && user?.acl.includes("members") ? <Members /> : <Navigate to="/" />} />

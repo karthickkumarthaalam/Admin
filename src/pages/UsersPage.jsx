@@ -1,23 +1,22 @@
-import React, { useState } from "react";
-import Sidebar from "../components/SideBar";
+import { useState } from "react";
 import Header from "../components/Header";
-import Banner from "./Banner";
+import Sidebar from "../components/SideBar";
 import CopyrightFooter from "../components/CopyRightsComponent";
-import PopupBanner from "../components/Banner/PopupBanner";
+import Department from "../components/Users/department/Department";
+import SystemUsers from "../components/Users/users/SystemUsers";
 
-const BannerPage = () => {
-  const [activeTab, setActiveTab] = useState("banner");
+const UsersPage = () => {
+  const [activeTab, setActiveTab] = useState("user");
 
   const tabs = [
-    { id: "banner", label: "Banner" },
-    { id: "popup", label: "Popup Banner" },
+    { id: "user", label: "Users" },
+    { id: "department", label: "Dapartment" },
   ];
 
   return (
-    <div className="flex h-screen flex-col">
+    <div class="flex h-screen flex-col">
       <div className="flex flex-1">
         <Sidebar />
-
         <div className="flex flex-col flex-1 overflow-hidden">
           <Header />
 
@@ -41,13 +40,11 @@ const BannerPage = () => {
                 })}
               </div>
             </div>
-
             <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
-              {activeTab === "banner" && <Banner />}
-              {activeTab === "popup" && <PopupBanner />}
+              {activeTab === "user" && <SystemUsers />}
+              {activeTab === "department" && <Department />}
             </div>
           </div>
-
           <CopyrightFooter />
         </div>
       </div>
@@ -55,4 +52,4 @@ const BannerPage = () => {
   );
 };
 
-export default BannerPage;
+export default UsersPage;

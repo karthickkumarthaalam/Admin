@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
-import { apiCall } from "../../utils/apiCall";
+import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
+const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
   const [form, setForm] = useState(initialFormState());
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   function initialFormState() {
     return {
       name: "",
       email: "",
       gender: "",
+      department_id: "",
       date_of_birth: "",
       phone_number: "",
       whatsapp_number: "",
@@ -27,9 +30,19 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
 
   useEffect(() => {
     if (isOpen) {
-      editRjData ? populateForm(editRjData) : resetForm();
+      fetchDepartments();
+      editUserData ? populateForm(editUserData) : resetForm();
     }
-  }, [isOpen, editRjData]);
+  }, [isOpen, editUserData]);
+
+  const fetchDepartments = async () => {
+    try {
+      const res = await apiCall("/departments?limit=50&status=active", "GET");
+      setDepartments(res.data);
+    } catch (err) {
+      toast.error("Failed to fetch departments.");
+    }
+  };
 
   const resetForm = () => {
     setForm(initialFormState());
@@ -42,6 +55,7 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
       name: data.name || "",
       email: data.email || "",
       gender: data.gender || "",
+      department_id: data.department_id || "",
       date_of_birth: data.date_of_birth ? data.date_of_birth.split("T")[0] : "",
       phone_number: data.phone_number || "",
       whatsapp_number: data.whatsapp_number || "",
@@ -82,6 +96,7 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
+    setLoading(true);
     try {
       const payload = new FormData();
       for (const key in form) {
@@ -92,18 +107,24 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
         }
       }
 
-      if (editRjData) {
-        await apiCall(`/rj-profile/update/${editRjData.id}`, "PATCH", payload);
-        toast.success("RJ profile updated successfully!");
+      if (editUserData) {
+        await apiCall(
+          `/system-user/update/${editUserData.id}`,
+          "PATCH",
+          payload
+        );
+        toast.success("System user updated successfully!");
       } else {
-        await apiCall("/rj-profile/create", "POST", payload);
-        toast.success("RJ profile created successfully!");
+        await apiCall("/system-user/create", "POST", payload);
+        toast.success("System user created successfully!");
       }
 
       onSuccess();
       onClose();
     } catch (error) {
-      toast.error("Failed to save RJ profile.");
+      toast.error("Failed to save system user.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -120,8 +141,9 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
         </button>
 
         <h2 className="text-xl font-semibold mb-4 text-red-600">
-          {editRjData ? "Edit RJ Profile" : "Add RJ Profile"}
+          {editUserData ? "Edit System User" : "Add System User"}
         </h2>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           {renderTextInput(
             "Name",
@@ -145,15 +167,22 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
             "Female",
             "Other",
           ])}
+          {renderSelectInput(
+            "Department",
+            "department_id",
+            form.department_id,
+            handleChange,
+            departments.map((d) => ({ label: d.department_name, value: d.id }))
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           {renderDateInput(
             "Date of Birth",
             "date_of_birth",
             form.date_of_birth,
             handleChange
           )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           {renderTextInput(
             "Phone Number",
             "phone_number",
@@ -175,7 +204,6 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
           form.description,
           handleChange
         )}
-
         {renderFileInput(
           "Profile Image",
           "image",
@@ -220,7 +248,13 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
             onClick={handleSubmit}
             className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600"
           >
-            {editRjData ? "Update" : "Save"}
+            {editUserData
+              ? loading
+                ? "Updating..."
+                : "Update"
+              : loading
+              ? "Saving..."
+              : "Save"}
           </button>
         </div>
       </div>
@@ -269,11 +303,17 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
           className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
         >
           <option value="">Select {label}</option>
-          {options.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt}
-            </option>
-          ))}
+          {options.map((opt) =>
+            typeof opt === "string" ? (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ) : (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            )
+          )}
         </select>
       </div>
     );
@@ -311,4 +351,4 @@ const AddRjProfileModal = ({ isOpen, onClose, editRjData, onSuccess }) => {
   }
 };
 
-export default AddRjProfileModal;
+export default AddSystemUserModal;

@@ -7,86 +7,87 @@ import {
   Trash2,
   ScanEye,
 } from "lucide-react";
-import { apiCall } from "../../utils/apiCall";
+import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-import BreadCrumb from "../../components/BreadCrum";
-import AddRjProfileModal from "./AddRjProfileModal";
-import ViewRjProfileModal from "./ViewRjProfileModal";
+import BreadCrumb from "../../../components/BreadCrum";
+import AddRadioProgramModal from "./AddRadioProgramModal";
+import ViewRadioProgramModal from "./ViewRadioProgramModal";
 
-const RjPortfolio = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [editRjId, setEditRjId] = useState(null);
-  const [selectedRj, setSelectedRj] = useState(null);
-  const [rjs, setRjs] = useState([]);
+const RadioPrograms = () => {
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [editProgramId, setEditProgramId] = useState(null);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [programId, setProgramId] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const pageSize = 20;
 
-  const fetchRjProfiles = async () => {
+  const fetchPrograms = async () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/rj-profile/list?page=${currentPage}&limit=20&search=${searchQuery}`,
+        `/radio-program?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`,
         "GET"
       );
-      setRjs(response.data);
+      setPrograms(response.data);
       setTotalRecords(response.pagination?.totalRecords);
     } catch (error) {
-      console.error("Error fetching RJ profiles:", error);
+      toast.error("Failed to fetch Radio Programs");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchRjProfiles();
+    fetchPrograms();
   }, [currentPage, searchQuery]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
   }, 500);
 
-  const handleAddRj = () => {
-    setEditRjId(null);
-    setSelectedRj(null);
+  const handleAddProgram = () => {
+    setEditProgramId(null);
+    setSelectedProgram(null);
     setShowModal(true);
   };
 
   const handleEdit = (id) => {
-    const rjToEdit = rjs.find((item) => item.id === id);
-    setEditRjId(id);
-    setSelectedRj(rjToEdit);
+    const programToEdit = programs.find((item) => item.id === id);
+    setEditProgramId(id);
+    setSelectedProgram(programToEdit);
     setShowModal(true);
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this RJ profile?"))
+    if (!window.confirm("Are you sure you want to delete this program?"))
       return;
     setLoading(true);
     try {
-      await apiCall(`/rj-profile/delete/${id}`, "DELETE");
-      toast.success("RJ profile deleted successfully");
-      fetchRjProfiles();
+      await apiCall(`/radio-program/${id}`, "DELETE");
+      toast.success("Program deleted successfully");
+      fetchPrograms();
     } catch (error) {
-      toast.error("Failed to delete RJ profile");
+      toast.error("Failed to delete program");
     } finally {
       setLoading(false);
     }
   };
 
   const handleStatusToggle = async (item) => {
-    const newStatus = item.status === "active" ? "inactive" : "active";
+    const newStatus = item.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
-      await apiCall(`/rj-profile/update-status/${item.id}`, "PATCH", {
+      await apiCall(`/radio-program/${item.id}/status`, "PATCH", {
         status: newStatus,
       });
-      fetchRjProfiles();
+      fetchPrograms();
     } catch (error) {
       toast.error("Failed to update status");
     } finally {
@@ -94,8 +95,8 @@ const RjPortfolio = () => {
     }
   };
 
-  const handleViewRj = (item) => {
-    setSelectedRj(item);
+  const handleViewProgram = (item) => {
+    setProgramId(item.id);
     setIsViewModalOpen(true);
   };
 
@@ -105,21 +106,21 @@ const RjPortfolio = () => {
     <div className="flex h-screen overflow-hidden">
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
-          title={"RJ Portfolio Management"}
-          paths={["RJs", "RJ Portfolio Management"]}
+          title={"Radio Programs Management"}
+          paths={["Programs", "Radio Programs Management"]}
         />
 
         <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           <div className="flex justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
-              RJ Portfolio Report
+              Radio Programs
             </p>
             <button
-              onClick={handleAddRj}
+              onClick={handleAddProgram}
               className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
             >
               <BadgePlus size={16} />
-              <span>Add RJ</span>
+              <span>Add Program</span>
             </button>
           </div>
 
@@ -131,7 +132,7 @@ const RjPortfolio = () => {
               />
               <input
                 type="text"
-                placeholder="Search RJ..."
+                placeholder="Search Programs..."
                 onChange={(e) => handleSearch(e.target.value)}
                 className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
               />
@@ -148,40 +149,46 @@ const RjPortfolio = () => {
                 <thead>
                   <tr className="bg-gray-100 text-left">
                     <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Image</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
+                    <th className="py-2 px-4 border">Program Category</th>
+                    <th className="py-2 px-4 border">Station Name</th>
+                    <th className="py-2 px-4 border">Start Time</th>
+                    <th className="py-2 px-4 border">End Time</th>
+                    <th className="py-2 px-4 border">Host</th>
                     <th className="py-2 px-4 border">Status</th>
                     <th className="py-2 px-4 border">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rjs.length === 0 ? (
+                  {programs.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="8"
                         className="py-6 px-4 border text-center text-gray-500 text-sm"
                       >
-                        No RJ profiles found.
+                        No programs found.
                       </td>
                     </tr>
                   ) : (
-                    rjs.map((item, index) => (
+                    programs.map((item, index) => (
                       <tr key={item.id}>
                         <td className="py-2 px-4 border">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-2 px-4 border">
-                          <img
-                            src={`${
-                              process.env.REACT_APP_API_BASE_URL
-                            }/${item.image_url.replace(/\\/g, "/")}`}
-                            alt={item.name}
-                            className="w-20 h-20 object-cover border"
-                          />
+                          {item.program_category?.category}
                         </td>
-                        <td className="py-2 px-4 border">{item.name}</td>
-                        <td className="py-2 px-4 border">{item.email}</td>
+                        <td className="py-2 px-4 border">
+                          {item.radio_station?.station_name}
+                        </td>
+                        <td className="py-2 px-4 border">
+                          {item.program_category?.start_time}
+                        </td>
+                        <td className="py-2 px-4 border">
+                          {item.program_category?.end_time}
+                        </td>
+                        <td className="py-2 px-4 border">
+                          {item.system_users?.name}
+                        </td>
                         <td className="py-2 px-4 border">
                           <span
                             onClick={() => handleStatusToggle(item)}
@@ -197,7 +204,7 @@ const RjPortfolio = () => {
                         <td className="py-2 px-4 border">
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => handleViewRj(item)}
+                              onClick={() => handleViewProgram(item)}
                               className="text-green-600 hover:text-green-800"
                               title="View"
                             >
@@ -252,26 +259,25 @@ const RjPortfolio = () => {
           )}
         </div>
 
-        {/* Modals */}
-        <AddRjProfileModal
+        <AddRadioProgramModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          editRjId={editRjId}
-          editRjData={selectedRj}
+          editProgramId={editProgramId}
+          editProgramData={selectedProgram}
           onSuccess={() => {
-            fetchRjProfiles();
+            fetchPrograms();
             setShowModal(false);
           }}
         />
 
-        <ViewRjProfileModal
+        <ViewRadioProgramModal
           isOpen={isViewModalOpen}
           onClose={() => setIsViewModalOpen(false)}
-          rjData={selectedRj}
+          programId={programId}
         />
       </div>
     </div>
   );
 };
 
-export default RjPortfolio;
+export default RadioPrograms;

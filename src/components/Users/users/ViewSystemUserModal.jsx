@@ -9,12 +9,13 @@ import {
   Info,
   Smartphone,
   UserCircle,
+  Briefcase,
 } from "lucide-react";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
-  if (!isOpen || !rjData) return null;
+const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
+  if (!isOpen || !userData) return null;
 
   const {
     name,
@@ -27,7 +28,8 @@ const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
     description,
     image_url,
     status,
-  } = rjData;
+    department,
+  } = userData;
 
   const imageSrc = image_url
     ? `${BASE_URL}/${image_url.replace(/\\/g, "/")}`
@@ -39,7 +41,7 @@ const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
         {/* Header */}
         <div className="flex justify-between items-center border-b px-6 py-4 bg-gray-50">
           <h2 className="text-lg font-semibold text-gray-800">
-            🎙️ RJ Profile Details
+            👤 System User Details
           </h2>
           <button
             onClick={onClose}
@@ -55,7 +57,7 @@ const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
           <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
             <img
               src={imageSrc}
-              alt="RJ Profile"
+              alt="User Profile"
               className="w-40 h-40 rounded-lg object-cover border"
             />
             <div className="space-y-2 text-sm flex-1">
@@ -92,6 +94,11 @@ const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
                 {address || "N/A"}
               </p>
               <p className="flex items-center gap-2 text-gray-700">
+                <Briefcase size={18} className="text-red-500" />
+                <strong className="text-gray-600">Department:</strong>{" "}
+                {department?.department_name || "N/A"}
+              </p>
+              <p className="flex items-center gap-2 text-gray-700">
                 <UserCircle size={18} className="text-red-500" />
                 <strong className="text-gray-600">Status:</strong> {status}
               </p>
@@ -124,4 +131,4 @@ const ViewRjProfileModal = ({ isOpen, onClose, rjData }) => {
   );
 };
 
-export default ViewRjProfileModal;
+export default ViewSystemUserModal;
