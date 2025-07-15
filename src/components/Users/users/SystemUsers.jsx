@@ -80,6 +80,12 @@ const SystemUsers = () => {
   };
 
   const handleStatusToggle = async (item) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to Change Status of this system user?"
+      )
+    )
+      return;
     const newStatus = item.status === "active" ? "inactive" : "active";
     setLoading(true);
     try {

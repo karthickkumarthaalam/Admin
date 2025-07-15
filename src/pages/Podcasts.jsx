@@ -15,6 +15,7 @@ import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
 import AddPodcastModal from "../components/podcasts/AddPodcastModal";
 import ViewPodcastModal from "../components/podcasts/ViewPodcastModal";
+import { usePermission } from "../context/PermissionContext";
 
 const Podcasts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -27,6 +28,8 @@ const Podcasts = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [languageFilter, setLanguageFilter] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const { hasPermission } = usePermission();
 
   const pageSize = 20;
 
@@ -78,6 +81,12 @@ const Podcasts = () => {
   };
 
   const handleStatusToggle = async (item) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this podcast?"
+      )
+    )
+      return;
     const newStatus = item.status === "active" ? "inactive" : "active";
     setLoading(true);
     try {
@@ -118,13 +127,15 @@ const Podcasts = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Podcast Report
             </p>
-            <button
-              onClick={handleAddPodcast}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Podcast</span>
-            </button>
+            {hasPermission("Podcast", "create") && (
+              <button
+                onClick={handleAddPodcast}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Podcast</span>
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
@@ -217,20 +228,24 @@ const Podcasts = () => {
                             >
                               <ScanEye size={16} />
                             </button>
-                            <button
-                              onClick={() => handleEdit(item.id)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Podcast", "update") && (
+                              <button
+                                onClick={() => handleEdit(item.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Podcast", "delete") && (
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

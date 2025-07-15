@@ -78,7 +78,12 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex h-screen justify-center items-center bg-gray-100">
+    <div
+      className="flex h-screen justify-center items-center bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/A8J3K9Z5QW/background_image.jpg')",
+      }}
+    >
       <form
         onSubmit={isOtpSent ? handlePasswordReset : handleEmailSubmit}
         className="bg-white p-12 rounded-lg shadow-lg w-[450px] space-y-6"

@@ -5,6 +5,7 @@ import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
 import AddBannerModal from "../components/AddBannerModal";
+import { usePermission } from "../context/PermissionContext";
 
 const Banner = () => {
   const [banners, setBanners] = useState([]);
@@ -15,6 +16,8 @@ const Banner = () => {
   const [languageFilter, setLanguageFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedBanner, setSelectedBanner] = useState(null);
+
+  const { hasPermission } = usePermission();
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -50,6 +53,12 @@ const Banner = () => {
   };
 
   const handleStatusToggle = async (banner) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this banner?"
+      )
+    )
+      return;
     const newStatus = banner.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
@@ -87,13 +96,15 @@ const Banner = () => {
           <p className="text-sm sm:text-lg font-semibold text-gray-800">
             Banner List
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-          >
-            <BadgePlus size={16} />
-            <span>Add Banner</span>
-          </button>
+          {hasPermission("Banner", "create") && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+            >
+              <BadgePlus size={16} />
+              <span>Add Banner</span>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
@@ -185,37 +196,45 @@ const Banner = () => {
                           )}
                         </td>
                         <td className="py-2 px-4 border align-top">
-                          <span
-                            onClick={() => handleStatusToggle(banner)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                              banner.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
-                            }`}
-                          >
-                            {banner.status}
-                          </span>
+                          {hasPermission("Banner", "update") ? (
+                            <span
+                              onClick={() => handleStatusToggle(banner)}
+                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                                banner.status === "active"
+                                  ? "bg-green-500 text-white"
+                                  : "bg-red-500 text-white"
+                              }`}
+                            >
+                              {banner.status}
+                            </span>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="py-2 px-4 border align-top">
                           <div className="flex items-center gap-2">
                             {/* Edit and Delete Actions */}
-                            <button
-                              onClick={() => {
-                                setSelectedBanner(banner);
-                                setShowModal(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(banner.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Banner", "update") && (
+                              <button
+                                onClick={() => {
+                                  setSelectedBanner(banner);
+                                  setShowModal(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Banner", "delete") && (
+                              <button
+                                onClick={() => handleDelete(banner.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

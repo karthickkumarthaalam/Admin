@@ -5,24 +5,34 @@ import CopyrightFooter from "../components/CopyRightsComponent";
 import RadioStation from "../components/programs/radio-station/RadioStation";
 import ProgramCategory from "../components/programs/program-category/ProgramCategory";
 import RadioPrograms from "../components/programs/radio-programs/RadioPrograms";
+import { usePermission } from "../context/PermissionContext";
 
 const ProgramsPage = () => {
   const [activeTab, setActiveTab] = useState("radio-station");
+
+  const { hasPermission } = usePermission();
 
   const tabs = [
     {
       id: "radio-station",
       label: "Radio Station",
+      permission: "Radio Station",
     },
     {
       id: "program-category",
       label: "Program Category",
+      permission: "Program Category",
     },
     {
       id: "radio-program",
       label: "Radio Programs",
+      permission: "Radio Programs",
     },
   ];
+
+  const visibleTabs = tabs.filter(({ permission }) => {
+    return hasPermission(permission, "read");
+  });
 
   return (
     <div className="flex h-screen flex-col">
@@ -34,7 +44,7 @@ const ProgramsPage = () => {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
               <div className="flex flex-1 gap-2">
-                {tabs.map((tab) => {
+                {visibleTabs.map((tab) => {
                   return (
                     <button
                       key={tab.id}

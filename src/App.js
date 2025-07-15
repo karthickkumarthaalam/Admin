@@ -19,11 +19,13 @@ import ProgramsPage from "./pages/ProgramsPage";
 import AgreementPage from "./pages/AgreementPage";
 import SettingsPage from "./pages/SettingsPage";
 import UsersPage from "./pages/UsersPage";
+import { PermissionProvider, usePermission } from "./context/PermissionContext";
 
 function AppRoutes() {
   const { user, loading } = useAuth();
+  const { hasPermission, permissionsLoaded } = usePermission();
 
-  if (loading) {
+  if (loading || (user && !permissionsLoaded)) {
     return <LoadingComponent />;
   }
 
@@ -33,16 +35,17 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" />} />
-      <Route path="/users" element={user && user?.acl.includes("users") ? <UsersPage /> : <Navigate to="/" />} />
-      <Route path="/transactions" element={user && user?.acl.includes("transactions") ? <Transactions /> : <Navigate to="/" />} />
-      <Route path="/subscribers" element={user && user?.acl.includes("subscribers") ? <Subscribers /> : <Navigate to="/" />} />
-      <Route path="/members" element={user && user?.acl.includes("members") ? <Members /> : <Navigate to="/" />} />
-      <Route path="/coupons" element={user && user?.acl.includes("coupons") ? <Coupons /> : <Navigate to="/" />} />
-      <Route path="/packages" element={user && user?.acl.includes("packages") ? <Packages /> : <Navigate to="/" />} />
-      <Route path="/banner" element={user && user?.acl.includes("banners") ? <BannerPage /> : <Navigate to="/" />} />
-      <Route path="/podcasts" element={user && user?.acl.includes("podcasts") ? <PodcastPage /> : <Navigate to="/" />} />
-      <Route path="/agreements" element={user && user?.acl.includes("agreements") ? <AgreementPage /> : <Navigate to="/" />} />
-      <Route path="/programs" element={user && user?.acl.includes("programs") ? <ProgramsPage /> : <Navigate to="/" />} />
+
+      <Route path="/users" element={hasPermission("User", "read") ? <UsersPage /> : <Navigate to="/" />} />
+      <Route path="/transactions" element={hasPermission("Transaction", "read") ? <Transactions /> : <Navigate to="/" />} />
+      <Route path="/subscribers" element={hasPermission("Subscriber", "read") ? <Subscribers /> : <Navigate to="/" />} />
+      <Route path="/members" element={hasPermission("Members", "read") ? <Members /> : <Navigate to="/" />} />
+      <Route path="/coupons" element={hasPermission("Coupon", "read") ? <Coupons /> : <Navigate to="/" />} />
+      <Route path="/packages" element={hasPermission("Package", "read") ? <Packages /> : <Navigate to="/" />} />
+      <Route path="/banner" element={hasPermission("Banner", "read") ? <BannerPage /> : <Navigate to="/" />} />
+      <Route path="/podcasts" element={hasPermission("Podcast", "read") ? <PodcastPage /> : <Navigate to="/" />} />
+      <Route path="/agreements" element={hasPermission("Agreements", "read") ? <AgreementPage /> : <Navigate to="/" />} />
+      <Route path="/programs" element={hasPermission("Radio Station", "read") ? <ProgramsPage /> : <Navigate to="/" />} />
       <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
     </Routes>
   );
@@ -51,10 +54,12 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter basename="/A8J3K9Z5QW">
-        <AppRoutes />
-        <ToastContainer position="top-right" autoClose={3000} />
-      </BrowserRouter>
+      <PermissionProvider>
+        <BrowserRouter basename="/A8J3K9Z5QW">
+          <ToastContainer position="top-right" autoClose={3000} />
+          <AppRoutes />
+        </BrowserRouter>
+      </PermissionProvider>
     </AuthProvider>
   );
 }

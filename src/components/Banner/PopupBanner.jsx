@@ -4,11 +4,14 @@ import { apiCall } from "../../utils/apiCall";
 import BreadCrumb from "../BreadCrum";
 import { toast } from "react-toastify";
 import AddPopupBannerModal from "./AddPopupBannerModal";
+import { usePermission } from "../../context/PermissionContext";
 
 const PopupBanner = () => {
   const [popupBanner, setPopupBanner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+
+  const { hasPermission } = usePermission();
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -29,6 +32,12 @@ const PopupBanner = () => {
   }, []);
 
   const handleStatusToggle = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this Popup Banner?"
+      )
+    )
+      return;
     if (!popupBanner) return;
     const newStatus = popupBanner.status === "active" ? "in-active" : "active";
     setLoading(true);
@@ -71,13 +80,15 @@ const PopupBanner = () => {
           <p className="text-sm sm:text-lg font-semibold text-gray-800">
             Popup Banner
           </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-          >
-            <Edit2 size={16} />
-            <span>{popupBanner ? "Edit Banner" : "Add Banner"}</span>
-          </button>
+          {hasPermission("Popup Banner", "create") && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+            >
+              <Edit2 size={16} />
+              <span>{popupBanner ? "Edit Banner" : "Add Banner"}</span>
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -121,26 +132,36 @@ const PopupBanner = () => {
 
             <div className="flex items-center gap-3 mt-4">
               <p className="font-medium text-sm">Status:</p>
-              <span
-                onClick={handleStatusToggle}
-                className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                  popupBanner.status === "active"
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
-                }`}
-              >
-                {popupBanner.status}
-              </span>
+              {hasPermission("Popup Banner", "update") ? (
+                <span
+                  onClick={handleStatusToggle}
+                  className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                    popupBanner.status === "active"
+                      ? "bg-green-500 text-white"
+                      : "bg-red-500 text-white"
+                  }`}
+                >
+                  {popupBanner.status}
+                </span>
+              ) : (
+                <span className="px-2 py-1 text-xs rounded font-semibold bg-gray-200 text-gray-600">
+                  {popupBanner.status}
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-3 mt-4">
               <p className="font-medium text-sm">Delete:</p>
-              <span
-                onClick={() => handleDelete(popupBanner.id)}
-                className="text-red-500 hover:text-red-600"
-              >
-                <Trash2 size={24} />
-              </span>
+              {hasPermission("Popup Banner", "delete") ? (
+                <span
+                  onClick={() => handleDelete(popupBanner.id)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <Trash2 size={24} />
+                </span>
+              ) : (
+                "-"
+              )}
             </div>
 
             <div className="flex gap-2 flex-wrap mt-4">

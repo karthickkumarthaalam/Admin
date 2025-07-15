@@ -5,15 +5,21 @@ import CopyrightFooter from "../components/CopyRightsComponent";
 import Podcasts from "./Podcasts";
 import PodcastComments from "../components/podcasts/PodcastComments";
 import PodcastReactionStats from "../components/podcasts/PodcastReactions";
+import { usePermission } from "../context/PermissionContext";
 
 const PodcastPage = () => {
   const [activeTab, setActiveTab] = useState("podcast");
+  const { hasPermission } = usePermission();
 
   const tabs = [
-    { id: "podcast", label: "Podcasts" },
-    { id: "comment", label: "Comments" },
-    { id: "reaction", label: "Reactions" },
+    { id: "podcast", label: "Podcasts", permission: "Podcast" },
+    { id: "comment", label: "Comments", permission: "Podcast Comment" },
+    { id: "reaction", label: "Reactions", permission: "Podcast Reactions" },
   ];
+
+  const visibleTabs = tabs.filter(({ permission }) => {
+    return hasPermission(permission, "read");
+  });
 
   return (
     <div className="flex h-screen flex-col">
@@ -25,7 +31,7 @@ const PodcastPage = () => {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
               <div className="flex flex-1 gap-2">
-                {tabs.map((tab) => {
+                {visibleTabs.map((tab) => {
                   return (
                     <button
                       key={tab.id}

@@ -36,8 +36,15 @@ const LoginPage = () => {
         "user",
         JSON.stringify({ ...data.user, loginTime: new Date().getTime() })
       );
-      navigate("/dashboard");
       setuser(data.user);
+
+      const cleanedPermissions = data.user.permissions.map((perm) => ({
+        ...perm,
+        access_type: perm.access_type[0].split(","),
+      }));
+
+      sessionStorage.setItem("permissions", JSON.stringify(cleanedPermissions));
+      navigate("/dashboard");
       toast.success("Login successful!");
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");
@@ -54,10 +61,15 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex h-screen justify-center items-center bg-gray-100">
+    <div
+      className="flex h-screen justify-center items-center bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/A8J3K9Z5QW/background_image.jpg')",
+      }}
+    >
       <form
         onSubmit={handleLogin}
-        className="bg-white p-12 rounded-lg shadow-lg w-[450px] space-y-6"
+        className=" p-12 rounded-lg shadow-lg w-[450px] space-y-6 backdrop-blur-sm"
       >
         <div className="flex justify-center">
           <img

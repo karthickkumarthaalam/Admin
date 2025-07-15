@@ -8,6 +8,7 @@ import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import CopyrightFooter from "../components/CopyRightsComponent";
 import { toast } from "react-toastify";
+import { usePermission } from "../context/PermissionContext";
 
 const Coupons = () => {
   const [showModal, setShowModal] = useState(false);
@@ -19,6 +20,8 @@ const Coupons = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const pageSize = 20;
+
+  const { hasPermission } = usePermission();
 
   const fetchCoupons = async () => {
     setLoading(true);
@@ -88,9 +91,7 @@ const Coupons = () => {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden">
-        <Header />
         <BreadCrumb
           title={"Coupon Report"}
           paths={["Programs", "Coupon Report"]}
@@ -100,13 +101,15 @@ const Coupons = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Coupon Report
             </p>
-            <button
-              onClick={handleAddCoupon}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Coupon</span>
-            </button>
+            {hasPermission("Coupon", "create") && (
+              <button
+                onClick={handleAddCoupon}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Coupon</span>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-center sm:justify-end mt-4">
@@ -199,20 +202,24 @@ const Coupons = () => {
                             </td>
                             <td className="py-2 px-4 border">
                               <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => handleEdit(coupon.id)}
-                                  className="text-blue-600 hover:text-blue-800"
-                                  title="Edit"
-                                >
-                                  <Edit2 size={16} />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(coupon.id)}
-                                  className="text-red-600 hover:text-red-800"
-                                  title="Delete"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
+                                {hasPermission("Coupon", "update") && (
+                                  <button
+                                    onClick={() => handleEdit(coupon.id)}
+                                    className="text-blue-600 hover:text-blue-800"
+                                    title="Edit"
+                                  >
+                                    <Edit2 size={16} />
+                                  </button>
+                                )}
+                                {hasPermission("Coupon", "delete") && (
+                                  <button
+                                    onClick={() => handleDelete(coupon.id)}
+                                    className="text-red-600 hover:text-red-800"
+                                    title="Delete"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>

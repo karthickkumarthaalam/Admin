@@ -3,11 +3,20 @@ import Sidebar from "../components/SideBar";
 import Header from "../components/Header";
 import Agreements from "../components/Agreements/Agreements";
 import CopyrightFooter from "../components/CopyRightsComponent";
+import { usePermission } from "../context/PermissionContext";
 
 const AgreementPage = () => {
   const [activeTab, setActiveTab] = useState("agreement");
+  const { hasPermission } = usePermission();
 
-  const tabs = [{ id: "agreement", label: "Agreements" }];
+  const tabs = [
+    { id: "agreement", label: "Agreements", permission: "Agreement" },
+  ];
+
+  const VisibleTabs = tabs.filter(({ permission }) => {
+    return hasPermission(permission, "read");
+  });
+
   return (
     <div className="flex h-screen flex-col">
       <div className="flex flex-1">
@@ -19,7 +28,7 @@ const AgreementPage = () => {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
               <div className="flex flex-1 gap-2">
-                {tabs.map((tab) => {
+                {VisibleTabs.map((tab) => {
                   return (
                     <button
                       key={tab.id}

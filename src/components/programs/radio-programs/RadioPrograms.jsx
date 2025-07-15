@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import BreadCrumb from "../../../components/BreadCrum";
 import AddRadioProgramModal from "./AddRadioProgramModal";
 import ViewRadioProgramModal from "./ViewRadioProgramModal";
+import { usePermission } from "../../../context/PermissionContext";
 
 const RadioPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -25,6 +26,8 @@ const RadioPrograms = () => {
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [programId, setProgramId] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const { hasPermission } = usePermission();
 
   const pageSize = 20;
 
@@ -81,6 +84,12 @@ const RadioPrograms = () => {
   };
 
   const handleStatusToggle = async (item) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this program?"
+      )
+    )
+      return;
     const newStatus = item.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
@@ -115,13 +124,15 @@ const RadioPrograms = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Radio Programs
             </p>
-            <button
-              onClick={handleAddProgram}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Program</span>
-            </button>
+            {hasPermission("Radio Programs", "create") && (
+              <button
+                onClick={handleAddProgram}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Program</span>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-end mt-4">
@@ -210,20 +221,24 @@ const RadioPrograms = () => {
                             >
                               <ScanEye size={16} />
                             </button>
-                            <button
-                              onClick={() => handleEdit(item.id)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Radio Programs", "update") && (
+                              <button
+                                onClick={() => handleEdit(item.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Radio Programs", "delete") && (
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

@@ -3,6 +3,7 @@ import BreadCrumb from "../BreadCrum";
 import { Loader2, Trash2 } from "lucide-react";
 import { apiCall } from "../../utils/apiCall";
 import { toast } from "react-toastify";
+import { usePermission } from "../../context/PermissionContext";
 
 const PodcastComments = () => {
   const [comments, setComments] = useState([]);
@@ -10,6 +11,8 @@ const PodcastComments = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const pageSize = 20;
+
+  const { hasPermission } = usePermission();
 
   const fetchComments = async () => {
     setLoading(true);
@@ -32,6 +35,12 @@ const PodcastComments = () => {
   }, [currentPage]);
 
   const handleStatusChange = async (comment) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this comment?"
+      )
+    )
+      return;
     const newStatus = comment.status === "pending" ? "approved" : "pending";
     try {
       await apiCall(`/podcasts/comments/${comment.id}/status`, "PATCH", {
@@ -122,26 +131,34 @@ const PodcastComments = () => {
                           {new Date(item.created_at).toLocaleString()}
                         </td>
                         <td className="py-2 px-4 border">
-                          <span
-                            onClick={() => handleStatusChange(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                              item.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
+                          {hasPermission("Podcast Comment", "update") ? (
+                            <span
+                              onClick={() => handleStatusChange(item)}
+                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                                item.status === "approved"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {item.status}
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs rounded font-semibold bg-gray-200 text-gray-600">
+                              {item.status}
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 px-4 border">
                           <div className="flex items-center">
-                            <button
-                              className="text-red-600 hover:text-red-700 cursor-pointer"
-                              onClick={() => handleDelete(item.id)}
-                              title="Delete"
-                            >
-                              <Trash2 size={18} />
-                            </button>
+                            {hasPermission("Podcast Comment", "delete") && (
+                              <button
+                                className="text-red-600 hover:text-red-700 cursor-pointer"
+                                onClick={() => handleDelete(item.id)}
+                                title="Delete"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

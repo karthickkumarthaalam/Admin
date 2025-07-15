@@ -13,6 +13,7 @@ import {
   Trash2,
 } from "lucide-react";
 import AddAgreementModal from "./AddAgreementModal";
+import { usePermission } from "../../context/PermissionContext";
 
 const Agreements = () => {
   const [agreements, setAgreements] = useState([]);
@@ -24,6 +25,8 @@ const Agreements = () => {
   const [editAgreementData, setEditAgreementData] = useState(null);
   const [uploadingPdfId, setUploadingPdfId] = useState(null);
   const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState(null);
+
+  const { hasPermission } = usePermission();
 
   //   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -140,16 +143,18 @@ const Agreements = () => {
           <p className="text-sm sm:text-lg font-semibold text-gray-800">
             Agreement List
           </p>
-          <button
-            onClick={() => {
-              setEditAgreementData(null);
-              setIsAddModalOpen(true);
-            }}
-            className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-          >
-            <BadgePlus size={16} />
-            <span>Add Agreements</span>
-          </button>
+          {hasPermission("Agreements", "create") && (
+            <button
+              onClick={() => {
+                setEditAgreementData(null);
+                setIsAddModalOpen(true);
+              }}
+              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+            >
+              <BadgePlus size={16} />
+              <span>Add Agreements</span>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
@@ -230,33 +235,37 @@ const Agreements = () => {
                                 />
                               </a>
 
-                              <label
-                                className="cursor-pointer text-blue-500 flex items-center gap-1"
-                                title="Replace PDF"
-                              >
-                                <UploadCloud size={18} />
-                                <input
-                                  type="file"
-                                  accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                  onChange={(e) =>
-                                    handleAgreementPdfUpload(
-                                      agreement.id,
-                                      e.target.files[0]
-                                    )
-                                  }
-                                  className="hidden"
-                                />
-                              </label>
+                              {hasPermission("Agreements", "update") && (
+                                <label
+                                  className="cursor-pointer text-blue-500 flex items-center gap-1"
+                                  title="Replace PDF"
+                                >
+                                  <UploadCloud size={18} />
+                                  <input
+                                    type="file"
+                                    accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    onChange={(e) =>
+                                      handleAgreementPdfUpload(
+                                        agreement.id,
+                                        e.target.files[0]
+                                      )
+                                    }
+                                    className="hidden"
+                                  />
+                                </label>
+                              )}
 
-                              <button
-                                onClick={() =>
-                                  handleDeletePdf(agreement.id, "pdf")
-                                }
-                                className="text-red-600"
-                                title="Delete PDF"
-                              >
-                                <Trash2 size={16} />
-                              </button>
+                              {hasPermission("Agreements", "delete") && (
+                                <button
+                                  onClick={() =>
+                                    handleDeletePdf(agreement.id, "pdf")
+                                  }
+                                  className="text-red-600"
+                                  title="Delete PDF"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
                             </div>
                           ) : (
                             <label
@@ -299,33 +308,36 @@ const Agreements = () => {
                                 />
                               </a>
 
-                              <label
-                                className="cursor-pointer text-blue-500 flex items-center gap-1"
-                                title="Replace Signed PDF"
-                              >
-                                <UploadCloud size={18} />
-                                <input
-                                  type="file"
-                                  accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                  onChange={(e) =>
-                                    handleSignedPdfUpload(
-                                      agreement.id,
-                                      e.target.files[0]
-                                    )
+                              {hasPermission("Agreements", "update") && (
+                                <label
+                                  className="cursor-pointer text-blue-500 flex items-center gap-1"
+                                  title="Replace Signed PDF"
+                                >
+                                  <UploadCloud size={18} />
+                                  <input
+                                    type="file"
+                                    accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    onChange={(e) =>
+                                      handleSignedPdfUpload(
+                                        agreement.id,
+                                        e.target.files[0]
+                                      )
+                                    }
+                                    className="hidden"
+                                  />
+                                </label>
+                              )}
+                              {hasPermission("Agreements", "delete") && (
+                                <button
+                                  onClick={() =>
+                                    handleDeletePdf(agreement.id, "signed_pdf")
                                   }
-                                  className="hidden"
-                                />
-                              </label>
-
-                              <button
-                                onClick={() =>
-                                  handleDeletePdf(agreement.id, "signed_pdf")
-                                }
-                                className="text-red-600"
-                                title="Delete Signed PDF"
-                              >
-                                <Trash2 size={16} />
-                              </button>
+                                  className="text-red-600"
+                                  title="Delete Signed PDF"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
                             </div>
                           ) : (
                             <label
@@ -350,23 +362,27 @@ const Agreements = () => {
 
                         <td className="py-2 px-4 border">
                           <div className="flex justify-center gap-2">
-                            <button
-                              onClick={() => {
-                                setEditAgreementData(agreement);
-                                setIsAddModalOpen(true);
-                              }}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(agreement.id)}
-                              className="text-red-600 hover:text-red-700"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Agreement", "update") && (
+                              <button
+                                onClick={() => {
+                                  setEditAgreementData(agreement);
+                                  setIsAddModalOpen(true);
+                                }}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Agreement", "delete") && (
+                              <button
+                                onClick={() => handleDelete(agreement.id)}
+                                className="text-red-600 hover:text-red-700"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

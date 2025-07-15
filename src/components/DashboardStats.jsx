@@ -34,23 +34,28 @@ const DashboardContent = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-      {stats.map((stat, index) => (
-        <div
-          key={index}
-          className={`bg-white rounded-xl shadow-md p-6 flex items-center space-x-4 hover:shadow-lg transform hover:-translate-y-1 transition duration-300 border-l-4 ${stat.borderColor}`}
-        >
+    <div
+      className="min-h-[78vh] bg-center bg-cover"
+      style={{ backgroundImage: "url('/A8J3K9Z5QW/background_image.jpg')" }}
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6 ">
+        {stats.map((stat, index) => (
           <div
-            className={`bg-gradient-to-br ${stat.color} p-3 rounded-full text-white`}
+            key={index}
+            className={`bg-white rounded-xl shadow-md p-6 flex items-center space-x-4 hover:shadow-lg transform hover:-translate-y-1 transition duration-300 border-l-4 ${stat.borderColor}`}
           >
-            {stat.icon}
+            <div
+              className={`bg-gradient-to-br ${stat.color} p-3 rounded-full text-white`}
+            >
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
+              <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-600 text-sm font-medium">{stat.title}</p>
-            <h3 className="text-2xl font-bold text-gray-800">{stat.value}</h3>
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };

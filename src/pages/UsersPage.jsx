@@ -4,6 +4,7 @@ import Sidebar from "../components/SideBar";
 import CopyrightFooter from "../components/CopyRightsComponent";
 import Department from "../components/Users/department/Department";
 import SystemUsers from "../components/Users/users/SystemUsers";
+import UserPermission from "../components/Users/userPermission/UserPermission";
 
 const UsersPage = () => {
   const [activeTab, setActiveTab] = useState("user");
@@ -11,6 +12,7 @@ const UsersPage = () => {
   const tabs = [
     { id: "user", label: "Users" },
     { id: "department", label: "Dapartment" },
+    { id: "userPermission", label: "User Permission" },
   ];
 
   return (
@@ -43,6 +45,7 @@ const UsersPage = () => {
             <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
               {activeTab === "user" && <SystemUsers />}
               {activeTab === "department" && <Department />}
+              {activeTab === "userPermission" && <UserPermission />}
             </div>
           </div>
           <CopyrightFooter />

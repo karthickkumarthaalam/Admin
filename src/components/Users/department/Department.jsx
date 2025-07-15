@@ -68,6 +68,12 @@ const Department = () => {
   };
 
   const handleStatusToggle = async (dept) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this department?"
+      )
+    )
+      return;
     const newStatus = dept.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
@@ -95,7 +101,7 @@ const Department = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
           title={"Department Management"}
-          paths={["Settings", "Department Management"]}
+          paths={["Users", "Department Management"]}
         />
 
         <div className="mt-4 rounded-sm shadow-md md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto">

@@ -4,14 +4,27 @@ import Header from "../components/Header";
 import CopyrightFooter from "../components/CopyRightsComponent";
 import Currency from "../components/Currency";
 import Package from "../components/Package";
+import { usePermission } from "../context/PermissionContext";
+import Coupons from "./Coupons";
 
 const Packages = () => {
   const [activeTab, setActiveTab] = useState("packages");
 
+  const { hasPermission } = usePermission();
+
   const tabs = [
-    { id: "packages", label: "Packages" },
-    { id: "currency", label: "Currency" },
+    { id: "packages", label: "Packages", permission: "Package" },
+    {
+      id: "coupons",
+      label: "Coupons",
+      permission: "Coupon",
+    },
+    { id: "currency", label: "Currency", permission: "Currency" },
   ];
+
+  const visibleTabs = tabs.filter(({ permission }) => {
+    return hasPermission(permission, "read");
+  });
 
   return (
     <div className="flex h-screen flex-col">
@@ -24,7 +37,7 @@ const Packages = () => {
           <div className="flex flex-1 flex-col overflow-hidden">
             <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
               <div className="flex flex-1 gap-2">
-                {tabs.map((tab) => (
+                {visibleTabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
@@ -42,7 +55,7 @@ const Packages = () => {
 
             <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
               {activeTab === "packages" && <Package />}
-
+              {activeTab === "coupons" && <Coupons />}
               {activeTab === "currency" && <Currency />}
             </div>
           </div>

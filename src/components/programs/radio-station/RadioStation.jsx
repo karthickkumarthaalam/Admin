@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import BreadCrumb from "../../../components/BreadCrum";
 import AddRadioStationModal from "./AddRadioStationModal";
 import ViewRadioStationModal from "./ViewRadioStationModal";
+import { usePermission } from "../../../context/PermissionContext";
 
 const RadioStation = () => {
   const [stations, setStations] = useState([]);
@@ -24,6 +25,8 @@ const RadioStation = () => {
   const [editStationId, setEditStationId] = useState(null);
   const [selectedStation, setSelectedStation] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const { hasPermission } = usePermission();
 
   const pageSize = 20;
 
@@ -80,6 +83,12 @@ const RadioStation = () => {
   };
 
   const handleStatusToggle = async (item) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this station?"
+      )
+    )
+      return;
     const newStatus = item.status === "active" ? "in-active" : "active";
     setLoading(true);
     try {
@@ -114,13 +123,15 @@ const RadioStation = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Radio Stations
             </p>
-            <button
-              onClick={handleAddStation}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Station</span>
-            </button>
+            {hasPermission("Radio Station", "create") && (
+              <button
+                onClick={handleAddStation}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Station</span>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-end mt-4">
@@ -217,20 +228,24 @@ const RadioStation = () => {
                             >
                               <ScanEye size={16} />
                             </button>
-                            <button
-                              onClick={() => handleEdit(item.id)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Radio Station", "update") && (
+                              <button
+                                onClick={() => handleEdit(item.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Radio Station", "delete") && (
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

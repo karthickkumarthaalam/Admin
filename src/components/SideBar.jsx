@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Menu,
@@ -17,10 +17,12 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { usePermission } from "../context/PermissionContext";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useAuth();
+  const { hasPermission, permissionsLoaded } = usePermission();
 
   const menus = [
     {
@@ -33,59 +35,66 @@ const Sidebar = () => {
       label: "Users",
       icon: BriefcaseBusiness,
       path: "/users",
-      permission: "users",
+      permission: "User",
     },
     {
       label: "Banner",
       icon: Image,
       path: "/banner",
-      permission: "banners",
+      permission: "Banner",
     },
     {
       label: "Programs",
       icon: Activity,
       path: "/programs",
-      permission: "programs",
+      permission: "Radio Station",
     },
     {
       label: "Podcasts",
       icon: Podcast,
       path: "/podcasts",
-      permission: "podcasts",
+      permission: "Podcast",
     },
     {
       label: "Transactions",
       icon: CreditCard,
       path: "/transactions",
-      permission: "transactions",
+      permission: "Transaction",
     },
     {
       label: "Paid Subscribers",
       icon: Users,
       path: "/subscribers",
-      permission: "subscribers",
+      permission: "Subscriber",
     },
     {
       label: "Members",
       icon: UserCheck,
       path: "/members",
-      permission: "members",
+      permission: "Members",
     },
-    { label: "Coupons", icon: Ticket, path: "/coupons", permission: "coupons" },
+    // { label: "Coupons", icon: Ticket, path: "/coupons", permission: "Coupon" },
     {
       label: "Packages",
       icon: BadgeDollarSign,
       path: "/packages",
-      permission: "packages",
+      permission: "Package",
     },
     {
       label: "Agreements",
       icon: FileText,
       path: "/agreements",
-      permission: "agreements",
+      permission: "Agreements",
     },
     { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];
+
+  const allowedMenus = useMemo(() => {
+    if (!permissionsLoaded) return [];
+    return menus.filter(
+      ({ permission }) => !permission || hasPermission(permission, "read")
+    );
+  }, [permissionsLoaded, hasPermission]);
 
   return (
     <>
@@ -111,13 +120,7 @@ const Sidebar = () => {
         </div>
 
         <nav className="flex-1 px-2 space-y-2 mt-2">
-          {menus.map(({ label, icon: Icon, path, permission }) => {
-            if (
-              permission &&
-              (!user || !user.acl || !user.acl.includes(permission))
-            ) {
-              return null;
-            }
+          {allowedMenus.map(({ label, icon: Icon, path }) => {
             return (
               <NavLink
                 to={path}

@@ -13,6 +13,7 @@ import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
 import AddPackageModal from "./AddPackageModal";
 import ViewPackageModal from "./PackageDetails";
+import { usePermission } from "../context/PermissionContext";
 
 const Package = () => {
   const [showModal, setShowModal] = useState(false);
@@ -25,6 +26,8 @@ const Package = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [languageFilter, setLanguageFilter] = useState("");
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const { hasPermission } = usePermission();
 
   const pageSize = 20;
 
@@ -76,6 +79,12 @@ const Package = () => {
   };
 
   const handleStatusToggle = async (pkg) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this package?"
+      )
+    )
+      return;
     const newStatus = pkg.status === "active" ? "inactive" : "active";
     setLoading(true);
     try {
@@ -119,13 +128,15 @@ const Package = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Package Report
             </p>
-            <button
-              onClick={handleAddPackage}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Package</span>
-            </button>
+            {hasPermission("Package", "create") && (
+              <button
+                onClick={handleAddPackage}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Package</span>
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
@@ -203,16 +214,22 @@ const Package = () => {
                           CHF {pkg.yearly_price}
                         </td>
                         <td className="py-2 px-4 border">
-                          <span
-                            onClick={() => handleStatusToggle(pkg)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                              pkg.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
-                            }`}
-                          >
-                            {pkg.status}
-                          </span>
+                          {hasPermission("Package", "update") ? (
+                            <span
+                              onClick={() => handleStatusToggle(pkg)}
+                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                                pkg.status === "active"
+                                  ? "bg-green-500 text-white"
+                                  : "bg-red-500 text-white"
+                              }`}
+                            >
+                              {pkg.status}
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs rounded font-semibold bg-gray-200 text-gray-600">
+                              {pkg.status}
+                            </span>
+                          )}
                         </td>
                         <td className="py-2 px-4 border">
                           <div className="flex items-center gap-2">
@@ -223,20 +240,24 @@ const Package = () => {
                             >
                               <ScanEye size={16} />
                             </button>
-                            <button
-                              onClick={() => handleEdit(pkg.id)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(pkg.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Package", "update") && (
+                              <button
+                                onClick={() => handleEdit(pkg.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Package", "delete") && (
+                              <button
+                                onClick={() => handleDelete(pkg.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

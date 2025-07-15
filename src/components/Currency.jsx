@@ -5,6 +5,7 @@ import AddCurrencyModal from "../components/AddCurrencyModal";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
+import { usePermission } from "../context/PermissionContext";
 
 const Currency = () => {
   const [showModal, setShowModal] = useState(false);
@@ -16,6 +17,8 @@ const Currency = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const pageSize = 20;
+
+  const { hasPermission } = usePermission();
 
   const fetchCurrencies = async () => {
     setLoading(true);
@@ -85,13 +88,15 @@ const Currency = () => {
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Currency Report
             </p>
-            <button
-              onClick={handleAddCurrency}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
-            >
-              <BadgePlus size={16} />
-              <span>Add Currency</span>
-            </button>
+            {hasPermission("Currency", "create") && (
+              <button
+                onClick={handleAddCurrency}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Currency</span>
+              </button>
+            )}
           </div>
 
           <div className="flex justify-center sm:justify-end mt-4">
@@ -152,20 +157,24 @@ const Currency = () => {
                         <td className="py-2 px-4 border">{currency.symbol}</td>
                         <td className="py-2 px-4 border">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleEdit(currency.id)}
-                              className="text-blue-600 hover:text-blue-800"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(currency.id)}
-                              className="text-red-600 hover:text-red-800"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {hasPermission("Currency", "update") && (
+                              <button
+                                onClick={() => handleEdit(currency.id)}
+                                className="text-blue-600 hover:text-blue-800"
+                                title="Edit"
+                              >
+                                <Edit2 size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Currency", "delete") && (
+                              <button
+                                onClick={() => handleDelete(currency.id)}
+                                className="text-red-600 hover:text-red-800"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
