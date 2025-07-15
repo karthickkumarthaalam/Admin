@@ -73,7 +73,6 @@ const Sidebar = () => {
       path: "/members",
       permission: "Members",
     },
-    // { label: "Coupons", icon: Ticket, path: "/coupons", permission: "Coupon" },
     {
       label: "Packages",
       icon: BadgeDollarSign,
