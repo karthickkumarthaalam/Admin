@@ -24,6 +24,7 @@ import ProgramsPage from "./pages/ProgramsPage";
 import AgreementPage from "./pages/AgreementPage";
 import SettingsPage from "./pages/SettingsPage";
 import UsersPage from "./pages/UsersPage";
+import AccountsPage from "./pages/AccountsPage";
 import CopyrightFooter from "./components/CopyRightsComponent";
 
 const AuthenticatedLayout = () => (
@@ -94,6 +95,9 @@ function AppRoutes() {
           path="/programs"
           element={hasPermission("Radio Station", "read") ? <ProgramsPage /> : <Navigate to="/" />}
         />
+        <Route
+          path="accounts"
+          element={hasPermission("Accounts", "read") ? <AccountsPage /> : <Navigate to="/" />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
