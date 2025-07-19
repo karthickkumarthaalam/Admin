@@ -7,6 +7,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
   const [state, setState] = useState({
     documentNo: null,
     merchantName: "",
+    addMerchant: "",
+    addCategoryName: "",
     date: "",
     status: "pending",
     paymentMode: "",
@@ -15,6 +17,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     vendorType: "vendor",
     users: [],
     currencies: [],
+    merchants: [],
+    categoryNames: [],
     categories: [
       { category_name: "", description: "", amount: "", currency_name: "" },
     ],
@@ -23,6 +27,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     showAddMode: false,
     newMode: "",
     showAddPaidThrough: false,
+    showAddMerchant: false,
+    showAddCategoryIndex: null,
     newPaidThrough: "",
     totalAmount: 0,
     isMultiCurrency: false,
@@ -31,6 +37,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
   const {
     documentNo,
     merchantName,
+    addMerchant,
     date,
     status,
     paymentMode,
@@ -39,12 +46,16 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     vendorType,
     users,
     currencies,
+    merchants,
+    categoryNames,
     categories,
     paymentModes,
     paidThroughOptions,
     showAddMode,
     newMode,
     showAddPaidThrough,
+    showAddMerchant,
+    showAddCategoryIndex,
     newPaidThrough,
     totalAmount,
     isMultiCurrency,
@@ -55,6 +66,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       const isEditing = !!editExpenseData;
       if (isEditing) {
         fetchCurrencies();
+        fetchMerchant();
+        fetchCategory();
         setState((prev) => ({
           ...prev,
           documentNo: editExpenseData.document_id || "",
@@ -104,9 +117,13 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           ],
           paymentModes: [],
           paidThroughOptions: [],
+          merchants: [],
+          categoryNames: [],
           showAddMode: false,
           newMode: "",
           showAddPaidThrough: false,
+          showAddMerchant: null,
+          showAddCategoryIndex: null,
           newPaidThrough: "",
           totalAmount: 0,
           isMultiCurrency: false,
@@ -156,6 +173,64 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       setState((prev) => ({ ...prev, users: res.data }));
     } catch (err) {
       toast.error("Failed to fetch users");
+    }
+  };
+
+  const fetchMerchant = async () => {
+    try {
+      const res = await apiCall("/merchant", "GET");
+      setState((prev) => ({ ...prev, merchants: res.data }));
+    } catch (error) {
+      toast.error("Failed to fetch Merchants");
+    }
+  };
+
+  const addNewMerchantName = async () => {
+    try {
+      const res = await apiCall("/merchant", "POST", {
+        merchant_name: addMerchant,
+      });
+      setState((prev) => ({
+        ...prev,
+        merchants: [...prev.merchants, res.data],
+        merchantName: res.data.merchant_name,
+        addMerchant: "",
+        showAddMerchant: false,
+      }));
+    } catch (error) {
+      toast.error("Failed to add Merchant");
+    }
+  };
+
+  const fetchCategory = async () => {
+    try {
+      const res = await apiCall("/category", "GET");
+      setState((prev) => ({ ...prev, categoryNames: res.data }));
+    } catch (error) {
+      toast.error("Failed to fetch category");
+    }
+  };
+
+  const addNewCategoryName = async (index) => {
+    try {
+      const res = await apiCall("/category", "POST", {
+        category_name: state.addCategoryName,
+      });
+
+      const newCategory = res.data;
+
+      const updatedCategories = [...categories];
+      updatedCategories[index].category_name = newCategory.category_name;
+
+      setState((prev) => ({
+        ...prev,
+        categoryNames: [...prev.categoryNames, newCategory],
+        categories: updatedCategories,
+        addCategoryName: "",
+        showAddCategoryIndex: null,
+      }));
+    } catch (error) {
+      toast.error("Failed to add Category");
     }
   };
 
@@ -307,16 +382,73 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                 </select>
               </div>
               {vendorType === "vendor" ? (
-                <Input
-                  label="Merchant Name"
-                  value={merchantName}
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      merchantName: e.target.value,
-                    }))
-                  }
-                />
+                <div>
+                  <label className="block text-sm font-medium mb-1">
+                    Merchant
+                  </label>
+                  <select
+                    value={state.merchantName}
+                    onFocus={fetchMerchant}
+                    onChange={(e) => {
+                      if (e.target.value === "add_new") {
+                        setState((prev) => ({
+                          ...prev,
+                          showAddMerchant: true,
+                        }));
+                      } else {
+                        setState((prev) => ({
+                          ...prev,
+                          merchantName: e.target.value,
+                          showAddMerchant: false,
+                        }));
+                      }
+                    }}
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="">Select</option>
+                    {merchants.map((m) => (
+                      <option key={m.id} value={m.merchant_name}>
+                        {m.merchant_name}
+                      </option>
+                    ))}
+                    <option value="add_new" className="text-blue-500">
+                      + Add New
+                    </option>
+                  </select>
+                  {showAddMerchant && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        value={addMerchant}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            addMerchant: e.target.value,
+                          }))
+                        }
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={addNewMerchantName}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            showAddMerchant: false,
+                          }))
+                        }
+                        className="px-3 py-1 bg-red-500 text-white rounded"
+                      >
+                        x
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div>
                   <label className="block text-sm font-medium mb-1">
@@ -324,6 +456,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                   </label>
                   <select
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                    value={state.merchantName}
                     onChange={(e) =>
                       setState((prev) => ({
                         ...prev,
@@ -533,19 +666,76 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                     {categories.map((cat, index) => (
                       <tr key={index} className="border-t">
                         <td className="p-2">
-                          <input
-                            type="text"
+                          <select
                             value={cat.category_name}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                index,
-                                "category_name",
-                                e.target.value
-                              )
-                            }
+                            onFocus={fetchCategory}
+                            onChange={(e) => {
+                              if (e.target.value === "add_new") {
+                                setState((prev) => ({
+                                  ...prev,
+                                  showAddCategoryIndex: index,
+                                }));
+                              } else {
+                                handleCategoryChange(
+                                  index,
+                                  "category_name",
+                                  e.target.value
+                                );
+                              }
+                            }}
                             className="w-full border rounded px-2 py-1"
-                          />
+                          >
+                            <option value="">Select Category</option>
+                            {categoryNames.map((catOption) => (
+                              <option
+                                key={catOption.id}
+                                value={catOption.category_name}
+                              >
+                                {catOption.category_name}
+                              </option>
+                            ))}
+                            <option value="add_new" className="text-blue-500">
+                              + Add New
+                            </option>
+                          </select>
+
+                          {/* Show input only for the current row */}
+                          {showAddCategoryIndex === index && (
+                            <div className="mt-2 flex gap-2">
+                              <input
+                                value={state.addCategoryName}
+                                onChange={(e) =>
+                                  setState((prev) => ({
+                                    ...prev,
+                                    addCategoryName: e.target.value,
+                                  }))
+                                }
+                                className="border px-2 py-1 rounded w-full"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => addNewCategoryName(index)}
+                                className="px-3 py-1 bg-blue-500 text-white"
+                              >
+                                +
+                              </button>
+                              <button
+                                type="button"
+                                className="px-3 py-1 bg-red-500 text-white"
+                                onClick={() =>
+                                  setState((prev) => ({
+                                    ...prev,
+                                    showAddCategoryIndex: null,
+                                    addCategoryName: "",
+                                  }))
+                                }
+                              >
+                                x
+                              </button>
+                            </div>
+                          )}
                         </td>
+
                         <td className="p-2">
                           <select
                             value={cat.currency_name}
@@ -566,6 +756,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                             ))}
                           </select>
                         </td>
+
                         <td className="p-2">
                           <input
                             type="text"
@@ -580,6 +771,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                             className="w-full border rounded px-2 py-1"
                           />
                         </td>
+
                         <td className="p-2">
                           <input
                             type="number"
@@ -594,6 +786,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                             className="w-full border rounded px-2 py-1"
                           />
                         </td>
+
                         <td className="p-2 text-center">
                           {categories.length > 1 && (
                             <button
