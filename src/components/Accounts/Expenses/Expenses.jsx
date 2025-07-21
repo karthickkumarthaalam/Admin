@@ -1,16 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
-import { Loader2, Trash2, Edit2, BadgePlus, Upload, Eye } from "lucide-react";
+import {
+  Loader2,
+  Trash2,
+  Edit2,
+  BadgePlus,
+  Upload,
+  Eye,
+  Search,
+  ClipboardPlus,
+} from "lucide-react";
 import AddExpenseModal from "./AddExpenseModal";
 import BreadCrumb from "../../BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
 import debounce from "lodash.debounce";
+import ExportModal from "./ExportModal";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [month, setMonth] = useState("");
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [year, setYear] = useState(new Date().getFullYear());
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
@@ -18,6 +28,8 @@ const Expenses = () => {
   const [editExpenseData, setEditExpenseData] = useState(null);
   const { hasPermission } = usePermission();
   const [loadingBillId, setLoadingBillId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const pageSize = 20;
 
@@ -25,7 +37,7 @@ const Expenses = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/expense?page=${currentPage}&month=${month}&year=${year}`
+        `/expense?page=${currentPage}&month=${month}&year=${year}&search=${searchQuery}`
       );
       setExpenses(response?.data);
       setTotalRecords(response?.pagination?.totalRecords);
@@ -43,7 +55,11 @@ const Expenses = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, [month, year, currentPage]);
+  }, [month, year, currentPage, searchQuery]);
+
+  const handleSearch = debounce((value) => {
+    setSearchQuery(value);
+  }, 500);
 
   const handleUploadBill = async (categoryId, file) => {
     const formData = new FormData();
@@ -90,51 +106,76 @@ const Expenses = () => {
       <div className="mt-4 bg-white rounded shadow px-4 py-3 md:mx-4 flex-1 overflow-y-auto">
         <div className="flex justify-between items-center border-b pb-2">
           <h2 className="font-semibold text-lg">Expenses List</h2>
-          {hasPermission("Expenses", "create") && (
+          <div className="flex gap-4">
             <button
               onClick={() => {
-                setEditExpenseData(null);
-                setIsAddModalOpen(true);
+                setExportModalOpen(true);
               }}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300 "
             >
-              <BadgePlus size={16} />
-              <span>Add Expense</span>
+              <ClipboardPlus size={16} />
+              <span>Generate Report</span>
             </button>
-          )}
+            {hasPermission("Expenses", "create") && (
+              <button
+                onClick={() => {
+                  setEditExpenseData(null);
+                  setIsAddModalOpen(true);
+                }}
+                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+              >
+                <BadgePlus size={16} />
+                <span>Add Expense</span>
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="mt-4 flex justify-end items-center gap-4 flex-wrap">
-          <select
-            value={month}
-            onChange={(e) => {
-              setMonth(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
-          >
-            <option value="">All Months</option>
-            {Array.from({ length: 12 }, (_, i) => (
-              <option key={i + 1} value={i + 1}>
-                {new Date(0, i).toLocaleString("default", { month: "long" })}
-              </option>
-            ))}
-          </select>
+        <div className="mt-4 flex justify-center md:justify-end items-center gap-4 flex-wrap">
+          <div className="flex gap-4">
+            <select
+              value={month}
+              onChange={(e) => {
+                setMonth(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+            >
+              <option value="">All Months</option>
+              {Array.from({ length: 12 }, (_, i) => (
+                <option key={i + 1} value={i + 1}>
+                  {new Date(0, i).toLocaleString("default", { month: "long" })}
+                </option>
+              ))}
+            </select>
 
-          <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
-            <button
-              onClick={() => debouncedYearChange(year - 1)}
-              className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-            >
-              –
-            </button>
-            <div className="px-4 py-2 text-sm">{year}</div>
-            <button
-              onClick={() => debouncedYearChange(year + 1)}
-              className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-            >
-              +
-            </button>
+            <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
+              <button
+                onClick={() => debouncedYearChange(year - 1)}
+                className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+              >
+                –
+              </button>
+              <div className="px-4 py-2 text-sm">{year}</div>
+              <button
+                onClick={() => debouncedYearChange(year + 1)}
+                className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          <div className="relative w-64">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gra-400"
+            />
+            <input
+              type="text"
+              placeholder="Search Expenses..."
+              onChange={(e) => handleSearch(e.target.value)}
+              className="border-2 border-gray-300 rounded-md text-xs sm:text:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
+            />
           </div>
         </div>
 
@@ -142,22 +183,22 @@ const Expenses = () => {
           <table className="w-full border text-sm ">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border px-3 py-2 min-w-[20px] whitespace-nowrap">
+                <th className="border px-3 py-2 min-w-[20px] whitespace-nowrap text-left">
                   SI
                 </th>
-                <th className="border px-3 py-2 min-w-[260px] md:w-[500px] whitespace-nowrap">
+                <th className="border px-3 py-2 min-w-[260px] md:w-[500px] whitespace-nowrap text-left">
                   Details
                 </th>
-                <th className="border px-3 py-2 min-w-[260px] md:w-[250px] whitespace-nowrap">
+                <th className="border px-3 py-2 min-w-[260px] md:w-[250px] whitespace-nowrap text-left">
                   Status
                 </th>
-                <th className="border px-3 py-2 min-w-[320px] md:w-[450px] whitespace-nowrap">
-                  Categories
+                <th className="border px-3 py-2 min-w-[320px] md:w-[450px] whitespace-nowrap text-left">
+                  Category
                 </th>
-                <th className="border px-3 py-2 w-[60px]  whitespace-nowrap">
+                <th className="border px-3 py-2 w-[60px]  whitespace-nowrap text-left">
                   Total Amount
                 </th>
-                <th className="border px-3 py-2">Actions</th>
+                <th className="border px-3 py-2 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -458,6 +499,13 @@ const Expenses = () => {
           setIsAddModalOpen(false);
         }}
         editExpenseData={editExpenseData}
+      />
+      <ExportModal
+        isOpen={exportModalOpen}
+        onClose={() => setExportModalOpen(false)}
+        expenses={expenses}
+        month={month}
+        year={year}
       />
     </div>
   );
