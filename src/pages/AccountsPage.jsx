@@ -1,16 +1,27 @@
 import React, { useState } from "react";
 import { usePermission } from "../context/PermissionContext";
 import Expenses from "../components/Accounts/Expenses/Expenses";
+import BudgetPage from "../components/Accounts/Budget/BudgetPage";
+import Currency from "../components/Currency";
 
 const AccountsPage = () => {
-  const [activeTab, setActiveTab] = useState("expenses");
   const { hasPermission } = usePermission();
 
-  const tabs = [{ id: "expenses", label: "Expenses", permission: "expenses" }];
+  const tabs = [
+    { id: "expenses", label: "Expenses", permission: "Expenses" },
+    {
+      id: "budget",
+      label: "Budget",
+      permission: "Budget",
+    },
+    { id: "currency", label: "Currency", permission: "Currency" },
+  ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
     return hasPermission(permission, "read");
   });
+
+  const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id || null);
 
   return (
     <>
@@ -35,6 +46,8 @@ const AccountsPage = () => {
 
         <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
           {activeTab === "expenses" && <Expenses />}
+          {activeTab === "budget" && <BudgetPage />}
+          {activeTab === "currency" && <Currency />}
         </div>
       </div>
     </>

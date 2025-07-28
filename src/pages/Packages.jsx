@@ -19,7 +19,6 @@ const Packages = () => {
       label: "Coupons",
       permission: "Coupon",
     },
-    { id: "currency", label: "Currency", permission: "Currency" },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -50,7 +49,6 @@ const Packages = () => {
         <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
           {activeTab === "packages" && <Package />}
           {activeTab === "coupons" && <Coupons />}
-          {activeTab === "currency" && <Currency />}
         </div>
       </div>
     </>

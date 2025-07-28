@@ -80,7 +80,7 @@ const Currency = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
           title={"Currency Management"}
-          paths={["Packages", "Currency Management"]}
+          paths={["Accounts", "Currency Management"]}
         />
 
         <div className="mt-4 rounded-sm shadow-md md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto">

@@ -24,7 +24,9 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       address: "",
       description: "",
       image: null,
-      status: "active",
+      status: "inactive",
+      share_access: false,
+      is_admin: false,
     };
   }
 
@@ -62,7 +64,8 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       address: data.address || "",
       description: data.description || "",
       image: null,
-      status: data.status || "active",
+      status: data.status || "inactive",
+      isAdmin: data.is_admin || false,
     });
     setImagePreview(
       data.image_url
@@ -102,6 +105,11 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       for (const key in form) {
         if (key === "image" && form.image) {
           payload.append("profile_image", form.image);
+        } else if (key === "share_access") {
+          payload.append(
+            "share_access",
+            form.share_access === true || form.share_access === "true"
+          );
         } else {
           payload.append(key, form[key]);
         }
@@ -132,7 +140,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl w-full max-w-3xl p-6 relative overflow-auto max-h-[90vh]">
+      <div className="bg-white rounded-xl w-full max-w-4xl p-6 relative overflow-auto max-h-[90vh]">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-gray-500 hover:text-gray-700"
@@ -144,7 +152,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           {editUserData ? "Edit System User" : "Add System User"}
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {renderTextInput(
             "Name",
             "name",
@@ -159,14 +167,6 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
             handleChange,
             errors.email
           )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          {renderSelectInput("Gender", "gender", form.gender, handleChange, [
-            "Male",
-            "Female",
-            "Other",
-          ])}
           {renderSelectInput(
             "Department",
             "department_id",
@@ -176,7 +176,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {renderDateInput(
             "Date of Birth",
             "date_of_birth",
@@ -197,7 +197,15 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           )}
         </div>
 
-        {renderTextArea("Address", "address", form.address, handleChange)}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          {renderSelectInput("Gender", "gender", form.gender, handleChange, [
+            "Male",
+            "Female",
+            "Other",
+          ])}
+          {renderTextArea("Address", "address", form.address, handleChange, 3)}
+        </div>
+
         {renderTextArea(
           "Description",
           "description",
@@ -211,30 +219,32 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           imagePreview
         )}
 
-        <div className="mt-4">
-          <label className="font-semibold mb-1 text-sm">Status</label>
-          <div className="flex gap-4 mt-1">
-            <label className="flex items-center gap-1 text-sm">
-              <input
-                type="radio"
-                name="status"
-                value="active"
-                checked={form.status === "active"}
-                onChange={handleChange}
-              />
-              Active
-            </label>
-            <label className="flex items-center gap-1 text-sm">
-              <input
-                type="radio"
-                name="status"
-                value="inactive"
-                checked={form.status === "inactive"}
-                onChange={handleChange}
-              />
-              Inactive
-            </label>
-          </div>
+        <div className="mt-4 flex gap-2 items-center">
+          <label className="font-semibold mb-1 text-sm">Share Password</label>
+          <input
+            type="checkbox"
+            value={form.share_access}
+            onChange={() => {
+              setForm((prev) => ({
+                ...prev,
+                share_access: !prev.share_access,
+              }));
+            }}
+          />
+        </div>
+
+        <div className="mt-4 flex gap-2 items-center">
+          <label className="font-semibold mb-1 text-sm">Admin Access</label>
+          <input
+            type="checkbox"
+            value={form.is_admin}
+            onChange={() => {
+              setForm((prev) => ({
+                ...prev,
+                is_admin: !prev.is_admin,
+              }));
+            }}
+          />
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
@@ -277,7 +287,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
     );
   }
 
-  function renderTextArea(label, name, value, onChange) {
+  function renderTextArea(label, name, value, onChange, rowValue = 3) {
     return (
       <div className="mt-4 flex flex-col">
         <label className="font-semibold mb-1 text-sm">{label}</label>
@@ -285,7 +295,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           name={name}
           value={value}
           onChange={onChange}
-          rows="3"
+          rows={rowValue}
           className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
         />
       </div>
@@ -294,7 +304,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
 
   function renderSelectInput(label, name, value, onChange, options) {
     return (
-      <div className="flex flex-col">
+      <div className="mt-4 flex flex-col">
         <label className="font-semibold mb-1 text-sm">{label}</label>
         <select
           name={name}
@@ -321,7 +331,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
 
   function renderDateInput(label, name, value, onChange) {
     return (
-      <div className="flex flex-col">
+      <div className="mt-4 flex flex-col">
         <label className="font-semibold mb-1 text-sm">{label}</label>
         <input
           type="date"

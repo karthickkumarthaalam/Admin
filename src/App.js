@@ -97,7 +97,7 @@ function AppRoutes() {
         />
         <Route
           path="accounts"
-          element={hasPermission("Accounts", "read") ? <AccountsPage /> : <Navigate to="/" />} />
+          element={hasPermission("Expenses", "read") || hasPermission("Budget", "read") || hasPermission("Currency", "read") ? <AccountsPage /> : <Navigate to="/" />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>

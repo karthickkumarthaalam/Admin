@@ -107,9 +107,10 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
                   <td style="padding: 6px; vertical-align: top;">
                     <div style="font-weight: bold;">${exp.document_id}</div>
                     <div style="font-weight: bold;">${new Date(exp.date).toLocaleDateString("en-GB")}</div>
-                    <div>Merchant: ${exp.merchant || "-"}</div>
+                    <div>${exp.vendor_type === "vendor" ? "Merchant" : "User"}: ${exp.merchant || "-"}</div>
                     ${exp.paymentMode?.name ? `<div>Paid Via: ${exp.paymentMode.name}</div>` : ""}
                     ${exp.paidThrough?.name ? `<div>Paid Through: ${exp.paidThrough.name}</div>` : ""}
+                    ${exp.status === "completed" ? `<div>Completed On: ${new Date(exp.completed_date).toLocaleDateString("en-GB")}</div>` : ""}
                   </td>
                   <td style="padding: 6px; vertical-align: top;">${categoryNames}</td>
                   <td style="padding: 6px; vertical-align: top;">${categoryAmounts}</td>
@@ -121,7 +122,7 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
 
       <h3 style="margin-bottom: 10px; font-size: 14px; font-weight:semi-bold;">REPORT SUMMARY</h3>
       <hr style="border: 1px dashed #e1e1ea"/>
-      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 40px;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px;">
         <tr>
           <td>Total Expense Amount:</td>
           <td><strong>${currencySymbol}${totalAmount.toFixed(2)}</strong></td>
@@ -135,6 +136,7 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
           <td><strong>${currencySymbol}${pendingAmount.toFixed(2)}</strong></td>
         </tr>
       </table>
+      <hr style="border: 1px dashed #e1e1ea"/>
 
       <table style="width: 50%; margin-bottom: 10px; font-size: 12px;">
         <tr>

@@ -31,13 +31,13 @@ const Expenses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [exportModalOpen, setExportModalOpen] = useState(false);
 
-  const pageSize = 20;
+  const pageSize = 50;
 
   const fetchExpenses = async () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/expense?page=${currentPage}&month=${month}&year=${year}&search=${searchQuery}`
+        `/expense?page=${currentPage}&limit=${pageSize}&month=${month}&year=${year}&search=${searchQuery}`
       );
       setExpenses(response?.data);
       setTotalRecords(response?.pagination?.totalRecords);
@@ -168,13 +168,13 @@ const Expenses = () => {
           <div className="relative w-64">
             <Search
               size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gra-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
             />
             <input
               type="text"
               placeholder="Search Expenses..."
               onChange={(e) => handleSearch(e.target.value)}
-              className="border-2 border-gray-300 rounded-md text-xs sm:text:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
+              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
             />
           </div>
         </div>
@@ -263,6 +263,10 @@ const Expenses = () => {
                             </div>
                           </>
                         )}
+                        <div className="mb-1">
+                          <span className="font-semibold">Created By:</span>{" "}
+                          {expense?.creator?.name || "Admin"}
+                        </div>
                       </td>
                       <td className="border px-3 py-2 align-top">
                         <div className="flex flex-col gap-1">

@@ -179,7 +179,7 @@ const SystemUsers = () => {
                               process.env.REACT_APP_API_BASE_URL
                             }/${item.image_url?.replace(/\\/g, "/")}`}
                             alt={item.name}
-                            className="w-20 h-20 object-cover border"
+                            className="w-24 h-28 object-center border"
                           />
                         </td>
                         <td className="py-2 px-4 border">{item.name}</td>

@@ -365,7 +365,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
             <Input label="Document No" value={documentNo || ""} readOnly />
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-semibold mb-1">
                   Expense For
                 </label>
                 <select
@@ -383,7 +383,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
               </div>
               {vendorType === "vendor" ? (
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-semibold mb-1">
                     Merchant
                   </label>
                   <select
@@ -451,7 +451,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-semibold mb-1">
                     Select User
                   </label>
                   <select
@@ -483,7 +483,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
               }
             />
             <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
+              <label className="block text-sm font-semibold mb-1">Status</label>
               <select
                 value={status}
                 onChange={(e) => {
@@ -506,7 +506,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           {status === "completed" && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-semibold mb-1">
                   Payment Mode
                 </label>
                 <select
@@ -567,7 +567,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label className="block text-sm font-semibold mb-1">
                   Paid Through
                 </label>
                 <select
@@ -649,7 +649,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 
           {/* Category Table */}
           <div>
-            <h3 className="font-medium mb-2">Expense Categories</h3>
+            <h3 className="font-semibold mb-2">Expense Categories</h3>
             <div className="overflow-hidden rounded-lg border">
               <div className="max-h-[180px] md:max-h-[220px] overflow-y-auto">
                 <table className="min-w-full text-sm">
@@ -812,7 +812,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
               <span className="p-2">
                 Total:{" "}
                 <span className="text-lg font-semibold">
-                  {currencySymbol} {totalAmount.toLocaleString()}
+                  {currencySymbol} {totalAmount.toFixed(2)}
                 </span>
               </span>
             )}
@@ -850,7 +850,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 // Reusable Input Component
 const Input = ({ label, value, onChange, type = "text", readOnly = false }) => (
   <div>
-    <label className="block text-sm font-medium mb-1">{label}</label>
+    <label className="block text-sm font-semibold mb-1">{label}</label>
     <input
       type={type}
       value={value}

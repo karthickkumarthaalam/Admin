@@ -58,7 +58,7 @@ const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
             <img
               src={imageSrc}
               alt="User Profile"
-              className="w-40 h-40 rounded-lg object-cover border"
+              className="w-40 h-40 rounded-lg object-center border"
             />
             <div className="space-y-2 text-sm flex-1">
               <h3 className="text-2xl font-bold text-gray-800">{name}</h3>

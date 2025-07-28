@@ -84,7 +84,7 @@ const Sidebar = () => {
       label: "Accounts",
       icon: Landmark,
       path: "/accounts",
-      permission: "Accounts",
+      permission: ["Expenses", "Budget", "Currency"],
     },
     {
       label: "Agreements",
@@ -97,11 +97,15 @@ const Sidebar = () => {
 
   const allowedMenus = useMemo(() => {
     if (!permissionsLoaded) return [];
-    return menus.filter(
-      ({ permission }) => !permission || hasPermission(permission, "read")
-    );
-  }, [permissionsLoaded, hasPermission]);
 
+    return menus.filter(({ permission }) => {
+      if (!permission) return true;
+      if (Array.isArray(permission)) {
+        return permission.some((p) => hasPermission(p, "read"));
+      }
+      return hasPermission(permission, "read");
+    });
+  }, [permissionsLoaded, hasPermission]);
   return (
     <>
       <button
@@ -125,7 +129,7 @@ const Sidebar = () => {
           />
         </div>
 
-        <nav className="flex-1 px-2 space-y-2 mt-2">
+        <nav className="flex-1 px-2 space-y-2 mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-red-100 scrollbar-track-gray-100">
           {allowedMenus.map(({ label, icon: Icon, path }) => {
             return (
               <NavLink
