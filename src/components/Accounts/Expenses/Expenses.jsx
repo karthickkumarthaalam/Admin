@@ -4,10 +4,10 @@ import { apiCall } from "../../../utils/apiCall";
 import {
   Loader2,
   Trash2,
-  Edit2,
+  Edit,
   BadgePlus,
   Upload,
-  Eye,
+  Download,
   Search,
   ClipboardPlus,
 } from "lucide-react";
@@ -30,15 +30,27 @@ const Expenses = () => {
   const [loadingBillId, setLoadingBillId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [date, setDate] = useState("");
 
   const pageSize = 50;
 
   const fetchExpenses = async () => {
     setLoading(true);
     try {
-      const response = await apiCall(
-        `/expense?page=${currentPage}&limit=${pageSize}&month=${month}&year=${year}&search=${searchQuery}`
-      );
+      const params = new URLSearchParams({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+      });
+
+      if (date) {
+        params.append("date", date);
+      } else {
+        params.append("month", month);
+        params.append("year", year);
+      }
+
+      const response = await apiCall(`/expense?${params.toString()}`);
       setExpenses(response?.data);
       setTotalRecords(response?.pagination?.totalRecords);
     } catch (error) {
@@ -55,7 +67,7 @@ const Expenses = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, [month, year, currentPage, searchQuery]);
+  }, [month, year, currentPage, searchQuery, date]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -133,11 +145,21 @@ const Expenses = () => {
 
         <div className="mt-4 flex justify-center md:justify-end items-center gap-4 flex-wrap">
           <div className="flex gap-4">
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+            />
             <select
               value={month}
               onChange={(e) => {
                 setMonth(e.target.value);
                 setCurrentPage(1);
+                setDate("");
               }}
               className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
             >
@@ -204,7 +226,7 @@ const Expenses = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="text-center py-6">
+                  <td colSpan="6" className="text-center py-6">
                     <Loader2
                       size={24}
                       className="mx-auto animate-spin text-red-500"
@@ -213,35 +235,43 @@ const Expenses = () => {
                 </tr>
               ) : expenses.length === 0 ? (
                 <tr>
-                  <td colSpan="5" className="text-center py-6">
+                  <td colSpan="6" className="text-center py-6">
                     No expenses found.
                   </td>
                 </tr>
               ) : (
-                expenses.map((expense, index) => {
-                  return (
-                    <tr key={expense.id}>
-                      <td className="border px-3 py-2">
-                        {(currentPage - 1) * pageSize + index + 1}
-                      </td>
-                      <td className="border px-3 py-2 text-left">
-                        <div className="mb-1">
-                          <span className="font-semibold">Document No:</span>{" "}
-                          {expense.document_id}
-                        </div>
-                        {expense.vendor_type === "user" ? (
-                          <div className="mb-1">
-                            <span className="font-semibold">User:</span>{" "}
-                            {expense.merchant}
-                          </div>
-                        ) : (
-                          <div className="mb-1">
-                            <span className="font-semibold">Merchant: </span>
-                            {expense.merchant}
-                          </div>
-                        )}
+                expenses.map((expense, index) => (
+                  <tr
+                    key={expense.id}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-gray-100 transition`}
+                  >
+                    {/* SI */}
+                    <td className="border px-3 py-4 text-sm text-gray-600 font-medium align-top">
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </td>
+
+                    {/* Expense Info */}
+                    <td className="border px-3 py-4 text-sm text-gray-700 align-top w-60">
+                      <div className="space-y-1">
                         <div>
-                          {" "}
+                          <span className="font-semibold text-gray-800">
+                            Document No:
+                          </span>{" "}
+                          <span className="bg-blue-100 text-blue-600 font-semibold px-2 py-0.5 rounded-full text-xs ">
+                            {expense.document_id}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="font-semibold">
+                            {expense.vendor_type === "user"
+                              ? "User:"
+                              : "Merchant:"}
+                          </span>{" "}
+                          {expense.merchant}
+                        </div>
+                        <div>
                           <span className="font-semibold">Date:</span>{" "}
                           {expense.date
                             ? new Date(expense.date).toLocaleDateString("en-GB")
@@ -249,13 +279,13 @@ const Expenses = () => {
                         </div>
                         {expense.status === "completed" && (
                           <>
-                            <div className="mb-1 mt-1">
+                            <div>
                               <span className="font-semibold">
                                 Paid Through:
                               </span>{" "}
                               {expense.paidThrough.name}
                             </div>
-                            <div className="mb-1">
+                            <div>
                               <span className="font-semibold">
                                 Payment Mode:
                               </span>{" "}
@@ -263,78 +293,73 @@ const Expenses = () => {
                             </div>
                           </>
                         )}
-                        <div className="mb-1">
+                        <div>
                           <span className="font-semibold">Created By:</span>{" "}
                           {expense?.creator?.name || "Admin"}
                         </div>
-                      </td>
-                      <td className="border px-3 py-2 align-top">
-                        <div className="flex flex-col gap-1">
-                          <span
-                            className={`inline-block w-fit text-sm font-medium px-3 py-1 rounded-full border 
-                              ${
-                                expense.status === "completed"
-                                  ? "bg-green-100 border-green-600 text-green-700"
-                                  : "bg-red-100 border-red-400 text-red-600"
-                              }`}
-                          >
-                            {expense.status.charAt(0).toUpperCase() +
-                              expense.status.slice(1)}
-                          </span>
+                      </div>
+                    </td>
 
-                          {expense.status === "completed" && (
-                            <div className=" mt-1">
-                              <span className="font-semibold">
-                                Completed on:{" "}
-                              </span>
-                              {expense.date
-                                ? new Date(
-                                    expense.completed_date
-                                  ).toLocaleDateString("en-GB")
-                                : ""}
-                            </div>
-                          )}
+                    {/* Status */}
+                    <td className="border px-3 py-4 text-sm align-top text-gray-700">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium border 
+              ${
+                expense.status === "completed"
+                  ? "bg-green-100 text-green-700 border-green-500"
+                  : "bg-red-100 text-red-600 border-red-400"
+              }`}
+                      >
+                        {expense.status.charAt(0).toUpperCase() +
+                          expense.status.slice(1)}
+                      </span>
+                      {expense.status === "completed" && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          <span className="font-medium">Completed on:</span>{" "}
+                          {expense.completed_date
+                            ? new Date(
+                                expense.completed_date
+                              ).toLocaleDateString("en-GB")
+                            : ""}
                         </div>
-                      </td>
-                      <td className="border px-3 py-2 align-top">
-                        {expense.categories && expense.categories.length > 0 ? (
-                          <table className="text-xs  border-gray-200 rounded-md w-auto">
-                            <thead>
+                      )}
+                    </td>
+
+                    {/* Category Table */}
+                    <td className="border px-3 py-4 align-top">
+                      {expense.categories && expense.categories.length > 0 ? (
+                        <div className="rounded-md overflow-hidden border border-gray-200">
+                          <table className="text-xs w-full">
+                            <thead className="bg-gray-100 text-gray-700 font-semibold">
                               <tr>
-                                <th className="text-left px-2 py-1 font-semibold w-36">
-                                  Name
-                                </th>
-                                <th className="text-left px-2 py-1 font-semibold w-36">
+                                <th className="px-2 py-1 text-left">Name</th>
+                                <th className="px-2 py-1 text-left">
                                   Description
                                 </th>
-                                <th className="text-left px-2 py-1 font-semibold w-28">
-                                  Amount
-                                </th>
-                                <th className="text-left px-2 py-1 font-semibold w-36">
-                                  Bill
-                                </th>
+                                <th className="px-2 py-1 text-left">Amount</th>
+                                <th className="px-2 py-1 text-left">Bill</th>
                               </tr>
                             </thead>
                             <tbody>
                               {expense.categories.map((cat, idx) => (
                                 <tr key={idx} className="border-t">
-                                  <td className="px-2 py-1 align-top">
+                                  <td className="px-2 py-1">
                                     {cat.category_name}
                                   </td>
-                                  <td className="px-2 py-1 align-top">
+                                  <td className="px-2 py-1">
                                     {cat.description}
                                   </td>
-
-                                  <td className="px-2 py-1 align-top whitespace-nowrap">
-                                    {cat.currency?.symbol}{" "}
-                                    {cat.amount.toFixed(2)}
+                                  <td className="px-2 py-1 whitespace-nowrap">
+                                    <span className="text-gray-800 font-medium">
+                                      {cat.currency?.symbol}
+                                      {cat.amount.toFixed(2)}
+                                    </span>
                                   </td>
-
-                                  <td className="px-2 py-1 align-top">
-                                    <div className="flex gap-1 items-center">
+                                  <td className="px-2 py-1">
+                                    <div className="flex gap-2 items-center">
                                       {loadingBillId === cat.id ? (
                                         <Loader2
-                                          className="animate-spin text-gray-500"
+                                          className="animate-spin text-gray-400"
                                           size={14}
                                         />
                                       ) : (
@@ -347,10 +372,9 @@ const Expenses = () => {
                                               className="text-green-600"
                                               title="View Bill"
                                             >
-                                              <Eye size={14} />
+                                              <Download size={14} />
                                             </a>
                                           )}
-
                                           {hasPermission(
                                             "Expenses",
                                             "update"
@@ -380,7 +404,6 @@ const Expenses = () => {
                                               />
                                             </label>
                                           )}
-
                                           {hasPermission(
                                             "Expenses",
                                             "delete"
@@ -404,67 +427,73 @@ const Expenses = () => {
                               ))}
                             </tbody>
                           </table>
-                        ) : (
-                          <div>-</div>
-                        )}
-                      </td>
-                      <td className="border px-3 py-2 align-top ">
-                        {(() => {
-                          const allCurrencies = expense.categories?.map(
-                            (cat) => cat.currency?.symbol
-                          );
-                          const firstCurrency = allCurrencies?.[0];
-                          const isSameCurrency = allCurrencies?.every(
-                            (symbol) => symbol === firstCurrency
-                          );
-                          return `${
-                            isSameCurrency ? firstCurrency + " " : ""
-                          }${expense.total_amount.toFixed(2)}`;
-                        })()}
-                      </td>
-                      <td className="border px-3 py-2 align-top ">
-                        <div className="flex justify-start gap-2">
-                          {hasPermission("Expenses", "update") && (
-                            <button
-                              className="text-blue-600"
-                              onClick={() => {
-                                setEditExpenseData(expense);
-                                setIsAddModalOpen(true);
-                              }}
-                            >
-                              <Edit2 size={16} />
-                            </button>
-                          )}
-                          {hasPermission("Expenses", "update") && (
-                            <button
-                              className="text-red-600"
-                              onClick={async () => {
-                                if (
-                                  !window.confirm(
-                                    "Are you sure you want to delete this expense?"
-                                  )
-                                )
-                                  return;
-                                try {
-                                  await apiCall(
-                                    `/expense/${expense.id}`,
-                                    "DELETE"
-                                  );
-                                  toast.success("Expense deleted successfully");
-                                  fetchExpenses();
-                                } catch (error) {
-                                  toast.error("Failed to delete expense");
-                                }
-                              }}
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                      ) : (
+                        <div className="text-sm text-gray-400 italic">-</div>
+                      )}
+                    </td>
+
+                    {/* Total Amount */}
+                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
+                      {(() => {
+                        const allCurrencies = expense.categories?.map(
+                          (cat) => cat.currency?.symbol
+                        );
+                        const firstCurrency = allCurrencies?.[0];
+                        const isSameCurrency = allCurrencies?.every(
+                          (symbol) => symbol === firstCurrency
+                        );
+                        return `${
+                          isSameCurrency ? firstCurrency + " " : ""
+                        }${expense.total_amount.toFixed(2)}`;
+                      })()}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="border px-3 py-4 align-top">
+                      <div className="flex gap-2">
+                        {hasPermission("Expenses", "update") && (
+                          <button
+                            className="text-gray-500 hover:text-blue-600 hover:scale-125"
+                            title="Edit"
+                            onClick={() => {
+                              setEditExpenseData(expense);
+                              setIsAddModalOpen(true);
+                            }}
+                          >
+                            <Edit size={16} />
+                          </button>
+                        )}
+                        {hasPermission("Expenses", "delete") && (
+                          <button
+                            className="text-gray-500 hover:text-red-600 hover:scale-125"
+                            title="Delete"
+                            onClick={async () => {
+                              if (
+                                !window.confirm(
+                                  "Are you sure you want to delete this expense?"
+                                )
+                              )
+                                return;
+                              try {
+                                await apiCall(
+                                  `/expense/${expense.id}`,
+                                  "DELETE"
+                                );
+                                toast.success("Expense deleted successfully");
+                                fetchExpenses();
+                              } catch (error) {
+                                toast.error("Failed to delete expense");
+                              }
+                            }}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -510,6 +539,7 @@ const Expenses = () => {
         expenses={expenses}
         month={month}
         year={year}
+        date={date}
       />
     </div>
   );

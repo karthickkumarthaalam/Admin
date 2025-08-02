@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import AddAgreementModal from "./AddAgreementModal";
 import { usePermission } from "../../context/PermissionContext";
+import { useAuth } from "../../context/AuthContext";
 
 const Agreements = () => {
   const [agreements, setAgreements] = useState([]);
@@ -27,6 +28,7 @@ const Agreements = () => {
   const [uploadingSignedPdfId, setUploadingSignedPdfId] = useState(null);
 
   const { hasPermission } = usePermission();
+  const { user } = useAuth();
 
   //   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -184,11 +186,20 @@ const Agreements = () => {
                   <tr className="bg-gray-100 text-left">
                     <th className="py-2 px-4 border">SI</th>
                     <th className="py-2 px-4 border">Title</th>
-                    <th className="py-2 px-4 border">Document No</th>
+                    <th className="py-2 px-4 border whitespace-nowrap">
+                      Document No
+                    </th>
                     <th className="py-2 px-4 border">Category</th>
                     <th className="py-2 px-4 border">Date</th>
+                    {user.role === "admin" && (
+                      <th className="px-4 py-2 border whitespace-nowrap">
+                        Created By
+                      </th>
+                    )}
                     <th className="py-2 px-4 border text-center">PDF</th>
-                    <th className="py-2 px-4 border text-center">Signed PDF</th>
+                    <th className="py-2 px-4 border text-center whitespace-nowrap">
+                      Signed PDF
+                    </th>
                     <th className="py-2 px-4 border text-center">Action</th>
                   </tr>
                 </thead>
@@ -215,6 +226,11 @@ const Agreements = () => {
                         <td className="py-2 px-4 border">
                           {agreement.date?.slice(0, 10)}
                         </td>
+                        {user.role === "admin" && (
+                          <td className="py-2 px-4 border">
+                            {agreement?.creator?.name || "Admin"}
+                          </td>
+                        )}
                         <td className="py-2 px-4 border text-center">
                           {uploadingPdfId === agreement.id ? (
                             <Loader2
@@ -362,7 +378,7 @@ const Agreements = () => {
 
                         <td className="py-2 px-4 border">
                           <div className="flex justify-center gap-2">
-                            {hasPermission("Agreement", "update") && (
+                            {hasPermission("Agreements", "update") && (
                               <button
                                 onClick={() => {
                                   setEditAgreementData(agreement);
@@ -374,7 +390,7 @@ const Agreements = () => {
                                 <Edit2 size={16} />
                               </button>
                             )}
-                            {hasPermission("Agreement", "delete") && (
+                            {hasPermission("Agreements", "delete") && (
                               <button
                                 onClick={() => handleDelete(agreement.id)}
                                 className="text-red-600 hover:text-red-700"

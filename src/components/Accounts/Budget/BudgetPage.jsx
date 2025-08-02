@@ -31,7 +31,7 @@ const BudgetPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="px-4 border-t border-dashed border-gray-200">
+        <div className="px-4 ">
           <div className="flex flex-1 gap-2 overflow-y-scroll">
             {tabs.map((tab) => (
               <button
@@ -40,7 +40,7 @@ const BudgetPage = () => {
                 className={`px-4 py-2 rounded text-sm font-medium ${
                   activeTab === tab.id
                     ? "bg-blue-800 text-white"
-                    : "bg-gray-100 text-gray-700 hover: bg-gray-200"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 {tab.label}

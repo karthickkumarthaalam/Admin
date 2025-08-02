@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { BadgePlus, Edit, Loader2, Search, Trash2, FileUp } from "lucide-react";
+import {
+  BadgePlus,
+  Edit,
+  Loader2,
+  Search,
+  Trash2,
+  FileUp,
+  CopyIcon,
+} from "lucide-react";
 import BreadCrumb from "../../BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
 import { toast } from "react-toastify";
@@ -8,6 +16,7 @@ import debounce from "lodash.debounce";
 import AddBudget from "./AddBudget";
 import { exportBudgetPDF } from "../../../utils/exportBudgetPdf";
 import AddBudgetItemsModal from "./AddBudgetItemsModal";
+import ViewBudgetModal from "./ViewBudgetModal";
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
@@ -20,6 +29,7 @@ const Budget = () => {
   const { hasPermission } = usePermission();
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedBudgetData, setSelectedBudgetData] = useState(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
 
   const pageSize = 50;
 
@@ -56,6 +66,17 @@ const Budget = () => {
   const openBudgetItemModal = (budget, type) => {
     setSelectedBudgetData({ ...budget, budget_type: type });
     setIsItemModalOpen(true);
+  };
+
+  const handleDuplicateBudget = async (id) => {
+    if (!window.confirm("Are you Sure you want to duplicate this Budget ?"))
+      return;
+    try {
+      await apiCall(`/budget/duplicate/${id}`, "POST");
+      fetchBudgets();
+    } catch (error) {
+      toast.error("Failed to duplicate Budget");
+    }
   };
 
   const handleExportPDF = async (budget) => {
@@ -210,98 +231,119 @@ const Budget = () => {
                   </td>
                 </tr>
               ) : (
-                budgets.map((budget, index) => {
-                  return (
-                    <tr key={budget.id}>
-                      <td className="border px-3 py-2 align-top">
-                        {" "}
-                        {(currentPage - 1) * pageSize + index + 1}
-                      </td>
-                      <td className="border px-3 py-2 text-left align-top whitespace-nowrap">
-                        <span className="font-semibold">
-                          {budget?.budget_id}
-                        </span>
-                      </td>
-                      <td className="border px-3 py-2 text-left align-top whitespace-nowrap">
-                        <div className="flex flex-col gap-1">
+                budgets.map((budget, index) => (
+                  <tr
+                    key={budget.id}
+                    className={`group transition-all ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:shadow-md`}
+                  >
+                    <td className="border px-3 py-4 text-sm text-gray-500 align-top font-medium">
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </td>
+
+                    {/* Budget ID with pill style */}
+                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap">
+                      <span
+                        className="inline-block bg-blue-100 text-blue-600 font-semibold text-xs px-3 py-1 rounded-full shadow-sm cursor-pointer"
+                        onClick={() => {
+                          setSelectedBudgetData(budget);
+                          setViewModalOpen(true);
+                        }}
+                      >
+                        {budget?.budget_id}
+                      </span>
+                    </td>
+
+                    {/* Title and Creator with pseudo-avatar */}
+                    <td className="border px-3 py-4 text-sm align-top">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-gray-800">
+                          {budget?.title}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          {budget?.creator?.name || "Admin"}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Date/From-To */}
+                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-700">
+                      {budget?.date ? (
+                        <div className="text-gray-800">
+                          {new Date(budget?.date).toLocaleDateString("en-GB")}
+                        </div>
+                      ) : (
+                        <div className="text-xs space-y-1">
                           <div>
-                            <span className="font-semibold">Title: </span>{" "}
-                            {budget?.title}
+                            <span className="font-semibold">From:</span>{" "}
+                            {new Date(budget?.from_date).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </div>
                           <div>
-                            <span className="font-semibold">Created by: </span>{" "}
-                            {budget?.creator?.name || "Admin"}
+                            <span className="font-semibold">To:</span>{" "}
+                            {new Date(budget?.to_date).toLocaleDateString(
+                              "en-GB"
+                            )}
                           </div>
                         </div>
-                      </td>
-                      <td className="border px-3 py-2 text-left align-top whitespace-nowrap">
-                        {budget?.date ? (
-                          new Date(budget?.date).toLocaleDateString("en-GB")
-                        ) : (
-                          <div className="flex flex-col gap-2">
-                            <div className="flex gap-2">
-                              <span className="font-semibold">From Date: </span>
-                              {new Date(budget?.from_date).toLocaleDateString(
-                                "en-GB"
-                              )}
-                            </div>
-                            <div className="flex gap-2">
-                              <span className="font-semibold">To Date: </span>
-                              {new Date(budget?.to_date).toLocaleDateString(
-                                "en-GB"
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </td>
-                      <td className="border px-3 py-2 align-top whitespace-nowrap">
-                        {hasPermission("Budget", "update") && (
-                          <button
-                            className="bg-red-50 hover:bg-red-60 text-red-500 text-sm font-medium px-4 py-1.5 rounded-full shadow-sm transition duration-200 border border-red-500"
-                            onClick={() =>
-                              openBudgetItemModal(budget, "expense")
-                            }
-                          >
-                            + Expense
-                          </button>
-                        )}
-                      </td>
+                      )}
+                    </td>
 
-                      <td className="border px-3 py-2 align-top whitespace-nowrap">
-                        <div className="flex gap-5">
-                          {hasPermission("Budget", "update") && (
+                    {/* +Expense with red pill style */}
+                    <td className="border px-3 py-4 align-top text-left whitespace-nowrap">
+                      {hasPermission("Budget", "update") && (
+                        <button
+                          onClick={() => openBudgetItemModal(budget, "expense")}
+                          className="bg-red-100 text-red-600 font-semibold text-xs px-3 py-1 rounded-full hover:bg-red-200"
+                        >
+                          + Expense
+                        </button>
+                      )}
+                    </td>
+
+                    {/* +Income +Sponsers with green & blue pill */}
+                    <td className="border px-3 py-4 align-top whitespace-nowrap">
+                      <div className="flex  gap-2">
+                        {hasPermission("Budget", "update") && (
+                          <>
                             <button
-                              className="bg-green-50 hover:bg-green-60 text-green-500 text-sm font-medium px-4 py-1.5 rounded-full shadow-sm transition duration-200 border border-green-500"
                               onClick={() =>
                                 openBudgetItemModal(budget, "income")
                               }
+                              className="bg-green-100 text-green-600 font-semibold text-xs px-3 py-1 rounded-full hover:bg-green-200"
                             >
                               + Income
                             </button>
-                          )}
-                          {hasPermission("Budget", "update") && (
                             <button
-                              className="bg-green-50 hover:bg-green-60 text-green-500 text-sm font-medium px-4 py-1.5 rounded-full shadow-sm transition duration-200 border border-green-500"
                               onClick={() =>
                                 openBudgetItemModal(budget, "sponsers")
                               }
+                              className="bg-blue-100 text-blue-600 font-semibold text-xs px-3 py-1 rounded-full hover:bg-blue-200"
                             >
                               + Sponsers
                             </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="border px-3 py-2 align-top whitespace-nowrap">
-                        <div className="flex justify-start gap-2">
-                          <button
-                            className="text-green-500"
-                            onClick={() => handleExportPDF(budget)}
-                          >
-                            <FileUp size={16} />
-                          </button>
-                          {hasPermission("Budget", "update") && (
+                          </>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Actions with icon hover and tooltips */}
+                    <td className="border px-3 py-4 align-top whitespace-nowrap">
+                      <div className="flex gap-3 items-center">
+                        <button
+                          title="Export PDF"
+                          className="text-gray-500 hover:text-green-500 hover:scale-125"
+                          onClick={() => handleExportPDF(budget)}
+                        >
+                          <FileUp size={16} />
+                        </button>
+                        {hasPermission("Budget", "update") && (
+                          <>
                             <button
-                              className="text-blue-600"
+                              title="Edit Budget"
+                              className="text-gray-500 hover:text-blue-600 hover:scale-125"
                               onClick={() => {
                                 setEditBudgetData(budget);
                                 setIsAddModalOpen(true);
@@ -309,20 +351,28 @@ const Budget = () => {
                             >
                               <Edit size={16} />
                             </button>
-                          )}
-                          {hasPermission("Budget", "delete") && (
                             <button
-                              className="text-red-600"
-                              onClick={() => handleDelete(budget.id)}
+                              className="text-gray-500 hover:text-yellow-500 hover:scale-125"
+                              onClick={() => handleDuplicateBudget(budget.id)}
+                              title="Duplicate Budget"
                             >
-                              <Trash2 size={16} />
+                              <CopyIcon size={16} />{" "}
                             </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                          </>
+                        )}
+                        {hasPermission("Budget", "delete") && (
+                          <button
+                            title="Delete Budget"
+                            className="text-gray-500 hover:text-red-600 hover:scale-125"
+                            onClick={() => handleDelete(budget.id)}
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -365,6 +415,11 @@ const Budget = () => {
         onClose={() => setIsItemModalOpen(false)}
         budgetData={selectedBudgetData}
         reloadData={fetchBudgets}
+      />
+      <ViewBudgetModal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        budget={selectedBudgetData}
       />
     </div>
   );

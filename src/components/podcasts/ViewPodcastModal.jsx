@@ -20,17 +20,13 @@ const ViewPodcastModal = ({ isOpen, onClose, podcastData }) => {
     description,
     date,
     image_url,
-    audio_drive_file_id,
+    audio_drive_file_link,
     language,
   } = podcastData;
 
   const imageSrc = image_url
     ? `${BASE_URL}/${image_url.replace(/\\/g, "/")}`
     : "https://via.placeholder.com/300x300?text=No+Image";
-
-  const audioSrc = audio_drive_file_id
-    ? `${BASE_URL}/podcasts/stream-audio/${audio_drive_file_id}`
-    : null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 p-4">
@@ -60,7 +56,7 @@ const ViewPodcastModal = ({ isOpen, onClose, podcastData }) => {
             />
 
             {/* Audio */}
-            {audioSrc && (
+            {audio_drive_file_link && (
               <div className="flex-1 w-full">
                 <div className="bg-gray-100 border border-gray-300 rounded-lg p-3 shadow-inner">
                   <audio
@@ -71,7 +67,7 @@ const ViewPodcastModal = ({ isOpen, onClose, podcastData }) => {
                       border: "none",
                     }}
                   >
-                    <source src={audioSrc} type="audio/mpeg" />
+                    <source src={audio_drive_file_link} type="audio/mpeg" />
                     Your browser does not support the audio element.
                   </audio>
                 </div>

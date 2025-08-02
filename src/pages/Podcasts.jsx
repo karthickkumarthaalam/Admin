@@ -11,8 +11,6 @@ import {
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-import Sidebar from "../components/SideBar";
-import Header from "../components/Header";
 import AddPodcastModal from "../components/podcasts/AddPodcastModal";
 import ViewPodcastModal from "../components/podcasts/ViewPodcastModal";
 import { usePermission } from "../context/PermissionContext";
@@ -37,7 +35,7 @@ const Podcasts = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/podcasts?page=${currentPage}&search=${searchQuery}&language=${languageFilter}&limit=${pageSize}`,
+        `/podcasts/admin?page=${currentPage}&search=${searchQuery}&language=${languageFilter}&limit=${pageSize}`,
         "GET"
       );
       setPodcasts(response.data?.data);

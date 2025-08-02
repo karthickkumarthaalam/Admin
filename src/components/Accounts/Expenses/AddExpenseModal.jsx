@@ -390,18 +390,11 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                     value={state.merchantName}
                     onFocus={fetchMerchant}
                     onChange={(e) => {
-                      if (e.target.value === "add_new") {
-                        setState((prev) => ({
-                          ...prev,
-                          showAddMerchant: true,
-                        }));
-                      } else {
-                        setState((prev) => ({
-                          ...prev,
-                          merchantName: e.target.value,
-                          showAddMerchant: false,
-                        }));
-                      }
+                      setState((prev) => ({
+                        ...prev,
+                        merchantName: e.target.value,
+                        showAddMerchant: false,
+                      }));
                     }}
                     className="w-full border rounded-lg px-3 py-2 text-sm"
                   >
@@ -411,43 +404,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                         {m.merchant_name}
                       </option>
                     ))}
-                    <option value="add_new" className="text-blue-500">
-                      + Add New
-                    </option>
                   </select>
-                  {showAddMerchant && (
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        value={addMerchant}
-                        onChange={(e) =>
-                          setState((prev) => ({
-                            ...prev,
-                            addMerchant: e.target.value,
-                          }))
-                        }
-                        className="border px-2 py-1 rounded w-full"
-                      />
-                      <button
-                        type="button"
-                        onClick={addNewMerchantName}
-                        className="px-3 py-1 bg-blue-500 text-white rounded"
-                      >
-                        +
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setState((prev) => ({
-                            ...prev,
-                            showAddMerchant: false,
-                          }))
-                        }
-                        className="px-3 py-1 bg-red-500 text-white rounded"
-                      >
-                        x
-                      </button>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div>
@@ -670,18 +627,11 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                             value={cat.category_name}
                             onFocus={fetchCategory}
                             onChange={(e) => {
-                              if (e.target.value === "add_new") {
-                                setState((prev) => ({
-                                  ...prev,
-                                  showAddCategoryIndex: index,
-                                }));
-                              } else {
-                                handleCategoryChange(
-                                  index,
-                                  "category_name",
-                                  e.target.value
-                                );
-                              }
+                              handleCategoryChange(
+                                index,
+                                "category_name",
+                                e.target.value
+                              );
                             }}
                             className="w-full border rounded px-2 py-1"
                           >
@@ -694,9 +644,6 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 {catOption.category_name}
                               </option>
                             ))}
-                            <option value="add_new" className="text-blue-500">
-                              + Add New
-                            </option>
                           </select>
 
                           {/* Show input only for the current row */}

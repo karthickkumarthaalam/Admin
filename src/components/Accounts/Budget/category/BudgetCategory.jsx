@@ -132,7 +132,12 @@ const BudgetCategory = () => {
                 </tr>
               ) : (
                 categories.map((cat, index) => (
-                  <tr key={cat.id}>
+                  <tr
+                    key={cat.id}
+                    className={`${
+                      index % 2 !== 0 ? "bg-white" : "bg-gray-50"
+                    } hover:shadow-md`}
+                  >
                     <td className="border px-3 py-2 align-top">
                       {(currentPage - 1) * pageSize + index + 1}
                     </td>

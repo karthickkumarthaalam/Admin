@@ -21,10 +21,11 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
     "Guru Parameshwar",
     "Kavi parthi",
     "Dhusika",
-    "Sumi Krishnan",
+    "Sumi Krishna",
     "Mithu Thillai",
     "Thusika",
     "Deva",
+    "saranya kumar",
   ];
 
   function initialFormState() {
@@ -73,9 +74,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
         : null
     );
     setAudioPreview(
-      data.audio_drive_file_id
-        ? `${BASE_URL}/podcasts/stream-audio/${data.audio_drive_file_id}`
-        : null
+      data.audio_drive_file_link ? data.audio_drive_file_link : null
     );
   };
 

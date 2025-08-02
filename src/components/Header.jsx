@@ -28,9 +28,7 @@ const Header = () => {
         className="relative flex items-center space-x-4"
         onClick={() => setShowMenu(!showMenu)}
       >
-        {user?.email === "admin" && (
-          <h5 className="text-gray-700 font-bold">Admin</h5>
-        )}
+        {user?.name && <h5 className="text-gray-700 font-bold">{user.name}</h5>}
         <img
           src="https://thaalam.ch/newfile/subscription/assets/img/user1.jpg"
           alt="admin profile"

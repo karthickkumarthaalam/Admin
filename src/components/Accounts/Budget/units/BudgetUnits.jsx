@@ -98,7 +98,12 @@ const BudgetUnits = () => {
                 </tr>
               ) : (
                 units.map((unit, index) => (
-                  <tr key={unit.id}>
+                  <tr
+                    key={unit.id}
+                    className={`${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:shadow-md`}
+                  >
                     <td className="border px-3 py-2">{index + 1}</td>
                     <td className="border px-3 py-2">{unit.units_name}</td>
                     {user.role === "admin" && (

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { usePermission } from "../context/PermissionContext";
-import Expenses from "../components/Accounts/Expenses/Expenses";
 import BudgetPage from "../components/Accounts/Budget/BudgetPage";
 import Currency from "../components/Currency";
+import ExpensePage from "../components/Accounts/Expenses/ExpensePage";
 
 const AccountsPage = () => {
   const { hasPermission } = usePermission();
@@ -45,7 +45,7 @@ const AccountsPage = () => {
         </div>
 
         <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
-          {activeTab === "expenses" && <Expenses />}
+          {activeTab === "expenses" && <ExpensePage />}
           {activeTab === "budget" && <BudgetPage />}
           {activeTab === "currency" && <Currency />}
         </div>

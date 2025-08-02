@@ -149,7 +149,7 @@ const SystemUsers = () => {
                 <thead>
                   <tr className="bg-gray-100 text-left">
                     <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Image</th>
+                    <th className="py-2 px-4 border min-w-[120px]">Image</th>
                     <th className="py-2 px-4 border">Name</th>
                     <th className="py-2 px-4 border">Email</th>
                     <th className="py-2 px-4 border">Department</th>
@@ -173,13 +173,13 @@ const SystemUsers = () => {
                         <td className="py-2 px-4 border">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-2 px-4 border w-32">
                           <img
                             src={`${
                               process.env.REACT_APP_API_BASE_URL
                             }/${item.image_url?.replace(/\\/g, "/")}`}
                             alt={item.name}
-                            className="w-24 h-28 object-center border"
+                            className="w-24 h-28 object-center "
                           />
                         </td>
                         <td className="py-2 px-4 border">{item.name}</td>

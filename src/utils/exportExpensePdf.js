@@ -11,7 +11,7 @@ const getBase64Logo = async (url) => {
 };
 
 
-export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, month, year }) => {
+export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, month, year, date }) => {
   const element = document.createElement("div");
 
   let totalAmount = 0;
@@ -29,10 +29,20 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
 
   const logoSrc = await getBase64Logo(`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`);
 
-  const monthName = new Date(year, month - 1).toLocaleString("default", { month: "long" });
-  const monthStart = new Date(year, month - 1, 1).toLocaleDateString("en-GB");
-  const monthEnd = new Date(year, month, 0).toLocaleDateString("en-GB");
-  const reportDuration = `${monthStart} - ${monthEnd}`;
+  let reportDuration = "";
+  let durationTitle = "";
+
+  if (date) {
+    const formattedDate = new Date(date).toLocaleDateString("en-GB");
+    reportDuration = `${formattedDate}`;
+    durationTitle = `Date: ${formattedDate}`;
+  } else {
+    const monthName = new Date(year, month - 1).toLocaleString("default", { month: "long" });
+    const monthStart = new Date(year, month - 1, 1).toLocaleDateString("en-GB");
+    const monthEnd = new Date(year, month, 0).toLocaleDateString("en-GB");
+    reportDuration = `${monthStart} - ${monthEnd}`;
+    durationTitle = `${monthName} month ${year} Expenses`;
+  }
 
   const currencySymbol =
     expenses[0]?.categories?.[0]?.currency?.symbol || "₹";
@@ -51,9 +61,9 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
         </div>
       </div>
 
-      <div style="border-bottom: 1px solid #e1e1ea; padding: 10px; margin-bottom: 10px;">
-        <p style="font-size: 13px; font-weight: bold;">${monthName} month ${year} Expenses</p>
-      </div>
+     <div style="border-bottom: 1px solid #e1e1ea; padding: 10px; margin-bottom: 10px;">
+      <p style="font-size: 13px; font-weight: bold;">${durationTitle}</p>
+    </div>
 
       <table style="width: 100%; margin-bottom: 30px; border-bottom: 1px solid #e1e1ea; table-layout: fixed;">
         <tr>
@@ -102,7 +112,7 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
               `).join('') || '';
 
     return `
-                <tr>
+                <tr style="page-break-inside: avoid; break-inside:avoid;">
                   <td style="padding: 6px; text-align: left; vertical-align: top;">${index + 1}.</td>
                   <td style="padding: 6px; vertical-align: top;">
                     <div style="font-weight: bold;">${exp.document_id}</div>
@@ -120,23 +130,25 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
         </tbody>
       </table>
 
-      <h3 style="margin-bottom: 10px; font-size: 14px; font-weight:semi-bold;">REPORT SUMMARY</h3>
-      <hr style="border: 1px dashed #e1e1ea"/>
-      <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px;">
-        <tr>
-          <td>Total Expense Amount:</td>
-          <td><strong>${currencySymbol}${totalAmount.toFixed(2)}</strong></td>
-        </tr>
-        <tr>
-          <td>Total Paid:</td>
-          <td><strong>${currencySymbol}${paidAmount.toFixed(2)}</strong></td>
-        </tr>
-        <tr>
-          <td>Total Pending:</td>
-          <td><strong>${currencySymbol}${pendingAmount.toFixed(2)}</strong></td>
-        </tr>
-      </table>
-      <hr style="border: 1px dashed #e1e1ea"/>
+      <div style="page-break-inside: avoid; break-inside: avoid;">
+        <h3 style="margin-bottom: 10px; font-size: 14px; font-weight:semi-bold;">REPORT SUMMARY</h3>
+        <hr style="border: 1px dashed #e1e1ea"/>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px;">
+          <tr>
+            <td>Total Expense Amount:</td>
+            <td><strong>${currencySymbol}${totalAmount.toFixed(2)}</strong></td>
+          </tr>
+          <tr>
+            <td>Total Paid:</td>
+            <td><strong>${currencySymbol}${paidAmount.toFixed(2)}</strong></td>
+          </tr>
+          <tr>
+            <td>Total Pending:</td>
+            <td><strong>${currencySymbol}${pendingAmount.toFixed(2)}</strong></td>
+          </tr>
+        </table>
+        <hr style="border: 1px dashed #e1e1ea"/>
+      </div>
 
       <table style="width: 50%; margin-bottom: 10px; font-size: 12px;">
         <tr>
