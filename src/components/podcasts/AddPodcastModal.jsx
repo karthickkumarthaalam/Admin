@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { apiCall } from "../../utils/apiCall";
 import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
 
 const LANGUAGES = ["English", "Tamil", "French", "German"];
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -13,6 +14,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [audioPreview, setAudioPreview] = useState(null);
   const [audioFileName, setAudioFileName] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const RJ_NAMES = [
     "Dharshan Rajakobal",
@@ -138,7 +140,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
+    setLoading(true);
     try {
       const payload = new FormData();
       payload.append("title", form.title);
@@ -163,6 +165,8 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
       onClose();
     } catch (error) {
       toast.error("Failed to save podcast");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -272,9 +276,23 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600"
+            type="button"
+            disabled={loading}
+            className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200
+    ${
+      loading ? "bg-red-400 cursor-not-allowed" : "bg-red-500 hover:bg-red-600"
+    } text-white`}
           >
-            {editPodcastData ? "Update" : "Save"}
+            {loading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {editPodcastData ? "Updating..." : "Saving..."}
+              </>
+            ) : editPodcastData ? (
+              "Update"
+            ) : (
+              "Save"
+            )}
           </button>
         </div>
       </div>

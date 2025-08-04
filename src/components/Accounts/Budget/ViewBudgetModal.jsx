@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { exportBudgetPDF } from "../../../utils/exportBudgetPdf";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
@@ -9,10 +9,13 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
   const [expenseItems, setExpenseItems] = useState([]);
   const [sponsersItems, setSponsersItems] = useState([]);
   const [appliedTaxes, setAppliedTaxes] = useState([]);
+  const [isActualBudget, setIsActualBudget] = useState(false);
+  const [originalTaxes, setOriginalTaxes] = useState([]);
 
   useEffect(() => {
     if (isOpen && budget?.budget_id) {
       loadData();
+      setIsActualBudget(false);
     }
   }, [isOpen, budget]);
 
@@ -30,22 +33,32 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       setIncomeItems(incomeRes.data || []);
       setExpenseItems(expenseRes.data || []);
       setSponsersItems(sponsersRes.data || []);
-      const totalIncome = (incomeRes.data || []).reduce(
-        (sum, i) => sum + (parseFloat(i.total_amount) || 0),
-        0
-      );
-
-      setAppliedTaxes(
-        taxRes.data?.map((t) => ({
+      const formattedTaxes =
+        (taxRes.data || []).map((t) => ({
           tax_name: t.tax.tax_name,
           percentage: t.tax.tax_percentage,
-          amount: (t.tax.tax_percentage / 100) * totalIncome,
-        })) || []
-      );
+        })) || [];
+
+      setOriginalTaxes(formattedTaxes);
     } catch (err) {
       toast.error("Failed to fetch budget data");
     }
   };
+
+  useEffect(() => {
+    const totalIncome = incomeItems.reduce(
+      (sum, i) =>
+        sum +
+        (parseFloat(isActualBudget ? i.actual_amount : i.total_amount) || 0),
+      0
+    );
+
+    const updatedTaxes = originalTaxes.map((t) => ({
+      ...t,
+      amount: ((t.percentage || 0) / 100) * totalIncome,
+    }));
+    setAppliedTaxes(updatedTaxes);
+  }, [isActualBudget, incomeItems, originalTaxes]);
 
   const handleExport = async () => {
     await exportBudgetPDF({
@@ -65,26 +78,50 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       expenseItems,
       sponsersItems,
       appliedTaxes,
+      actualBudgetMode: isActualBudget,
     });
   };
 
-  const totalIncome = incomeItems.reduce(
-    (sum, item) => sum + (parseFloat(item.total_amount) || 0),
-    0
-  );
-  const totalSponsers = sponsersItems.reduce(
-    (sum, item) => sum + (parseFloat(item.total_amount) || 0),
-    0
-  );
-  const totalExpense = expenseItems.reduce(
-    (sum, item) => sum + (parseFloat(item.total_amount) || 0),
-    0
-  );
-  const totalTax = appliedTaxes.reduce(
-    (sum, tax) => sum + (parseFloat(tax.amount) || 0),
-    0
-  );
-  const profit = totalIncome + totalSponsers - totalExpense - totalTax;
+  const totalIncome = useMemo(() => {
+    return incomeItems.reduce(
+      (sum, item) =>
+        sum +
+        (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
+          0),
+      0
+    );
+  }, [incomeItems, isActualBudget]);
+
+  const totalSponsers = useMemo(() => {
+    return sponsersItems.reduce(
+      (sum, item) =>
+        sum +
+        (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
+          0),
+      0
+    );
+  }, [sponsersItems, isActualBudget]);
+
+  const totalExpense = useMemo(() => {
+    return expenseItems.reduce(
+      (sum, item) =>
+        sum +
+        (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
+          0),
+      0
+    );
+  }, [expenseItems, isActualBudget]);
+
+  const totalTax = useMemo(() => {
+    return appliedTaxes.reduce(
+      (sum, tax) => sum + (parseFloat(tax.amount) || 0),
+      0
+    );
+  }, [appliedTaxes]);
+
+  const profit = useMemo(() => {
+    return totalIncome + totalSponsers - totalExpense - totalTax;
+  }, [totalIncome, totalSponsers, totalExpense, totalTax]);
 
   const renderTable = (title, items, color = "blue") => {
     if (!items?.length) return null;
@@ -104,7 +141,10 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       }[color] || "text-gray-800";
 
     const totalSum = items.reduce(
-      (sum, item) => sum + (parseFloat(item.total_amount) || 0),
+      (sum, item) =>
+        sum +
+        (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
+          0),
       0
     );
     return (
@@ -133,15 +173,20 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                 <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
                   Qty
                 </th>
-                <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
-                  Amount
-                </th>
-                <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
-                  Total Amount
-                </th>
-                <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
-                  Actual Amount
-                </th>
+                {!isActualBudget ? (
+                  <>
+                    <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                      Amount
+                    </th>
+                    <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                      Total Amount
+                    </th>
+                  </>
+                ) : (
+                  <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                    Actual Amount
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -163,29 +208,32 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                     <td className="px-4 py-2 whitespace-nowrap">
                       {item.quantity} {item.units}
                     </td>
-                    <td className="px-4 py-2 text-right text-blue-700 whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {Number(item.amount).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </td>
-                    <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {Number(item.total_amount).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
-                    </td>
-                    {item.actual_amount ? (
+                    {!isActualBudget ? (
+                      <>
+                        <td className="px-4 py-2 text-right text-blue-700 whitespace-nowrap">
+                          {budget.currency?.symbol || "₹"}{" "}
+                          {Number(item.amount).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
+                          {budget.currency?.symbol || "₹"}{" "}
+                          {Number(item.total_amount).toLocaleString("en-IN", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>{" "}
+                      </>
+                    ) : (
                       <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
                         <>
                           {budget.currency?.symbol || "₹"}{" "}
-                          {Number(item.actual_amount).toLocaleString("en-IN", {
+                          {Number(
+                            item.actual_amount ? item.actual_amount : 0
+                          ).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                           })}{" "}
                         </>
                       </td>
-                    ) : (
-                      <td className="text-center">-</td>
                     )}
                   </tr>
                 ))
@@ -221,12 +269,26 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
               {budget.budget_id}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-2xl font-bold text-gray-600 hover:text-red-600"
-          >
-            <X size={24} />
-          </button>
+          <div className="flex gap-2">
+            <select
+              className="text-sm border px-2 py-1 rounded bg-white shadow-sm"
+              value={isActualBudget ? "actual" : "estimated"}
+              onChange={(e) => setIsActualBudget(e.target.value === "actual")}
+            >
+              <option value="estimated" className="text-blue-700">
+                Estimated Budget
+              </option>
+              <option value="actual" className="text-blue-700">
+                Actual Budget
+              </option>
+            </select>
+            <button
+              onClick={onClose}
+              className="text-2xl font-bold text-gray-600 hover:text-red-600"
+            >
+              <X size={24} />
+            </button>
+          </div>
         </div>
         <div className="overflow-y-auto  max-h-[70vh] pr-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-700 mb-8">

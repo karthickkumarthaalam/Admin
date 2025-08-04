@@ -52,12 +52,13 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e1ea; padding-bottom: 20px;">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
           <img src="${logoSrc}" width="200px" height="100px" />
-          <p style="margin: 0; font-size: 18px;">THAALAM MEDIA GMBH</p>
         </div>
         <div style="text-align: right;">
-          <h3 style="font-size: 28px; margin: 0;">Expense Report</h3>
-          <p style="font-size: 12px; margin: 4px 0;">Amount to be Reimbursed</p>
-          <h5 style="font-size: 28px; margin: 0;">${currencySymbol}${pendingAmount.toFixed(2)}</h5>
+          <h2 style="margin: 0; font-size: 22px;">Expense Report</h2>
+          <p style="margin: 0; font-size: 15px; color: #555;">THAALAM MEDIA GMBH</p>
+          <p style="margin: 0; font-size: 13px; color: #555;">Talacker 41,</p>
+          <p style="margin: 0; font-size: 13px; color: #555;">8001 Zürich</p>
+          <p style="margin: 0; font-size: 13px; color: #555;">079 694 88 89</p>
         </div>
       </div>
 

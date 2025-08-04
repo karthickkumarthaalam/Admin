@@ -6,12 +6,14 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../context/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const { setuser } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ const LoginPage = () => {
     if (Object.keys(newErrors).length > 0) {
       return;
     }
-
+    setIsLoading(true);
     try {
       let data = await apiCall("/auth/login", "POST", form);
       sessionStorage.setItem(
@@ -48,6 +50,8 @@ const LoginPage = () => {
       toast.success("Login successful!");
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -156,9 +160,22 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
+          disabled={isLoading}
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors duration-200
+              ${
+                isLoading
+                  ? "bg-red-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
+              } text-white`}
         >
-          Login
+          {isLoading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Logging in...
+            </>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
       <ToastContainer />

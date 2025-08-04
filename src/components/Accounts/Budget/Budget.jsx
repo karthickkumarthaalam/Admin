@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgePlus,
   Edit,
   Loader2,
   Search,
   Trash2,
-  FileUp,
   CopyIcon,
 } from "lucide-react";
 import BreadCrumb from "../../BreadCrum";
@@ -14,7 +13,6 @@ import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
 import AddBudget from "./AddBudget";
-import { exportBudgetPDF } from "../../../utils/exportBudgetPdf";
 import AddBudgetItemsModal from "./AddBudgetItemsModal";
 import ViewBudgetModal from "./ViewBudgetModal";
 
@@ -76,68 +74,6 @@ const Budget = () => {
       fetchBudgets();
     } catch (error) {
       toast.error("Failed to duplicate Budget");
-    }
-  };
-
-  const handleExportPDF = async (budget) => {
-    try {
-      const [incomeRes, expenseRes, sponsersRes, taxRes] = await Promise.all([
-        apiCall(
-          `/budget/budget-items/${budget.budget_id}?budget_type=income`,
-          "GET"
-        ),
-        apiCall(
-          `/budget/budget-items/${budget.budget_id}?budget_type=expense`,
-          "GET"
-        ),
-        apiCall(
-          `/budget/budget-items/${budget.budget_id}?budget_type=sponsers`,
-          "GET"
-        ),
-        apiCall(`/budget/budget-tax/${budget.id}`, "GET"),
-      ]);
-
-      const incomeItems = incomeRes.data || [];
-      const expenseItems = expenseRes.data || [];
-      const sponsersItems = sponsersRes.data || [];
-      const appliedTaxes =
-        taxRes.data?.map((t) => ({
-          tax_name: t.tax.tax_name,
-          percentage: t.tax.tax_percentage,
-          amount:
-            (t.tax.tax_percentage / 100) *
-            incomeItems.reduce(
-              (sum, item) => sum + (parseFloat(item.total_amount) || 0),
-              0
-            ),
-        })) || [];
-
-      await exportBudgetPDF({
-        budgetInfo: {
-          title: budget.title,
-          budget_id: budget.budget_id,
-          date: budget?.date || null,
-          from_date: budget?.from_date || null,
-          to_date: budget?.to_date || null,
-          submittedBy: budget?.creator || {
-            name: "Admin",
-            email: "admin@example.com",
-          },
-          reportedTo: {
-            name: "Reporting Manager",
-            email: "manager@example.com",
-          }, // Replace with actual
-          submittedOn: new Date(),
-          currencySymbol: budget?.currency?.symbol || "₹",
-          created_by: budget?.creator?.name || "Admin",
-        },
-        incomeItems,
-        expenseItems,
-        sponsersItems,
-        appliedTaxes,
-      });
-    } catch (err) {
-      toast.error("Failed to export PDF");
     }
   };
 
@@ -332,13 +268,6 @@ const Budget = () => {
                     {/* Actions with icon hover and tooltips */}
                     <td className="border px-3 py-4 align-top whitespace-nowrap">
                       <div className="flex gap-3 items-center">
-                        <button
-                          title="Export PDF"
-                          className="text-gray-500 hover:text-green-500 hover:scale-125"
-                          onClick={() => handleExportPDF(budget)}
-                        >
-                          <FileUp size={16} />
-                        </button>
                         {hasPermission("Budget", "update") && (
                           <>
                             <button
