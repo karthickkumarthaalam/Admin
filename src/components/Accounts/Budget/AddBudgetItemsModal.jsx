@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiCall } from "../../../utils/apiCall";
+import socket from "../../../utils/socket";
 import { toast } from "react-toastify";
 import {
   DndContext,
@@ -15,6 +16,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import debounce from "lodash.debounce";
 
 const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
   const [items, setItems] = useState([]);
@@ -46,6 +48,61 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
     }
   }, [isOpen, budgetData]);
 
+  useEffect(() => {
+    if (!isOpen || !budgetData?.budget_id) return;
+
+    const cleanupPreviousListeners = () => {
+      socket.off("received-budget-item-update");
+      socket.off("received-subcategory-update");
+      socket.off("received-budget-item-removed");
+      socket.off("received-budget-tax-update");
+    };
+
+    cleanupPreviousListeners();
+
+    socket.emit("join-budget-room", {
+      budgetId: budgetData?.budget_id,
+      budgetType: budgetData?.budget_type,
+    });
+
+    const listeners = {
+      "received-budget-item-update": ({ index, item }) => {
+        setItems((prev) => {
+          const updated = [...prev];
+          updated[index] = item;
+          return updated;
+        });
+      },
+      "received-subcategory-update": ({ category, subCategories }) => {
+        setSubCategoryMap((prev) => ({
+          ...prev,
+          [category]: subCategories,
+        }));
+      },
+      "received-budget-item-removed": ({ index }) => {
+        setItems((prev) => {
+          const updated = [...prev];
+          updated.splice(index, 1);
+          return updated;
+        });
+      },
+      "received-budget-tax-update": ({ taxes }) => {
+        setSelectedTaxes(taxes);
+      },
+    };
+
+    Object.entries(listeners).forEach(([event, handler]) => {
+      socket.on(event, handler);
+    });
+
+    return () => {
+      socket.off("join-budget-room");
+      Object.keys(listeners).forEach((event) => {
+        socket.off(event);
+      });
+    };
+  }, [isOpen, budgetData?.budget_id, budgetData?.budget_type]);
+
   const fetchCategories = async () => {
     try {
       const res = await apiCall("/budget-category", "get");
@@ -59,10 +116,18 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
     if (subCategoryMap[categoryName]) return;
     try {
       const res = await apiCall(`/budget-category/${categoryName}`, "get");
+      const newSubCategories = res.subCategories || [];
       setSubCategoryMap((prev) => ({
         ...prev,
-        [categoryName]: res.subCategories || [],
+        [categoryName]: newSubCategories || [],
       }));
+
+      socket.emit("budget-subcategory-update", {
+        budgetId: budgetData.budget_id,
+        budgetType: budgetData.budget_type,
+        category: categoryName,
+        subCategories: newSubCategories,
+      });
     } catch (error) {
       toast.error("Failed to load subcategories");
     }
@@ -148,6 +213,15 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
     }
   };
 
+  const emitBudgetItemchange = debounce((budgetId, budgetType, index, item) => {
+    socket.emit("budget-item-changed", {
+      budgetId,
+      budgetType,
+      index,
+      item,
+    });
+  }, 500);
+
   const handleChange = (index, key, value) => {
     const updated = [...items];
     updated[index][key] = value;
@@ -164,6 +238,43 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
     }
 
     setItems(updated);
+    emitBudgetItemchange(
+      budgetData?.budget_id,
+      budgetData?.budget_type,
+      index,
+      updated[index]
+    );
+  };
+
+  const emitTaxChange = debounce((budgetId, budgetType, taxes) => {
+    socket.emit("budget-tax-changed", {
+      budgetId,
+      budgetType,
+      taxes,
+    });
+  }, 500);
+
+  const handleAddTax = (taxId) => {
+    const selected = taxOptions.find((t) => t.id === taxId);
+    if (selected && !selectedTaxes.some((t) => t.tax_id === selected.id)) {
+      const newTaxes = [
+        ...selectedTaxes,
+        {
+          tax_id: selected.id,
+          tax_name: selected.tax_name,
+          percentage: selected.tax_percentage,
+        },
+      ];
+
+      setSelectedTaxes(newTaxes);
+      emitTaxChange(budgetData.budget_id, budgetData?.budget_type, newTaxes);
+    }
+  };
+
+  const handleRemoveTax = (index) => {
+    const newTaxes = selectedTaxes.filter((_, i) => i !== index);
+    setSelectedTaxes(newTaxes);
+    emitTaxChange(budgetData.budget_id, newTaxes);
   };
 
   const addItemRow = () => {
@@ -188,6 +299,12 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
     const updated = [...items];
     updated.splice(index, 1);
     setItems(updated);
+
+    socket.emit("budget-item-removed", {
+      budgetId: budgetData?.budget_id,
+      budgetType: budgetData?.budget_type,
+      index,
+    });
   };
 
   const handleSubmit = async () => {
@@ -503,20 +620,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                     <select
                       onChange={(e) => {
                         const taxId = parseInt(e.target.value);
-                        const selected = taxOptions.find((t) => t.id === taxId);
-                        if (
-                          selected &&
-                          !selectedTaxes.some((t) => t.tax_id === selected.id)
-                        ) {
-                          setSelectedTaxes([
-                            ...selectedTaxes,
-                            {
-                              tax_id: selected.id,
-                              tax_name: selected.tax_name,
-                              percentage: selected.tax_percentage,
-                            },
-                          ]);
-                        }
+                        handleAddTax(taxId);
                         e.target.value = "";
                       }}
                       className="appearance-none w-full bg-white border border-gray-300 text-sm px-4 py-2 pr-10 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -567,11 +671,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                             </span>
                             <button
                               className="text-red-600 hover:text-red-800"
-                              onClick={() =>
-                                setSelectedTaxes(
-                                  selectedTaxes.filter((_, i) => i !== index)
-                                )
-                              }
+                              onClick={() => handleRemoveTax(index)}
                               title="Remove tax"
                             >
                               ×
