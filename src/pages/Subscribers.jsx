@@ -42,7 +42,7 @@ const Subscribers = () => {
     <>
       <BreadCrumb
         title={"Subscribers"}
-        paths={["Programs", "Subscribers List"]}
+        paths={["Members", "Subscribers List"]}
       />
 
       <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">

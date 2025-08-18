@@ -173,7 +173,12 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                 <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
                   Qty
                 </th>
-                {!isActualBudget ? (
+
+                {isActualBudget ? (
+                  <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                    Actual Amount
+                  </th>
+                ) : (
                   <>
                     <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
                       Amount
@@ -182,10 +187,6 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                       Total Amount
                     </th>
                   </>
-                ) : (
-                  <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
-                    Actual Amount
-                  </th>
                 )}
               </tr>
             </thead>
@@ -208,32 +209,37 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                     <td className="px-4 py-2 whitespace-nowrap">
                       {item.quantity} {item.units}
                     </td>
-                    {!isActualBudget ? (
-                      <>
-                        <td className="px-4 py-2 text-right text-blue-700 whitespace-nowrap">
+                    {isActualBudget ? (
+                      <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
+                        {budget.currency?.symbol || "₹"}{" "}
+                        {Number(item.actual_amount || 0).toLocaleString(
+                          "en-IN",
+                          {
+                            minimumFractionDigits: 2,
+                          }
+                        )}
+                      </td>
+                    ) : (
+                      [
+                        <td
+                          key="amount"
+                          className="px-4 py-2 text-right text-blue-700 whitespace-nowrap"
+                        >
                           {budget.currency?.symbol || "₹"}{" "}
                           {Number(item.amount).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                           })}
-                        </td>
-                        <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
+                        </td>,
+                        <td
+                          key="total"
+                          className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap"
+                        >
                           {budget.currency?.symbol || "₹"}{" "}
                           {Number(item.total_amount).toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
                           })}
-                        </td>{" "}
-                      </>
-                    ) : (
-                      <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
-                        <>
-                          {budget.currency?.symbol || "₹"}{" "}
-                          {Number(
-                            item.actual_amount ? item.actual_amount : 0
-                          ).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}{" "}
-                        </>
-                      </td>
+                        </td>,
+                      ]
                     )}
                   </tr>
                 ))

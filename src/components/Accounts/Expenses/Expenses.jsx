@@ -10,12 +10,15 @@ import {
   Download,
   Search,
   ClipboardPlus,
+  ArchiveRestore,
+  Archive,
 } from "lucide-react";
 import AddExpenseModal from "./AddExpenseModal";
 import BreadCrumb from "../../BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
 import debounce from "lodash.debounce";
 import ExportModal from "./ExportModal";
+import { useAuth } from "../../../context/AuthContext";
 
 const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -31,8 +34,11 @@ const Expenses = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [date, setDate] = useState("");
+  const [viewDeleted, setViewDeleted] = useState(false);
 
   const pageSize = 50;
+
+  const { user } = useAuth();
 
   const fetchExpenses = async () => {
     setLoading(true);
@@ -41,6 +47,7 @@ const Expenses = () => {
         page: currentPage,
         limit: pageSize,
         search: searchQuery,
+        show_deleted: viewDeleted,
       });
 
       if (date) {
@@ -67,7 +74,7 @@ const Expenses = () => {
 
   useEffect(() => {
     fetchExpenses();
-  }, [month, year, currentPage, searchQuery, date]);
+  }, [month, year, currentPage, searchQuery, date, viewDeleted]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -110,6 +117,18 @@ const Expenses = () => {
     }
   };
 
+  const handleRestore = async (id) => {
+    if (!window.confirm("Are you sure you want to restore the Expense")) return;
+    try {
+      await apiCall(`/expense/${id}/restore`, "PATCH");
+      toast.success("Expense Restore successfully");
+      setViewDeleted(false);
+      fetchExpenses();
+    } catch (error) {
+      toast.error("Failed to restore Expense");
+    }
+  };
+
   const totalPages = Math.ceil(totalRecords / pageSize);
 
   return (
@@ -145,47 +164,80 @@ const Expenses = () => {
 
         <div className="mt-4 flex justify-center md:justify-end items-center gap-4 flex-wrap">
           <div className="flex gap-4">
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
-            />
-            <select
-              value={month}
-              onChange={(e) => {
-                setMonth(e.target.value);
-                setCurrentPage(1);
-                setDate("");
-              }}
-              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
-            >
-              <option value="">All Months</option>
-              {Array.from({ length: 12 }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  {new Date(0, i).toLocaleString("default", { month: "long" })}
-                </option>
-              ))}
-            </select>
+            {user.email === "admin" && (
+              <button
+                onClick={() => {
+                  setViewDeleted((prev) => {
+                    setCurrentPage(1);
+                    return !prev;
+                  });
+                }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-200 ${
+                  viewDeleted
+                    ? "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+                    : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+                }`}
+              >
+                {viewDeleted ? (
+                  <>
+                    <ArchiveRestore size={16} />
+                    Showing Deleted Expenses
+                  </>
+                ) : (
+                  <>
+                    <Archive size={16} />
+                    Show Deleted Expenses
+                  </>
+                )}
+              </button>
+            )}
+            {!viewDeleted && (
+              <div className="flex gap-4">
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                />
+                <select
+                  value={month}
+                  onChange={(e) => {
+                    setMonth(e.target.value);
+                    setCurrentPage(1);
+                    setDate("");
+                  }}
+                  className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                >
+                  <option value="">All Months</option>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {new Date(0, i).toLocaleString("default", {
+                        month: "long",
+                      })}
+                    </option>
+                  ))}
+                </select>
 
-            <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
-              <button
-                onClick={() => debouncedYearChange(year - 1)}
-                className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-              >
-                –
-              </button>
-              <div className="px-4 py-2 text-sm">{year}</div>
-              <button
-                onClick={() => debouncedYearChange(year + 1)}
-                className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-              >
-                +
-              </button>
-            </div>
+                <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
+                  <button
+                    onClick={() => debouncedYearChange(year - 1)}
+                    className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+                  >
+                    –
+                  </button>
+                  <div className="px-4 py-2 text-sm">{year}</div>
+                  <button
+                    onClick={() => debouncedYearChange(year + 1)}
+                    className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="relative w-64">
             <Search
@@ -205,7 +257,7 @@ const Expenses = () => {
           <table className="w-full border text-sm ">
             <thead className="bg-gray-100">
               <tr>
-                <th className="border px-3 py-2 min-w-[20px] whitespace-nowrap text-left">
+                <th className="border px-3 py-2 w-[20px] whitespace-nowrap text-left">
                   SI
                 </th>
                 <th className="border px-3 py-2 min-w-[260px] md:w-[500px] whitespace-nowrap text-left">
@@ -220,7 +272,10 @@ const Expenses = () => {
                 <th className="border px-3 py-2 w-[60px]  whitespace-nowrap text-left">
                   Total Amount
                 </th>
-                <th className="border px-3 py-2 text-left">Actions</th>
+                <th className="birder px-3 py-2 w-[60px] whitespace-nowrap text-left">
+                  Pending Amount
+                </th>
+                <th className="border px-3 py-2 w-[60px] text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -449,48 +504,73 @@ const Expenses = () => {
                       })()}
                     </td>
 
+                    {/* Total Amount */}
+                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
+                      {(() => {
+                        const allCurrencies = expense.categories?.map(
+                          (cat) => cat.currency?.symbol
+                        );
+                        const firstCurrency = allCurrencies?.[0];
+                        const isSameCurrency = allCurrencies?.every(
+                          (symbol) => symbol === firstCurrency
+                        );
+                        return `${
+                          isSameCurrency ? firstCurrency + " " : ""
+                        }${expense.pending_amount.toFixed(2)}`;
+                      })()}
+                    </td>
+
                     {/* Actions */}
                     <td className="border px-3 py-4 align-top">
-                      <div className="flex gap-2">
-                        {hasPermission("Expenses", "update") && (
-                          <button
-                            className="text-gray-500 hover:text-blue-600 hover:scale-125"
-                            title="Edit"
-                            onClick={() => {
-                              setEditExpenseData(expense);
-                              setIsAddModalOpen(true);
-                            }}
-                          >
-                            <Edit size={16} />
-                          </button>
-                        )}
-                        {hasPermission("Expenses", "delete") && (
-                          <button
-                            className="text-gray-500 hover:text-red-600 hover:scale-125"
-                            title="Delete"
-                            onClick={async () => {
-                              if (
-                                !window.confirm(
-                                  "Are you sure you want to delete this expense?"
+                      {!viewDeleted ? (
+                        <div className="flex gap-2">
+                          {hasPermission("Expenses", "update") && (
+                            <button
+                              className="text-gray-500 hover:text-blue-600 hover:scale-125"
+                              title="Edit"
+                              onClick={() => {
+                                setEditExpenseData(expense);
+                                setIsAddModalOpen(true);
+                              }}
+                            >
+                              <Edit size={16} />
+                            </button>
+                          )}
+                          {hasPermission("Expenses", "delete") && (
+                            <button
+                              className="text-gray-500 hover:text-red-600 hover:scale-125"
+                              title="Delete"
+                              onClick={async () => {
+                                if (
+                                  !window.confirm(
+                                    "Are you sure you want to delete this expense?"
+                                  )
                                 )
-                              )
-                                return;
-                              try {
-                                await apiCall(
-                                  `/expense/${expense.id}`,
-                                  "DELETE"
-                                );
-                                toast.success("Expense deleted successfully");
-                                fetchExpenses();
-                              } catch (error) {
-                                toast.error("Failed to delete expense");
-                              }
-                            }}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
+                                  return;
+                                try {
+                                  await apiCall(
+                                    `/expense/${expense.id}`,
+                                    "DELETE"
+                                  );
+                                  toast.success("Expense deleted successfully");
+                                  fetchExpenses();
+                                } catch (error) {
+                                  toast.error("Failed to delete expense");
+                                }
+                              }}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          className="px-3 py-2 text-center bg-blue-800 text-white rounded-lg text-xs"
+                          onClick={() => handleRestore(expense.id)}
+                        >
+                          Restore Expense
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

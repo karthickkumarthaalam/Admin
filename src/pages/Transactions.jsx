@@ -89,7 +89,7 @@ const Transactions = () => {
       {" "}
       <BreadCrumb
         title={"Transactions"}
-        paths={["Programs", "Transaction List"]}
+        paths={["Members", "Transaction List"]}
       />
       <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
         <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">

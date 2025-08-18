@@ -20,7 +20,14 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     merchants: [],
     categoryNames: [],
     categories: [
-      { category_name: "", description: "", amount: "", currency_name: "" },
+      {
+        category_name: "",
+        description: "",
+        amount: "",
+        currency_name: "",
+        actual_amount: "",
+        paid_date: "",
+      },
     ],
     paymentModes: [],
     paidThroughOptions: [],
@@ -31,7 +38,9 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     showAddCategoryIndex: null,
     newPaidThrough: "",
     totalAmount: 0,
+    pendingAmount: 0,
     isMultiCurrency: false,
+    errors: {},
   });
 
   const {
@@ -59,6 +68,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     newPaidThrough,
     totalAmount,
     isMultiCurrency,
+    pendingAmount,
   } = state;
 
   useEffect(() => {
@@ -79,6 +89,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           categories: editExpenseData.categories.map((cat) => ({
             category_name: cat.category_name,
             amount: cat.amount,
+            actual_amount: cat.actual_amount || 0,
+            paid_date: cat.paid_date || "",
             currency_name: cat.currency?.currency_name || "",
             description: cat.description,
           })),
@@ -113,6 +125,8 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
               description: "",
               amount: "",
               currency_name: "",
+              actual_amount: "",
+              paid_date: "",
             },
           ],
           paymentModes: [],
@@ -126,6 +140,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           showAddCategoryIndex: null,
           newPaidThrough: "",
           totalAmount: 0,
+          pendingAmount: 0,
           isMultiCurrency: false,
         });
       }
@@ -138,14 +153,22 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     );
     const multi = currencySet.size > 1;
     const sum = categories.reduce((acc, cat) => {
-      const amt = parseFloat(cat.amount);
-      return acc + (isNaN(amt) ? 0 : amt);
+      const amt = parseFloat(cat.amount) || 0;
+      return acc + amt;
     }, 0);
+
+    const paidSum = categories.reduce((acc, cat) => {
+      const paidAmt = parseFloat(cat.actual_amount) || 0;
+      return acc + paidAmt;
+    }, 0);
+
+    const pending = sum - paidSum;
 
     setState((prev) => ({
       ...prev,
       isMultiCurrency: multi,
       totalAmount: multi ? 0 : sum,
+      pendingAmount: multi ? 0 : pending,
     }));
   }, [categories]);
 
@@ -182,23 +205,6 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       setState((prev) => ({ ...prev, merchants: res.data }));
     } catch (error) {
       toast.error("Failed to fetch Merchants");
-    }
-  };
-
-  const addNewMerchantName = async () => {
-    try {
-      const res = await apiCall("/merchant", "POST", {
-        merchant_name: addMerchant,
-      });
-      setState((prev) => ({
-        ...prev,
-        merchants: [...prev.merchants, res.data],
-        merchantName: res.data.merchant_name,
-        addMerchant: "",
-        showAddMerchant: false,
-      }));
-    } catch (error) {
-      toast.error("Failed to add Merchant");
     }
   };
 
@@ -280,6 +286,10 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
   };
 
   const handleCategoryChange = (index, field, value) => {
+    if (field === "actual_amount") {
+      const isValid = validateActualAmount(index, value);
+      if (!isValid) return;
+    }
     const updated = [...categories];
     updated[index][field] = value;
     setState((prev) => ({ ...prev, categories: updated }));
@@ -290,7 +300,14 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       ...prev,
       categories: [
         ...prev.categories,
-        { category_name: "", description: "", amount: "", currency_name: "" },
+        {
+          category_name: "",
+          description: "",
+          amount: 0,
+          currency_name: "",
+          actual_amount: 0,
+          paid_date: "",
+        },
       ],
     }));
   };
@@ -299,6 +316,28 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     const updated = [...categories];
     updated.splice(index, 1);
     setState((prev) => ({ ...prev, categories: updated }));
+  };
+
+  const validateActualAmount = (index, value) => {
+    const amount = parseFloat(categories[index].amount) || 0;
+    const actualAmount = parseFloat(value) || 0;
+
+    if (actualAmount > amount) {
+      setState((prev) => ({
+        ...prev,
+        errors: {
+          ...prev.errors,
+          [`actual_amount_${index}`]:
+            "Paid amount cannot be greater than amount",
+        },
+      }));
+      return false;
+    } else {
+      const newErrors = { ...state.errors };
+      delete newErrors[`actual_amount_${index}`];
+      setState((prev) => ({ ...prev, errors: newErrors }));
+      return true;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -316,7 +355,9 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
         paid_through: paidThrough,
         completed_date: completedDate,
       }),
-      ...(isMultiCurrency ? {} : { total_amount: totalAmount }),
+      ...(isMultiCurrency
+        ? {}
+        : { total_amount: totalAmount, pending_amount: pendingAmount }),
     };
     try {
       if (isEditing) {
@@ -349,7 +390,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-2xl w-full max-w-6xl p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl w-full max-w-[1200px] p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-gray-500 hover:text-red-500"
@@ -616,6 +657,12 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                       <th className="p-2 text-left">Currency</th>
                       <th className="p-2 text-left">Description</th>
                       <th className="p-2 text-left">Amount</th>
+                      <th className="p-2 text-left whitespace-nowrap">
+                        Paid Amount
+                      </th>
+                      <th className="p-2 text-left whitespace-nowrap">
+                        Paid Date
+                      </th>
                       <th className="p-2"></th>
                     </tr>
                   </thead>
@@ -734,6 +781,45 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                           />
                         </td>
 
+                        <td className="p-2">
+                          <input
+                            type="number"
+                            value={cat.actual_amount}
+                            onChange={(e) =>
+                              handleCategoryChange(
+                                index,
+                                "actual_amount",
+                                e.target.value
+                              )
+                            }
+                            className={`w-full border rounded px-2 py-1 ${
+                              state.errors?.[`actual_amount_${index}`]
+                                ? "border-red-500"
+                                : ""
+                            }`}
+                          />
+                          {state.errors?.[`actual_amount_${index}`] && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {state.errors[`actual_amount_${index}`]}
+                            </p>
+                          )}
+                        </td>
+
+                        <td className="p-2">
+                          <input
+                            type="date"
+                            value={cat.paid_date || ""}
+                            onChange={(e) => {
+                              handleCategoryChange(
+                                index,
+                                "paid_date",
+                                e.target.value || ""
+                              );
+                            }}
+                            className="w-full border rounded px-2 py-1"
+                          />
+                        </td>
+
                         <td className="p-2 text-center">
                           {categories.length > 1 && (
                             <button
@@ -751,25 +837,35 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                 </table>
               </div>
             </div>
+            {vendorType === "vendor" && (
+              <button
+                type="button"
+                onClick={addCategory}
+                className="mt-3 flex items-center text-sm text-blue-600 hover:underline"
+              >
+                <Plus size={16} className="mr-1" /> Add Another Row
+              </button>
+            )}
             {isMultiCurrency ? (
               <span className="text-sm text-red-500 p-2">
                 Total cannot be calculated due to multiple currencies
               </span>
             ) : (
-              <span className="p-2">
-                Total:{" "}
-                <span className="text-lg font-semibold">
-                  {currencySymbol} {totalAmount.toFixed(2)}
+              <div className="flex flex-col text-right">
+                <span>
+                  Total Amount:{" "}
+                  <span className="text-lg font-semibold">
+                    {currencySymbol} {totalAmount.toFixed(2)}
+                  </span>
                 </span>
-              </span>
+                <span>
+                  Pending Amount:{" "}
+                  <span className="text-lg font-semibold">
+                    {currencySymbol} {pendingAmount.toFixed(2)}
+                  </span>
+                </span>
+              </div>
             )}
-            <button
-              type="button"
-              onClick={addCategory}
-              className="mt-3 flex items-center text-sm text-blue-600 hover:underline"
-            >
-              <Plus size={16} className="mr-1" /> Add Another Row
-            </button>
           </div>
 
           {/* Action Buttons */}

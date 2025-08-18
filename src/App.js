@@ -26,6 +26,7 @@ import SettingsPage from "./pages/SettingsPage";
 import UsersPage from "./pages/UsersPage";
 import AccountsPage from "./pages/AccountsPage";
 import CopyrightFooter from "./components/CopyRightsComponent";
+import MembersPage from "./pages/MembersPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -59,17 +60,17 @@ function AppRoutes() {
           path="/users"
           element={hasPermission("User", "read") ? <UsersPage /> : <Navigate to="/" />}
         />
-        <Route
+        {/* <Route
           path="/transactions"
           element={hasPermission("Transaction", "read") ? <Transactions /> : <Navigate to="/" />}
         />
         <Route
           path="/subscribers"
           element={hasPermission("Subscriber", "read") ? <Subscribers /> : <Navigate to="/" />}
-        />
+        /> */}
         <Route
           path="/members"
-          element={hasPermission("Members", "read") ? <Members /> : <Navigate to="/" />}
+          element={hasPermission("Members", "read") || hasPermission("Subscriber", "read") || hasPermission("Transaction", "read") || hasPermission("Enquiry", "read") ? <MembersPage /> : <Navigate to="/" />}
         />
         <Route
           path="/coupons"

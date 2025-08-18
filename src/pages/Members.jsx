@@ -14,7 +14,7 @@ const Members = () => {
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const pageSize = 20;
+  const pageSize = 50;
 
   const fetchMembers = async () => {
     setLoading(true);
@@ -45,7 +45,7 @@ const Members = () => {
   return (
     <>
       {" "}
-      <BreadCrumb title={"Members"} paths={["Programs", "Members List"]} />
+      <BreadCrumb title={"Members"} paths={["Members", "Members List"]} />
       <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
         <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
           <p className="text-sm sm:text-lg font-semibold text-gray-800">

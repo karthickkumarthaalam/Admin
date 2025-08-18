@@ -56,29 +56,29 @@ const Sidebar = () => {
       path: "/podcasts",
       permission: "Podcast",
     },
-    {
-      label: "Transactions",
-      icon: CreditCard,
-      path: "/transactions",
-      permission: "Transaction",
-    },
-    {
-      label: "Paid Subscribers",
-      icon: Users,
-      path: "/subscribers",
-      permission: "Subscriber",
-    },
-    {
-      label: "Members",
-      icon: UserCheck,
-      path: "/members",
-      permission: "Members",
-    },
+    // {
+    //   label: "Transactions",
+    //   icon: CreditCard,
+    //   path: "/transactions",
+    //   permission: "Transaction",
+    // },
+    // {
+    //   label: "Paid Subscribers",
+    //   icon: Users,
+    //   path: "/subscribers",
+    //   permission: "Subscriber",
+    // },
     {
       label: "Packages",
       icon: BadgeDollarSign,
       path: "/packages",
       permission: "Package",
+    },
+    {
+      label: "Members",
+      icon: UserCheck,
+      path: "/members",
+      permission: ["Members", "Subscriber", "Transaction"],
     },
     {
       label: "Accounts",

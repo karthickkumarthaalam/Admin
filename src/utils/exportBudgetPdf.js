@@ -61,25 +61,29 @@ export const exportBudgetPDF = async ({
             const isFirst = rowIndex === 0;
             const isLast = rowIndex === rows.length - 1;
 
-            const topBorder = isFirst ? "border-top: 1px solid #ddd;" : "";
-            const bottomBorder = isLast ? "border-bottom: 1px solid #ddd;" : "";
-            const sideBorders = "border-left: 1px solid #ddd; border-right: 1px solid #ddd;";
-            const cellStyle = `padding: 6px; ${sideBorders} ${topBorder} ${bottomBorder}`;
+            const cellStyle = `
+            padding: 6px;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-top: ${isFirst ? "1px solid #ddd" : "1px solid #eee"};
+            border-bottom: ${isLast ? "1px solid #ddd" : "1px solid #eee"};
+            page-break-inside: avoid;
+          `;
 
             return `
-            <tr>
-              <td style="${cellStyle}">${isFirst ? groupIndex + 1 : ""}</td>
-              <td style="${cellStyle}">${isFirst ? category : ""}</td>
-              <td style="${cellStyle}">${row.sub_category}</td>
-              <td style="${cellStyle}">${row.description}</td>
-              <td style="${cellStyle}">${row.quantity} ${row.units ? "- " + row.units : ""}</td>
-              ${!actualBudgetMode ? `
+          <tr style="page-break-inside: avoid;">
+            <td style="${cellStyle}">${isFirst ? groupIndex + 1 : ""}</td>
+            <td style="${cellStyle}">${isFirst ? category : ""}</td>
+            <td style="${cellStyle}">${row.sub_category}</td>
+            <td style="${cellStyle}">${row.description}</td>
+            <td style="${cellStyle}">${row.quantity} ${row.units ? "- " + row.units : ""}</td>
+            ${!actualBudgetMode ? `
               <td style="${cellStyle} text-align:right;">${Number(row.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
               <td style="${cellStyle} text-align:right;">${Number(row.total_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-              ` : `
+            ` : `
               <td colspan="2" style="${cellStyle} text-align:right;">${Number(row.actual_amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-              `}
-            </tr>`;
+            `}
+          </tr>`;
           })
           .join("")
       )
@@ -323,17 +327,19 @@ export const exportBudgetPDF = async ({
   html2pdf()
     .set({
       margin: 0.5,
-      filename: `Budget_Report_${budget_id}_${new Date().toISOString().split("T")[0]}.pdf`,
+      filename: `${title}_${new Date().toISOString().split("T")[0]}.pdf`,
       html2canvas: {
         scale: 2,
         useCORS: true,
         allowTaint: true,
+        scrollY: 0,
       },
       jsPDF: {
         unit: "in",
         format: "a4",
         orientation: "portrait",
-      },
+        hotfixes: ["px_scaling"]
+      }
     })
     .from(element)
     .save();

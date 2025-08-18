@@ -6,6 +6,8 @@ import {
   Search,
   Trash2,
   CopyIcon,
+  ArchiveRestore,
+  Archive,
 } from "lucide-react";
 import BreadCrumb from "../../BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
@@ -15,6 +17,7 @@ import debounce from "lodash.debounce";
 import AddBudget from "./AddBudget";
 import AddBudgetItemsModal from "./AddBudgetItemsModal";
 import ViewBudgetModal from "./ViewBudgetModal";
+import { useAuth } from "../../../context/AuthContext";
 
 const Budget = () => {
   const [budgets, setBudgets] = useState([]);
@@ -28,6 +31,9 @@ const Budget = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [selectedBudgetData, setSelectedBudgetData] = useState(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewDeleted, setViewDeleted] = useState(false);
+
+  const { user } = useAuth();
 
   const pageSize = 50;
 
@@ -35,7 +41,7 @@ const Budget = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/budget?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`
+        `/budget?page=${currentPage}&limit=${pageSize}&search=${searchQuery}&show_deleted=${viewDeleted}`
       );
       setBudgets(response?.data);
       setTotalRecords(response?.pagination?.totalRecords);
@@ -77,9 +83,21 @@ const Budget = () => {
     }
   };
 
+  const handleRestore = async (id) => {
+    if (!window.confirm("Are you Sure you want to restore this Budget?"))
+      return;
+    try {
+      await apiCall(`/budget/${id}/restore`, "PATCH");
+      fetchBudgets();
+      setViewDeleted(false);
+    } catch (error) {
+      toast.error("Failed to restore Budget");
+    }
+  };
+
   useEffect(() => {
     fetchBudgets();
-  }, [currentPage, searchQuery]);
+  }, [currentPage, searchQuery, viewDeleted]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -109,6 +127,33 @@ const Budget = () => {
           </div>
         </div>
         <div className="mt-4 flex justify-center md:justify-end items-center gap-4 flex-wrap">
+          {user.email === "admin" && (
+            <button
+              onClick={() => {
+                setViewDeleted((prev) => {
+                  setCurrentPage(1);
+                  return !prev;
+                });
+              }}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-200 ${
+                viewDeleted
+                  ? "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
+                  : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
+              }`}
+            >
+              {viewDeleted ? (
+                <>
+                  <ArchiveRestore size={16} />
+                  Showing Deleted Budgets
+                </>
+              ) : (
+                <>
+                  <Archive size={16} />
+                  Show Deleted Budgets
+                </>
+              )}
+            </button>
+          )}
           <div className="relative w-64">
             <Search
               size={16}
@@ -267,38 +312,47 @@ const Budget = () => {
 
                     {/* Actions with icon hover and tooltips */}
                     <td className="border px-3 py-4 align-top whitespace-nowrap">
-                      <div className="flex gap-3 items-center">
-                        {hasPermission("Budget", "update") && (
-                          <>
+                      {!viewDeleted ? (
+                        <div className="flex gap-3 items-center">
+                          {hasPermission("Budget", "update") && (
+                            <>
+                              <button
+                                title="Edit Budget"
+                                className="text-gray-500 hover:text-blue-600 hover:scale-125"
+                                onClick={() => {
+                                  setEditBudgetData(budget);
+                                  setIsAddModalOpen(true);
+                                }}
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                className="text-gray-500 hover:text-yellow-500 hover:scale-125"
+                                onClick={() => handleDuplicateBudget(budget.id)}
+                                title="Duplicate Budget"
+                              >
+                                <CopyIcon size={16} />{" "}
+                              </button>
+                            </>
+                          )}
+                          {hasPermission("Budget", "delete") && (
                             <button
-                              title="Edit Budget"
-                              className="text-gray-500 hover:text-blue-600 hover:scale-125"
-                              onClick={() => {
-                                setEditBudgetData(budget);
-                                setIsAddModalOpen(true);
-                              }}
+                              title="Delete Budget"
+                              className="text-gray-500 hover:text-red-600 hover:scale-125"
+                              onClick={() => handleDelete(budget.id)}
                             >
-                              <Edit size={16} />
+                              <Trash2 size={16} />
                             </button>
-                            <button
-                              className="text-gray-500 hover:text-yellow-500 hover:scale-125"
-                              onClick={() => handleDuplicateBudget(budget.id)}
-                              title="Duplicate Budget"
-                            >
-                              <CopyIcon size={16} />{" "}
-                            </button>
-                          </>
-                        )}
-                        {hasPermission("Budget", "delete") && (
-                          <button
-                            title="Delete Budget"
-                            className="text-gray-500 hover:text-red-600 hover:scale-125"
-                            onClick={() => handleDelete(budget.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          className="px-3 py-2 text-center bg-blue-800 text-white rounded-lg text-xs"
+                          onClick={() => handleRestore(budget.id)}
+                        >
+                          Restore Budget
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

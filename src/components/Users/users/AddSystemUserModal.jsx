@@ -27,6 +27,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       status: "inactive",
       share_access: false,
       is_admin: false,
+      show_profile: false,
     };
   }
 
@@ -66,6 +67,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       image: null,
       status: data.status || "inactive",
       isAdmin: data.is_admin || false,
+      show_profile: data.show_profile || false,
     });
     setImagePreview(
       data.image_url
@@ -219,32 +221,48 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
           imagePreview
         )}
 
-        <div className="mt-4 flex gap-2 items-center">
-          <label className="font-semibold mb-1 text-sm">Share Password</label>
-          <input
-            type="checkbox"
-            value={form.share_access}
-            onChange={() => {
-              setForm((prev) => ({
-                ...prev,
-                share_access: !prev.share_access,
-              }));
-            }}
-          />
-        </div>
+        <div className="flex flex-col">
+          <div className="mt-4 flex gap-2 items-center">
+            <label className="font-semibold mb-1 text-sm">Show Profile</label>
+            <input
+              type="checkbox"
+              value={form.show_profile}
+              onChange={() => {
+                setForm((prev) => ({
+                  ...prev,
+                  show_profile: !prev.show_profile,
+                }));
+              }}
+            />
+          </div>
 
-        <div className="mt-4 flex gap-2 items-center">
-          <label className="font-semibold mb-1 text-sm">Admin Access</label>
-          <input
-            type="checkbox"
-            value={form.is_admin}
-            onChange={() => {
-              setForm((prev) => ({
-                ...prev,
-                is_admin: !prev.is_admin,
-              }));
-            }}
-          />
+          <div className="mt-4 flex gap-2 items-center">
+            <label className="font-semibold mb-1 text-sm">Share Password</label>
+            <input
+              type="checkbox"
+              value={form.share_access}
+              onChange={() => {
+                setForm((prev) => ({
+                  ...prev,
+                  share_access: !prev.share_access,
+                }));
+              }}
+            />
+          </div>
+
+          <div className="mt-4 flex gap-2 items-center">
+            <label className="font-semibold mb-1 text-sm">Admin Access</label>
+            <input
+              type="checkbox"
+              value={form.is_admin}
+              onChange={() => {
+                setForm((prev) => ({
+                  ...prev,
+                  is_admin: !prev.is_admin,
+                }));
+              }}
+            />
+          </div>
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
