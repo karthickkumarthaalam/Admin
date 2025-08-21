@@ -4,7 +4,7 @@ const ViewMemberModal = ({ isOpen, onClose, memberData }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
       <div className="bg-white rounded-xl w-full max-w-lg p-6 overflow-y-auto max-h-[90vh] shadow-xl">
         <div className="flex justify-between items-center mb-4 border-b border-dashed pb-2 border-gray-500">
           <h2 className="text-xl font-semibold text-gray-800">

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import {
   Menu,
   LayoutDashboard,
+  ContactRound,
   BriefcaseBusiness,
   CreditCard,
   Users,
@@ -34,7 +35,7 @@ const Sidebar = () => {
     },
     {
       label: "Users",
-      icon: BriefcaseBusiness,
+      icon: ContactRound,
       path: "/users",
       permission: "User",
     },
@@ -91,6 +92,12 @@ const Sidebar = () => {
       icon: FileText,
       path: "/agreements",
       permission: "Agreements",
+    },
+    {
+      label: "Careers",
+      icon: BriefcaseBusiness,
+      path: "/career",
+      permission: "Careers",
     },
     { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];

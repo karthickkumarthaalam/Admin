@@ -43,7 +43,7 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl w-full max-w-lg p-6 overflow-y-auto max-h-[90vh] shadow-xl">
+      <div className="bg-white rounded-xl w-full max-w-xl p-6 overflow-y-auto max-h-[90vh] shadow-xl">
         <div className="flex justify-between items-center mb-4 border-b border-dashed pb-2 border-gray-500">
           <h2 className="text-xl font-semibold text-gray-800">
             Package Details
@@ -75,7 +75,7 @@ const ViewPackageModal = ({ isOpen, onClose, packageData }) => {
           </div>
           {packageData.yearly_price > 0 && (
             <div>
-              <span className="font-semibold">Yearly price:</span>
+              <span className="font-semibold">Yearly price Per Month:</span>
               {"  "}
               {`${symbol} ${packageData.yearly_price}`}
             </div>

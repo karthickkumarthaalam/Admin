@@ -27,6 +27,7 @@ import UsersPage from "./pages/UsersPage";
 import AccountsPage from "./pages/AccountsPage";
 import CopyrightFooter from "./components/CopyRightsComponent";
 import MembersPage from "./pages/MembersPage";
+import CareersPage from "./pages/CareersPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -95,6 +96,10 @@ function AppRoutes() {
         <Route
           path="/programs"
           element={hasPermission("Radio Station", "read") ? <ProgramsPage /> : <Navigate to="/" />}
+        />
+        <Route
+          path="/career"
+          element={hasPermission("Career", "read") ? <CareersPage /> : <Navigate to="/" />}
         />
         <Route
           path="accounts"

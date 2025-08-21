@@ -227,7 +227,9 @@ const AddPackageModal = ({ isOpen, onClose, editPackageData, onSuccess }) => {
               )}
             </div>
             <div className="flex flex-col">
-              <label className="font-semibold mb-1 text-sm">Yearly Price</label>
+              <label className="font-semibold mb-1 text-sm">
+                Yearly Price Per Month
+              </label>
               <input
                 type="number"
                 name="yearly_price"

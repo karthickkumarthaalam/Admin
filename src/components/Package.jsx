@@ -180,7 +180,7 @@ const Package = () => {
                     <th className="py-2 px-4 border">Package Name</th>
                     <th className="py-2 px-4 border">Duration</th>
                     <th className="py-2 px-4 border">Monthly Price</th>
-                    <th className="py-2 px-4 border">Yearly Price</th>
+                    <th className="py-2 px-4 border">Yearly Price per month</th>
                     <th className="py-2 px-4 border">Status</th>
                     <th className="py-2 px-4 border">Actions</th>
                   </tr>
