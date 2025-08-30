@@ -29,6 +29,7 @@ const ProgramCategory = () => {
   const { hasPermission } = usePermission();
 
   const pageSize = 20;
+  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -160,6 +161,7 @@ const ProgramCategory = () => {
                   <tr className="bg-gray-100 text-left">
                     <th className="py-2 px-4 border">SI</th>
                     <th className="py-2 px-4 border">Category</th>
+                    <th className="py-2 px-r border">Banner</th>
                     <th className="py-2 px-4 border">Start Time</th>
                     <th className="py-2 px-4 border">End Time</th>
                     <th className="py-2 px-4 border">Country</th>
@@ -184,6 +186,13 @@ const ProgramCategory = () => {
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-2 px-4 border">{item.category}</td>
+                        <td className="py-2 px-4 border">
+                          <img
+                            src={item.image_url}
+                            alt="website"
+                            className="w-32 h-auto rounded border"
+                          />
+                        </td>
                         <td className="py-2 px-4 border">{item.start_time}</td>
                         <td className="py-2 px-4 border">{item.end_time}</td>
                         <td className="py-2 px-4 border">{item.country}</td>

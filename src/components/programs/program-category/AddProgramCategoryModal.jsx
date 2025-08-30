@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
+
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const AddProgramCategoryModal = ({
   isOpen,
@@ -11,7 +13,8 @@ const AddProgramCategoryModal = ({
 }) => {
   const [form, setForm] = useState(initialFormState());
   const [errors, setErrors] = useState({});
-
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
   function initialFormState() {
     return {
       category: "",
@@ -19,6 +22,7 @@ const AddProgramCategoryModal = ({
       end_time: "",
       country: "",
       status: "in-active",
+      image_url: null,
     };
   }
 
@@ -31,6 +35,7 @@ const AddProgramCategoryModal = ({
   const resetForm = () => {
     setForm(initialFormState());
     setErrors({});
+    setImagePreview(null);
   };
 
   const populateForm = (data) => {
@@ -40,13 +45,25 @@ const AddProgramCategoryModal = ({
       end_time: data.end_time || "",
       country: data.country || "",
       status: data.status || "in-active",
+      image_url: null,
     });
+
+    setImagePreview(data.image_url ? data.image_url : null);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setForm((prev) => ({ ...prev, image_url: file }));
+      setImagePreview(URL.createObjectURL(file));
+      setErrors((prev) => ({ ...prev, image_url: "" }));
+    }
   };
 
   const validateForm = () => {
@@ -61,13 +78,28 @@ const AddProgramCategoryModal = ({
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-
+    setLoading(true);
     try {
+      const payload = new FormData();
+      payload.append("category", form.category);
+      payload.append("start_time", form.start_time);
+      payload.append("end_time", form.end_time);
+      payload.append("country", form.country);
+      payload.append("status", form.status);
+      if (form.image_url) payload.append("image", form.image_url);
+      else {
+        payload.append("image", "null");
+      }
+
       if (editCategoryData) {
-        await apiCall(`/program-category/${editCategoryData.id}`, "PUT", form);
+        await apiCall(
+          `/program-category/${editCategoryData.id}`,
+          "PUT",
+          payload
+        );
         toast.success("Program category updated successfully!");
       } else {
-        await apiCall("/program-category/create", "POST", form);
+        await apiCall("/program-category/create", "POST", payload);
         toast.success("Program category created successfully!");
       }
 
@@ -75,6 +107,8 @@ const AddProgramCategoryModal = ({
       onClose();
     } catch (error) {
       toast.error("Failed to save program category.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,6 +158,20 @@ const AddProgramCategoryModal = ({
             ["Switzerland"],
             errors.country
           )}
+          {renderFileInput(
+            "Category Image",
+            handleFileChange,
+            imagePreview,
+            errors.image_url
+          )}
+          {renderSelectInput(
+            "Status",
+            "status",
+            form.status,
+            handleChange,
+            ["active", "in-active"],
+            errors.status
+          )}
         </div>
 
         <div className="flex justify-end gap-3 mt-6">
@@ -136,8 +184,15 @@ const AddProgramCategoryModal = ({
           <button
             onClick={handleSubmit}
             className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600"
+            disabled={loading}
           >
-            {editCategoryData ? "Update" : "Save"}
+            {editCategoryData
+              ? loading
+                ? "Updating..."
+                : "update"
+              : loading
+              ? "Saving..."
+              : "Save"}
           </button>
         </div>
       </div>
@@ -193,6 +248,37 @@ const AddProgramCategoryModal = ({
             </option>
           ))}
         </select>
+        {error && <p className="text-sm text-red-500">{error}</p>}
+      </div>
+    );
+  }
+
+  function renderFileInput(label, onChange, preview, error) {
+    return (
+      <div className="flex flex-col md:col-span-2">
+        <label className="font-semibold mb-1 text-sm">{label}</label>
+        <input type="file" accept="image/*" onChange={onChange} />
+
+        {preview && (
+          <div className="relative mt-2 w-full max-h-60">
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full max-h-60 object-contain rounded"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setForm((prev) => ({ ...prev, image_url: null }));
+                setImagePreview(null);
+              }}
+              className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+            >
+              <Trash2 />
+            </button>
+          </div>
+        )}
+
         {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
     );

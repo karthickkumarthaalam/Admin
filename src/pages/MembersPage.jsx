@@ -4,6 +4,7 @@ import Members from "./Members";
 import Subscribers from "./Subscribers";
 import Transactions from "./Transactions";
 import Enquiry from "../components/Members/Enquiry/Enquiry";
+import Advertisement from "../components/Members/Advertisement/Advertisement";
 
 const MembersPage = () => {
   const { hasPermission } = usePermission();
@@ -12,6 +13,11 @@ const MembersPage = () => {
     { id: "subscribers", label: "Subscribers", permission: "Subscriber" },
     { id: "transactions", label: "Transactions", permission: "Transaction" },
     { id: "enquiries", label: "Enquiries", permission: "Enquiry" },
+    {
+      id: "advertisement",
+      label: "Advertisement",
+      permission: "Advertisement",
+    },
   ];
 
   const [activeTab, setActiveTab] = useState("members");
@@ -23,7 +29,7 @@ const MembersPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="p-4  border-t border-dashed border-gray-200">
+        <div className="p-4  border-t border-dashed border-gray-200 overflow-x-auto">
           <div className="flex flex-1 gap-2">
             {visibleTabs.map((tab) => (
               <button
@@ -46,6 +52,7 @@ const MembersPage = () => {
           {activeTab === "subscribers" && <Subscribers />}
           {activeTab === "transactions" && <Transactions />}
           {activeTab === "enquiries" && <Enquiry />}
+          {activeTab === "advertisement" && <Advertisement />}
         </div>
       </div>
     </>
