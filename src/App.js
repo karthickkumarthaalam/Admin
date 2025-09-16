@@ -1,5 +1,11 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -12,12 +18,9 @@ import LoadingComponent from "./components/LoadingComponent";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import Dashboard from "./pages/Dashboard";
-import Transactions from "./pages/Transactions";
-import Subscribers from "./pages/Subscribers";
 import Coupons from "./pages/Coupons";
 import Packages from "./pages/Packages";
 import ForgotPassword from "./pages/ForgotPassword";
-import Members from "./pages/Members";
 import PodcastPage from "./pages/PodcastPage";
 import BannerPage from "./pages/BannerPage";
 import ProgramsPage from "./pages/ProgramsPage";
@@ -50,7 +53,10 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <LoginPage />} />
+      <Route
+        path="/"
+        element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
+      />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
@@ -59,7 +65,9 @@ function AppRoutes() {
 
         <Route
           path="/users"
-          element={hasPermission("User", "read") ? <UsersPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("User", "read") ? <UsersPage /> : <Navigate to="/" />
+          }
         />
         {/* <Route
           path="/transactions"
@@ -71,39 +79,96 @@ function AppRoutes() {
         /> */}
         <Route
           path="/members"
-          element={hasPermission("Members", "read") || hasPermission("Subscriber", "read") || hasPermission("Transaction", "read") || hasPermission("Enquiry", "read") ? <MembersPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Members", "read") ||
+            hasPermission("Subscriber", "read") ||
+            hasPermission("Transaction", "read") ||
+            hasPermission("Enquiry", "read") ? (
+              <MembersPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/coupons"
-          element={hasPermission("Coupon", "read") ? <Coupons /> : <Navigate to="/" />}
+          element={
+            hasPermission("Coupon", "read") ? <Coupons /> : <Navigate to="/" />
+          }
         />
         <Route
           path="/packages"
-          element={hasPermission("Package", "read") ? <Packages /> : <Navigate to="/" />}
+          element={
+            hasPermission("Package", "read") ? (
+              <Packages />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/banner"
-          element={hasPermission("Banner", "read") ? <BannerPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Banner", "read") ? (
+              <BannerPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/podcasts"
-          element={hasPermission("Podcast", "read") ? <PodcastPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Podcast", "read") ? (
+              <PodcastPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/agreements"
-          element={hasPermission("Agreements", "read") ? <AgreementPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Agreements", "read") ? (
+              <AgreementPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/programs"
-          element={hasPermission("Radio Station", "read") ? <ProgramsPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Radio Station", "read") ? (
+              <ProgramsPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="/career"
-          element={hasPermission("Career", "read") ? <CareersPage /> : <Navigate to="/" />}
+          element={
+            hasPermission("Career", "read") ? (
+              <CareersPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
         />
         <Route
           path="accounts"
-          element={hasPermission("Expenses", "read") || hasPermission("Budget", "read") || hasPermission("Currency", "read") ? <AccountsPage /> : <Navigate to="/" />} />
+          element={
+            hasPermission("Expenses", "read") ||
+            hasPermission("Audit Bills", "read") ||
+            hasPermission("Budget", "read") ||
+            hasPermission("Currency", "read") ? (
+              <AccountsPage />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>

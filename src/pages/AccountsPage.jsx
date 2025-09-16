@@ -8,7 +8,11 @@ const AccountsPage = () => {
   const { hasPermission } = usePermission();
 
   const tabs = [
-    { id: "expenses", label: "Expenses", permission: "Expenses" },
+    {
+      id: "expenses",
+      label: "Expenses",
+      permission: ["Expenses", "Audit Bills"],
+    },
     {
       id: "budget",
       label: "Budget",
@@ -18,6 +22,9 @@ const AccountsPage = () => {
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
+    if (Array.isArray(permission)) {
+      return permission.some((p) => hasPermission(p, "read"));
+    }
     return hasPermission(permission, "read");
   });
 

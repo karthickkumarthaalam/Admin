@@ -2,30 +2,49 @@ import React, { useState } from "react";
 import Expenses from "./Expenses";
 import Category from "./category/Category";
 import Merchant from "./merchant/Merchant";
+import ExpenseBills from "./bills/ExpenseBills";
+import { usePermission } from "../../../context/PermissionContext";
 
 const ExpensePage = () => {
-  const [activeTab, setActiveTab] = useState("expense");
+  const { hasPermission } = usePermission();
 
   const tabs = [
     {
       id: "expense",
       label: "Expenses",
+      permission: "Expenses",
     },
     {
       id: "categories",
       label: "Category",
+      permission: "Expenses",
     },
     {
       id: "merchant",
       label: "Merchant",
+      permission: "Expenses",
+    },
+    {
+      id: "bills",
+      label: "Audit Bills",
+      permission: "Audit Bills",
     },
   ];
+
+  const visibleTabs = tabs.filter(({ permission }) => {
+    return hasPermission(permission, "read");
+  });
+
+  const [activeTab, setActiveTab] = useState(
+    visibleTabs.length > 0 ? visibleTabs[0].id : null
+  );
+
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="px-4">
           <div className="flex flex-1 gap-2 overflow-y-scroll">
-            {tabs.map((tab) => (
+            {visibleTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
@@ -33,7 +52,7 @@ const ExpensePage = () => {
                   activeTab === tab.id
                     ? "bg-blue-800 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                } whitespace-nowrap`}
               >
                 {tab.label}
               </button>
@@ -45,6 +64,7 @@ const ExpensePage = () => {
           {activeTab === "expense" && <Expenses />}
           {activeTab === "categories" && <Category />}
           {activeTab === "merchant" && <Merchant />}
+          {activeTab === "bills" && <ExpenseBills />}
         </div>
       </div>
     </>

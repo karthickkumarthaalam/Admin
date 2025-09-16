@@ -5,9 +5,6 @@ import {
   LayoutDashboard,
   ContactRound,
   BriefcaseBusiness,
-  CreditCard,
-  Users,
-  Ticket,
   BadgeDollarSign,
   Activity,
   X,
@@ -18,12 +15,10 @@ import {
   Landmark,
   FileText,
 } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
 import { usePermission } from "../context/PermissionContext";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user } = useAuth();
   const { hasPermission, permissionsLoaded } = usePermission();
 
   const menus = [
@@ -85,7 +80,7 @@ const Sidebar = () => {
       label: "Accounts",
       icon: Landmark,
       path: "/accounts",
-      permission: ["Expenses", "Budget", "Currency"],
+      permission: ["Expenses", "Budget", "Currency", "Audit Bills"],
     },
     {
       label: "Agreements",

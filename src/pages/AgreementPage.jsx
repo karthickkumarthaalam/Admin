@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Agreements from "../components/Agreements/Agreements";
 import { usePermission } from "../context/PermissionContext";
+import AgreementCategory from "../components/Agreements/category/AgreementCategory";
 
 const AgreementPage = () => {
   const [activeTab, setActiveTab] = useState("agreement");
@@ -8,6 +9,7 @@ const AgreementPage = () => {
 
   const tabs = [
     { id: "agreement", label: "Agreements", permission: "Agreement" },
+    { id: "category", label: "Category", permission: "Agreement" },
   ];
 
   const VisibleTabs = tabs.filter(({ permission }) => {
@@ -39,6 +41,7 @@ const AgreementPage = () => {
 
         <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
           {activeTab === "agreement" && <Agreements />}
+          {activeTab === "category" && <AgreementCategory />}
         </div>
       </div>
     </>

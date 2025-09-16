@@ -12,6 +12,7 @@ const AddAgreementModal = ({
   const [form, setForm] = useState(initialFormState());
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState(null);
 
   function initialFormState() {
     return {
@@ -40,8 +41,18 @@ const AddAgreementModal = ({
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await apiCall("/agreement-category", "GET");
+      setCategories(res?.data);
+    } catch (error) {
+      console.error("Failed to fetch categories");
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
+      fetchCategories();
       if (editAgreementData) {
         populateForm(editAgreementData);
       } else {
@@ -174,15 +185,22 @@ const AddAgreementModal = ({
 
           <div className="flex flex-col mb-4">
             <label className="font-semibold mb-1 text-sm">Category</label>
-            <input
-              type="text"
+            <select
               name="category"
               value={form.category}
               onChange={handleChange}
               className={`border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none ${
                 errors.category ? "border-red-500" : ""
               }`}
-            />
+            >
+              <option value="">Select Category</option>
+              {categories &&
+                categories.map((cat) => (
+                  <option key={cat.id} value={cat.category_name}>
+                    {cat.category_name}
+                  </option>
+                ))}
+            </select>
             {errors.category && (
               <p className="text-sm text-red-500">{errors.category}</p>
             )}
