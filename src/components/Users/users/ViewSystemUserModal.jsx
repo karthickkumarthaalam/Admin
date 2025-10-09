@@ -10,6 +10,10 @@ import {
   Smartphone,
   UserCircle,
   Briefcase,
+  Building2,
+  Banknote,
+  Hash,
+  FileText,
 } from "lucide-react";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
@@ -20,15 +24,24 @@ const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
   const {
     name,
     email,
+    employee_id,
     gender,
     date_of_birth,
     phone_number,
     whatsapp_number,
     address,
+    city,
+    state,
+    country,
     description,
     image_url,
     status,
     department,
+    bank_name,
+    ifsc_code,
+    account_number,
+    pan_number,
+    uan_number,
   } = userData;
 
   const imageSrc = image_url
@@ -36,11 +49,11 @@ const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
     : "https://via.placeholder.com/300x300?text=No+Image";
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 p-4">
-      <div className="bg-white w-full max-w-3xl rounded-xl overflow-hidden shadow-2xl animate-fadeIn flex flex-col max-h-[70vh] sm:max-h-[90vh]">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+      <div className="bg-white w-full max-w-6xl rounded-2xl overflow-hidden shadow-2xl animate-fadeIn flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex justify-between items-center border-b px-6 py-4 bg-gray-50">
-          <h2 className="text-lg font-semibold text-gray-800">
+        <div className="flex justify-between items-center border-b px-6 py-4 bg-gradient-to-t from-gray-100 to-gray-200">
+          <h2 className="text-xl font-semibold text-gray-800">
             👤 System User Details
           </h2>
           <button
@@ -52,76 +65,109 @@ const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
         </div>
 
         {/* Body */}
-        <div className="overflow-y-auto p-6 flex-1 space-y-5">
-          {/* Profile Image */}
-          <div className="flex flex-col md:flex-row gap-4 items-center md:items-start">
-            <img
-              src={imageSrc}
-              alt="User Profile"
-              className="w-40 h-40 rounded-lg object-center border"
-            />
-            <div className="space-y-2 text-sm flex-1">
-              <h3 className="text-2xl font-bold text-gray-800">{name}</h3>
-              <p className="flex items-center gap-2 text-gray-700">
-                <User size={18} className="text-red-500" />
-                <strong className="text-gray-600">Gender:</strong>{" "}
-                {gender || "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <Calendar size={18} className="text-red-500" />
-                <strong className="text-gray-600">DOB:</strong>{" "}
-                {date_of_birth
-                  ? new Date(date_of_birth).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <Mail size={18} className="text-red-500" />
-                <strong className="text-gray-600">Email:</strong> {email}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <Phone size={18} className="text-red-500" />
-                <strong className="text-gray-600">Phone:</strong>{" "}
-                {phone_number || "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <Smartphone size={18} className="text-red-500" />
-                <strong className="text-gray-600">WhatsApp:</strong>{" "}
-                {whatsapp_number || "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <MapPin size={18} className="text-red-500" />
-                <strong className="text-gray-600">Address:</strong>{" "}
-                {address || "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <Briefcase size={18} className="text-red-500" />
-                <strong className="text-gray-600">Department:</strong>{" "}
-                {department?.department_name || "N/A"}
-              </p>
-              <p className="flex items-center gap-2 text-gray-700">
-                <UserCircle size={18} className="text-red-500" />
-                <strong className="text-gray-600">Status:</strong> {status}
-              </p>
+        <div className="overflow-y-auto p-6 flex-1 space-y-6">
+          {/* Profile Section */}
+          <Section title="Profile Information">
+            <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+              <img
+                src={imageSrc}
+                alt="User Profile"
+                className="w-36 h-36 rounded-lg object-fit border shadow-sm"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 text-sm">
+                <Field icon={User} label="Full Name" value={name} />
+                <Field icon={Hash} label="Employee ID" value={employee_id} />
+                <Field
+                  icon={UserCircle}
+                  label="Gender"
+                  value={gender || "N/A"}
+                />
+                <Field
+                  icon={Calendar}
+                  label="Date of Birth"
+                  value={
+                    date_of_birth
+                      ? new Date(date_of_birth).toLocaleDateString()
+                      : "N/A"
+                  }
+                />
+                <Field
+                  icon={Briefcase}
+                  label="Department"
+                  value={department?.department_name || "N/A"}
+                />
+                <Field icon={UserCircle} label="Status" value={status} />
+              </div>
             </div>
-          </div>
+          </Section>
+
+          {/* Contact Section */}
+          <Section title="Contact Details">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <Field icon={Mail} label="Email" value={email} />
+              <Field icon={Phone} label="Phone" value={phone_number || "N/A"} />
+              <Field
+                icon={Smartphone}
+                label="WhatsApp"
+                value={whatsapp_number || "N/A"}
+              />
+            </div>
+          </Section>
+
+          {/* Address Section */}
+          <Section title="Address Information">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+              <Field icon={MapPin} label="Address" value={address || "N/A"} />
+              <Field icon={Building2} label="City" value={city || "N/A"} />
+              <Field icon={Building2} label="State" value={state || "N/A"} />
+              <Field
+                icon={Building2}
+                label="Country"
+                value={country || "N/A"}
+              />
+            </div>
+          </Section>
+
+          {/* Bank Section */}
+          <Section title="Bank Details">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+              <Field
+                icon={Banknote}
+                label="Bank Name"
+                value={bank_name || "N/A"}
+              />
+              <Field icon={Hash} label="IFSC Code" value={ifsc_code || "N/A"} />
+              <Field
+                icon={Banknote}
+                label="Account Number"
+                value={account_number || "N/A"}
+              />
+              <Field
+                icon={FileText}
+                label="PAN Number"
+                value={pan_number || "N/A"}
+              />
+              <Field
+                icon={FileText}
+                label="UAN Number"
+                value={uan_number || "N/A"}
+              />
+            </div>
+          </Section>
 
           {/* Description */}
-          <div className="space-y-2">
-            <h4 className="flex items-center gap-2 text-lg font-semibold text-gray-800">
-              <Info size={20} className="text-red-500" />
-              Description
-            </h4>
+          <Section title="Description">
             <div className="bg-gray-50 p-4 rounded-lg border text-gray-700 whitespace-pre-wrap leading-relaxed">
               {description || "No description available."}
             </div>
-          </div>
+          </Section>
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end px-6 py-4 border-t bg-gray-50">
+        <div className="flex justify-end px-6 py-4 border-t bg-gradient-to-t from-gray-100 to-gray-200">
           <button
             onClick={onClose}
-            className="px-5 py-2 bg-red-500 text-white text-sm rounded hover:bg-red-600 transition"
+            className="px-6 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
           >
             Close
           </button>
@@ -130,5 +176,24 @@ const ViewSystemUserModal = ({ isOpen, onClose, userData }) => {
     </div>
   );
 };
+
+/* --- Reusable Components --- */
+
+const Section = ({ title, children }) => (
+  <div className="border border-gray-200 rounded-xl p-5 bg-white hover:bg-gray-50 shadow-sm  transition">
+    <h4 className="text-base font-semibold text-red-800 mb-3 border-b pb-2 flex items-center gap-2">
+      {title}
+    </h4>
+    {children}
+  </div>
+);
+
+const Field = ({ icon: Icon, label, value }) => (
+  <p className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border">
+    <Icon size={16} className="text-black font-bold shrink-0" />
+    <span className="text-gray-500 font-semibold">{label}:</span>
+    <span className="text-gray-900">{value}</span>
+  </p>
+);
 
 export default ViewSystemUserModal;

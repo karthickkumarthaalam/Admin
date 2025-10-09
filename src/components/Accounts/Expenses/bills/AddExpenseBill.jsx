@@ -144,14 +144,14 @@ const AddExpenseBill = ({
         </h2>
 
         <div className="grid gap-3">
-          {/* Vendor */}
-          <label className="font-semibold text-gray-800">Vendor</label>
+          {/* Merchant */}
+          <label className="font-semibold text-gray-800">Merchant</label>
           <select
             value={form.vendor}
             onChange={(e) => setForm({ ...form, vendor: e.target.value })}
             className="border rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
           >
-            <option value="">Select Vendor</option>
+            <option value="">Select Merchant</option>
             {merchants.map((m) => (
               <option key={m.id} value={m.merchant_name}>
                 {m.merchant_name}
@@ -160,7 +160,7 @@ const AddExpenseBill = ({
           </select>
 
           {/* Title */}
-          <label className="font-semibold text-gray-700">Bill Title</label>
+          <label className="font-semibold text-gray-700">Title</label>
           <input
             type="text"
             placeholder="Title"
@@ -187,7 +187,7 @@ const AddExpenseBill = ({
           </div>
 
           {/* Type */}
-          <label className="font-semibold text-gray-700">Bill Type</label>
+          <label className="font-semibold text-gray-700">Type</label>
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -195,6 +195,8 @@ const AddExpenseBill = ({
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
+            <option value="payable">Payable</option>
+            <option value="others">Others</option>
           </select>
 
           {/* Upload new files */}

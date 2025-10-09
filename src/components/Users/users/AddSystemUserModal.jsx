@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import {
+  X,
+  User,
+  Settings,
+  Phone,
+  Building2,
+  Upload,
+  Banknote,
+} from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
@@ -16,6 +24,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
     return {
       name: "",
       email: "",
+      employee_id: "",
       gender: "",
       department_id: "",
       date_of_birth: "",
@@ -28,6 +37,11 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       share_access: false,
       is_admin: false,
       show_profile: false,
+      bank_name: "",
+      ifsc_code: "",
+      account_number: "",
+      pan_number: "",
+      uan_number: "",
     };
   }
 
@@ -42,7 +56,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
     try {
       const res = await apiCall("/departments?limit=50&status=active", "GET");
       setDepartments(res.data);
-    } catch (err) {
+    } catch {
       toast.error("Failed to fetch departments.");
     }
   };
@@ -55,8 +69,10 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
 
   const populateForm = (data) => {
     setForm({
+      ...form,
       name: data.name || "",
       email: data.email || "",
+      employee_id: data.employee_id || "",
       gender: data.gender || "",
       department_id: data.department_id || "",
       date_of_birth: data.date_of_birth ? data.date_of_birth.split("T")[0] : "",
@@ -64,10 +80,15 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       whatsapp_number: data.whatsapp_number || "",
       address: data.address || "",
       description: data.description || "",
-      image: null,
       status: data.status || "inactive",
-      isAdmin: data.is_admin || false,
+      share_access: data.share_access || false,
+      is_admin: data.is_admin || false,
       show_profile: data.show_profile || false,
+      bank_name: data.bank_name || "",
+      account_number: data.account_number || "",
+      ifsc_code: data.ifsc_code || "",
+      pan_number: data.pan_number || "",
+      uan_number: data.uan_number || "",
     });
     setImagePreview(
       data.image_url
@@ -87,7 +108,6 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
     if (file) {
       setForm((prev) => ({ ...prev, image: file }));
       setImagePreview(URL.createObjectURL(file));
-      setErrors((prev) => ({ ...prev, image: "" }));
     }
   };
 
@@ -107,11 +127,6 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       for (const key in form) {
         if (key === "image" && form.image) {
           payload.append("profile_image", form.image);
-        } else if (key === "share_access") {
-          payload.append(
-            "share_access",
-            form.share_access === true || form.share_access === "true"
-          );
         } else {
           payload.append(key, form[key]);
         }
@@ -131,7 +146,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
 
       onSuccess();
       onClose();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save system user.");
     } finally {
       setLoading(false);
@@ -141,242 +156,316 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl w-full max-w-4xl p-6 relative overflow-auto max-h-[90vh]">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 text-gray-500 hover:text-gray-700"
-        >
-          <X size={24} />
-        </button>
-
-        <h2 className="text-xl font-semibold mb-4 text-red-600">
-          {editUserData ? "Edit System User" : "Add System User"}
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {renderTextInput(
-            "Name",
-            "name",
-            form.name,
-            handleChange,
-            errors.name
-          )}
-          {renderTextInput(
-            "Email",
-            "email",
-            form.email,
-            handleChange,
-            errors.email
-          )}
-          {renderSelectInput(
-            "Department",
-            "department_id",
-            form.department_id,
-            handleChange,
-            departments.map((d) => ({ label: d.department_name, value: d.id }))
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {renderDateInput(
-            "Date of Birth",
-            "date_of_birth",
-            form.date_of_birth,
-            handleChange
-          )}
-          {renderTextInput(
-            "Phone Number",
-            "phone_number",
-            form.phone_number,
-            handleChange
-          )}
-          {renderTextInput(
-            "WhatsApp Number",
-            "whatsapp_number",
-            form.whatsapp_number,
-            handleChange
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {renderSelectInput("Gender", "gender", form.gender, handleChange, [
-            "Male",
-            "Female",
-            "Other",
-          ])}
-          {renderTextArea("Address", "address", form.address, handleChange, 3)}
-        </div>
-
-        {renderTextArea(
-          "Description",
-          "description",
-          form.description,
-          handleChange
-        )}
-        {renderFileInput(
-          "Profile Image",
-          "image",
-          handleFileChange,
-          imagePreview
-        )}
-
-        <div className="flex flex-col">
-          <div className="mt-4 flex gap-2 items-center">
-            <label className="font-semibold mb-1 text-sm">Show Profile</label>
-            <input
-              type="checkbox"
-              value={form.show_profile}
-              onChange={() => {
-                setForm((prev) => ({
-                  ...prev,
-                  show_profile: !prev.show_profile,
-                }));
-              }}
-            />
-          </div>
-
-          <div className="mt-4 flex gap-2 items-center">
-            <label className="font-semibold mb-1 text-sm">Share Password</label>
-            <input
-              type="checkbox"
-              value={form.share_access}
-              onChange={() => {
-                setForm((prev) => ({
-                  ...prev,
-                  share_access: !prev.share_access,
-                }));
-              }}
-            />
-          </div>
-
-          <div className="mt-4 flex gap-2 items-center">
-            <label className="font-semibold mb-1 text-sm">Admin Access</label>
-            <input
-              type="checkbox"
-              value={form.is_admin}
-              onChange={() => {
-                setForm((prev) => ({
-                  ...prev,
-                  is_admin: !prev.is_admin,
-                }));
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6">
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100]">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl  relative max-h-[95vh] overflow-y-auto animate-fadeIn">
+        {/* Header */}
+        <div className="sticky top-0  w-full bg-gradient-to-t from-gray-100 to-gray-200 border-b p-4 border-gray-300 flex justify-between items-center">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+            <User className="text-red-500" size={22} />
+            {editUserData ? "Edit System User" : "Add System User"}
+          </h2>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm rounded border border-gray-300 hover:bg-gray-100"
+            className=" text-red-500 hover:text-red-700 transition"
           >
-            Cancel
+            <X size={24} />
           </button>
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600"
-          >
-            {editUserData
-              ? loading
-                ? "Updating..."
-                : "Update"
-              : loading
-              ? "Saving..."
-              : "Save"}
-          </button>
+        </div>
+
+        {/* GROUP 1 - Personal Information */}
+        <div className="p-6">
+          <SectionCard icon={<User size={18} />} title="Personal Information">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <TextInput
+                label="Full Name"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                error={errors.name}
+              />
+              <TextInput
+                label="Employee ID"
+                name="employee_id"
+                value={form.employee_id}
+                onChange={handleChange}
+              />
+              <SelectInput
+                label="Department"
+                name="department_id"
+                value={form.department_id}
+                onChange={handleChange}
+                options={departments.map((d) => ({
+                  label: d.department_name,
+                  value: d.id,
+                }))}
+              />
+              <FileInput
+                label="Profile Image"
+                onChange={handleFileChange}
+                preview={imagePreview}
+              />
+              <SelectInput
+                label="Gender"
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                options={["Male", "Female", "Other"]}
+              />
+              <DateInput
+                label="Date of Birth"
+                name="date_of_birth"
+                value={form.date_of_birth}
+                onChange={handleChange}
+              />
+            </div>
+          </SectionCard>
+
+          {/* GROUP 2 - Contact Details */}
+          <SectionCard icon={<Phone size={18} />} title="Contact Details">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <TextInput
+                label="Email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                error={errors.email}
+              />
+              <TextInput
+                label="Phone Number"
+                name="phone_number"
+                value={form.phone_number}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="WhatsApp Number"
+                name="whatsapp_number"
+                value={form.whatsapp_number}
+                onChange={handleChange}
+              />
+            </div>
+            <TextArea
+              label="Address"
+              name="address"
+              value={form.address}
+              onChange={handleChange}
+              rows={2}
+            />
+          </SectionCard>
+
+          <SectionCard icon={<Banknote size={18} />} title="Bank Details">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <TextInput
+                label="Bank Name"
+                name="bank_name"
+                value={form.bank_name}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="Account Number"
+                name="account_number"
+                value={form.account_number}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="IFSC Code"
+                name="ifsc_code"
+                value={form.ifsc_code}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="PAN Number"
+                name="pan_number"
+                value={form.pan_number}
+                onChange={handleChange}
+              />
+              <TextInput
+                label="UAN Number"
+                name="uan_number"
+                value={form.uan_number}
+                onChange={handleChange}
+              />
+            </div>
+          </SectionCard>
+
+          {/* GROUP 3 - Additional Info */}
+          <SectionCard icon={<Building2 size={18} />} title="Additional Info">
+            <TextArea
+              label="Description"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+              rows={3}
+            />
+          </SectionCard>
+
+          {/* GROUP 4 - Account Settings */}
+          <SectionCard icon={<Settings size={18} />} title="Account Settings">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Checkbox
+                label="Show Profile"
+                checked={form.show_profile}
+                onChange={() =>
+                  setForm((p) => ({ ...p, show_profile: !p.show_profile }))
+                }
+              />
+              <Checkbox
+                label="Share Password"
+                checked={form.share_access}
+                onChange={() =>
+                  setForm((p) => ({ ...p, share_access: !p.share_access }))
+                }
+              />
+              <Checkbox
+                label="Admin Access"
+                checked={form.is_admin}
+                onChange={() =>
+                  setForm((p) => ({ ...p, is_admin: !p.is_admin }))
+                }
+              />
+            </div>
+          </SectionCard>
+
+          {/* Footer */}
+          <div className="flex justify-end gap-3 mt-6 border-t pt-4">
+            <button
+              onClick={onClose}
+              className="px-5 py-2 text-sm rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className={`px-5 py-2 text-sm rounded-lg text-white transition ${
+                loading ? "bg-gray-400" : "bg-red-500 hover:bg-red-600"
+              }`}
+            >
+              {loading
+                ? editUserData
+                  ? "Updating..."
+                  : "Saving..."
+                : editUserData
+                ? "Update"
+                : "Save"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-
-  function renderTextInput(label, name, value, onChange, error) {
-    return (
-      <div className="mt-4 flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <input
-          type="text"
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-        />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-      </div>
-    );
-  }
-
-  function renderTextArea(label, name, value, onChange, rowValue = 3) {
-    return (
-      <div className="mt-4 flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <textarea
-          name={name}
-          value={value}
-          onChange={onChange}
-          rows={rowValue}
-          className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-        />
-      </div>
-    );
-  }
-
-  function renderSelectInput(label, name, value, onChange, options) {
-    return (
-      <div className="mt-4 flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <select
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-        >
-          <option value="">Select {label}</option>
-          {options.map((opt) =>
-            typeof opt === "string" ? (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ) : (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            )
-          )}
-        </select>
-      </div>
-    );
-  }
-
-  function renderDateInput(label, name, value, onChange) {
-    return (
-      <div className="mt-4 flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <input
-          type="date"
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-        />
-      </div>
-    );
-  }
-
-  function renderFileInput(label, name, onChange, preview) {
-    return (
-      <div className="mt-4 flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <input type="file" accept="image/*" onChange={onChange} />
-        {preview && (
-          <img
-            src={preview}
-            alt="Preview"
-            className="mt-2 w-full max-h-60 object-contain rounded"
-          />
-        )}
-      </div>
-    );
-  }
 };
+
+/* ----------------------------- */
+/* Reusable Components           */
+/* ----------------------------- */
+const SectionCard = ({ icon, title, children }) => (
+  <div className="border border-gray-200 rounded-xl p-5 mb-6 shadow-sm bg-gray-50 hover:bg-gray-100 transition">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="text-red-500">{icon}</div>
+      <h3 className="font-semibold text-gray-800 text-base">{title}</h3>
+    </div>
+    <div>{children}</div>
+  </div>
+);
+
+const TextInput = ({ label, name, value, onChange, error }) => (
+  <div className="flex flex-col">
+    <label className="font-medium text-sm text-gray-800 mb-1">{label}</label>
+    <input
+      type="text"
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-red-500 focus:outline-none"
+    />
+    {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+  </div>
+);
+
+const SelectInput = ({ label, name, value, onChange, options }) => (
+  <div className="flex flex-col">
+    <label className="font-medium text-sm text-gray-800 mb-1">{label}</label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-red-500 focus:outline-none"
+    >
+      <option value="">Select {label}</option>
+      {options.map((opt) =>
+        typeof opt === "string" ? (
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
+        ) : (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        )
+      )}
+    </select>
+  </div>
+);
+
+const DateInput = ({ label, name, value, onChange }) => (
+  <div className="flex flex-col">
+    <label className="font-medium text-sm text-gray-800 mb-1">{label}</label>
+    <input
+      type="date"
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-red-500 focus:outline-none"
+    />
+  </div>
+);
+
+const FileInput = ({ label, onChange, preview }) => (
+  <div className="flex flex-col">
+    <label className="font-medium text-sm text-gray-800 mb-2">{label}</label>
+    <label className="flex items-center justify-center gap-2 border border-dashed border-gray-300 rounded-lg px-4 py-3 cursor-pointer hover:border-red-400 transition bg-white">
+      <Upload size={18} className="text-gray-500" />
+      <span className="text-gray-600 text-sm">Upload Image</span>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={onChange}
+        className="hidden"
+      />
+    </label>
+    {preview && (
+      <img
+        src={preview}
+        alt="Preview"
+        className="mt-3 w-28 h-28 object-fit rounded-lg border shadow-sm"
+      />
+    )}
+  </div>
+);
+
+const TextArea = ({ label, name, value, onChange, rows = 3 }) => (
+  <div className="flex flex-col mt-3">
+    <label className="font-medium text-sm text-gray-800 mb-1">{label}</label>
+    <textarea
+      name={name}
+      value={value}
+      onChange={onChange}
+      rows={rows}
+      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-red-500 focus:outline-none"
+    />
+  </div>
+);
+
+const Checkbox = ({ label, checked, onChange }) => (
+  <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="w-4 h-4 accent-red-500 rounded focus:ring-2 focus:ring-red-400"
+    />
+    {label}
+  </label>
+);
 
 export default AddSystemUserModal;

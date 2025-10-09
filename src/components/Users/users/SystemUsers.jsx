@@ -144,84 +144,117 @@ const SystemUsers = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full border border-gray-300 text-sm">
+            <div className="mt-6 w-full overflow-x-auto">
+              <table className="min-w-full border border-gray-200 rounded-lg shadow-sm bg-white text-sm">
                 <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border min-w-[120px]">Image</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Department</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+                  <tr className="bg-gray-100 text-gray-900 text-left text-xs uppercase tracking-wide">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b min-w-[120px] text-center">
+                      Profile
+                    </th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b text-center whitespace-nowrap">
+                      Employee ID
+                    </th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Department</th>
+                    <th className="py-3 px-4 border-b text-center">Status</th>
+                    <th className="py-3 px-4 border-b text-center">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {systemUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="6"
-                        className="py-6 px-4 border text-center text-gray-500 text-sm"
+                        colSpan="8"
+                        className="py-8 px-4 text-center text-gray-500 text-sm"
                       >
                         No system users found.
                       </td>
                     </tr>
                   ) : (
                     systemUsers.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className="py-2 px-4 border">
+                      <tr
+                        key={item.id}
+                        className="hover:bg-gray-50 transition-colors duration-150"
+                      >
+                        <td className="py-3 px-4 border-b text-gray-600">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border w-32">
-                          <img
-                            src={`${
-                              process.env.REACT_APP_API_BASE_URL
-                            }/${item.image_url?.replace(/\\/g, "/")}`}
-                            alt={item.name}
-                            className="w-24 h-28 object-center "
-                          />
+
+                        {/* Profile Image */}
+                        <td className="py-3 px-4 border-b">
+                          <div className="flex justify-center">
+                            <img
+                              src={`${
+                                process.env.REACT_APP_API_BASE_URL
+                              }/${item.image_url?.replace(/\\/g, "/")}`}
+                              alt={item.name}
+                              className="w-16 h-16 object-fit rounded-lg border border-gray-200 shadow-sm"
+                            />
+                          </div>
                         </td>
-                        <td className="py-2 px-4 border">{item.name}</td>
-                        <td className="py-2 px-4 border">{item.email}</td>
-                        <td className="py-2 px-4 border">
-                          {item.department
-                            ? item.department?.department_name
-                            : "-"}
+
+                        {/* Name */}
+                        <td className="py-3 px-4 border-b font-medium text-gray-800">
+                          {item.name}
                         </td>
-                        <td className="py-2 px-4 border">
+
+                        {/* Employee ID */}
+                        <td className="py-3 px-4 border-b text-center text-gray-700">
+                          {item.employee_id || "-"}
+                        </td>
+
+                        {/* Email */}
+                        <td className="py-3 px-4 border-b text-gray-600">
+                          {item.email}
+                        </td>
+
+                        {/* Department */}
+                        <td className="py-3 px-4 border-b text-gray-700">
+                          {item.department?.department_name || "-"}
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-3 px-4 border-b text-center">
                           <span
                             onClick={() => handleStatusToggle(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                            className={`cursor-pointer px-3 py-1 text-xs rounded-full font-medium transition-all ${
                               item.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
+                                ? "bg-green-100 text-green-700 border border-green-300"
+                                : "bg-red-100 text-red-700 border border-red-300"
                             }`}
                           >
                             {item.status}
                           </span>
                         </td>
-                        <td className="py-2 px-4 border">
-                          <div className="flex items-center gap-2">
+
+                        {/* Actions */}
+                        <td className="py-3 px-4 border-b">
+                          <div className="flex justify-center gap-3">
                             <button
                               onClick={() => {
                                 setSelectedUser(item);
                                 setShowUserModal(true);
                               }}
-                              className="text-green-500 hover:text-green-600"
+                              className="text-gray-600 hover:text-green-600 transition"
+                              title="View"
                             >
                               <ScanEye size={16} />
                             </button>
+
                             <button
                               onClick={() => handleEdit(item.id)}
-                              className="text-blue-600 hover:text-blue-800"
+                              className="text-gray-600 hover:text-blue-600 transition"
                               title="Edit"
                             >
                               <Edit2 size={16} />
                             </button>
+
                             <button
                               onClick={() => handleDelete(item.id)}
-                              className="text-red-600 hover:text-red-800"
+                              className="text-gray-600 hover:text-red-600 transition"
                               title="Delete"
                             >
                               <Trash2 size={16} />

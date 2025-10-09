@@ -77,7 +77,7 @@ const LoginPage = () => {
       >
         <div className="flex justify-center">
           <img
-            src="https://thaalam.ch/newfile/subscription/assets/img/thalam-logo.png"
+            src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
             alt="Thaalam Logo"
             className="w-36 h-36 object-contain mb-2"
           />

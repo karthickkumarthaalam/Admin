@@ -1,8 +1,4 @@
 import React, { useState } from "react";
-import Sidebar from "../components/SideBar";
-import Header from "../components/Header";
-import CopyrightFooter from "../components/CopyRightsComponent";
-import Currency from "../components/Currency";
 import Package from "../components/Package";
 import { usePermission } from "../context/PermissionContext";
 import Coupons from "./Coupons";

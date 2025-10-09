@@ -26,7 +26,7 @@ const Sidebar = () => {
       label: "Dashboard",
       icon: LayoutDashboard,
       path: "/dashboard",
-      permission: null,
+      permission: "Dashboard",
     },
     {
       label: "Users",
@@ -125,7 +125,7 @@ const Sidebar = () => {
       >
         <div className="p-2 border-b border-gray-400 flex items-center justify-center">
           <img
-            src="https://thaalam.ch/newfile/subscription/assets/img/thalam-logo.png"
+            src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
             alt="thaalam logo"
             className="h-16 w-24"
           />

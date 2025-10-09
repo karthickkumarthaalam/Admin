@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "../components/SideBar";
-import Header from "../components/Header";
 import BreadCrumb from "../components/BreadCrum";
 import { BadgePlus, Search, Loader2, Edit2, Trash2 } from "lucide-react";
 import AddHeader from "../components/AddCouponModal";

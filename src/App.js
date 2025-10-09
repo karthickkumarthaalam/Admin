@@ -61,8 +61,16 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route element={user ? <AuthenticatedLayout /> : <Navigate to="/" />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-
+        <Route
+          path="/dashboard"
+          element={
+            hasPermission("Dashboard", "read") ? (
+              <Dashboard />
+            ) : (
+              <Navigate to="/accounts" />
+            )
+          }
+        />
         <Route
           path="/users"
           element={

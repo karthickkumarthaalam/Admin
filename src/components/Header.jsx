@@ -30,7 +30,7 @@ const Header = () => {
       >
         {user?.name && <h5 className="text-gray-700 font-bold">{user.name}</h5>}
         <img
-          src="https://thaalam.ch/newfile/subscription/assets/img/user1.jpg"
+          src={`${window.location.origin}/A8J3K9Z5QW/profile.png`}
           alt="admin profile"
           className="w-10 h-10 rounded-full object-cover cursor-pointer"
         />

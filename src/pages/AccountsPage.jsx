@@ -3,6 +3,7 @@ import { usePermission } from "../context/PermissionContext";
 import BudgetPage from "../components/Accounts/Budget/BudgetPage";
 import Currency from "../components/Currency";
 import ExpensePage from "../components/Accounts/Expenses/ExpensePage";
+import PayslipPage from "../components/Accounts/Payslip/PayslipPage";
 
 const AccountsPage = () => {
   const { hasPermission } = usePermission();
@@ -19,6 +20,11 @@ const AccountsPage = () => {
       permission: "Budget",
     },
     { id: "currency", label: "Currency", permission: "Currency" },
+    {
+      id: "payslip",
+      label: "Pay-Slip",
+      permission: "PaySlip",
+    },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -55,6 +61,7 @@ const AccountsPage = () => {
           {activeTab === "expenses" && <ExpensePage />}
           {activeTab === "budget" && <BudgetPage />}
           {activeTab === "currency" && <Currency />}
+          {activeTab === "payslip" && <PayslipPage />}
         </div>
       </div>
     </>

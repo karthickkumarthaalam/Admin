@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../components/SideBar";
-import Header from "../components/Header";
 import BreadCrumb from "../components/BreadCrum";
-import CopyrightFooter from "../components/CopyRightsComponent";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { apiCall } from "../utils/apiCall";

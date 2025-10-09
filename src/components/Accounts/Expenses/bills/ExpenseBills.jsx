@@ -18,13 +18,13 @@ import AddExpenseBill from "./AddExpenseBill";
 const ExpenseBills = () => {
   const [financialYears, setFinancialYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
+  const [selectedVendor, setSelectedVendor] = useState(null);
   const [allBills, setAllBills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [editData, setEditData] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [openBillDropdown, setOpenBillDropdown] = useState(null);
-
-  const [selectedVendorType, setSelectedVendorType] = useState(null);
 
   const billDropdownRef = useRef(null);
   const { hasPermission } = usePermission();
@@ -50,6 +50,13 @@ const ExpenseBills = () => {
         "GET"
       );
       setAllBills(res.data);
+      if (
+        selectedVendor &&
+        (!res.data.some((b) => b.vendor === selectedVendor) ||
+          !res.data.some((b) => b.type === selectedType))
+      ) {
+        setSelectedVendor(null);
+      }
     } catch (error) {
       toast.error(error.message || "Failed to fetch expense bills");
     } finally {
@@ -99,11 +106,11 @@ const ExpenseBills = () => {
     if (!selectedYear) fetchFinancialYears();
   }, [selectedYear]);
 
-  // Group bills by vendor + type
-  const vendorTypeGroups = allBills.reduce((acc, bill) => {
-    const key = `${bill.vendor} - ${bill.type}`;
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(bill);
+  // Group bills: type → vendor
+  const groupedByType = allBills.reduce((acc, bill) => {
+    if (!acc[bill.type]) acc[bill.type] = {};
+    if (!acc[bill.type][bill.vendor]) acc[bill.type][bill.vendor] = [];
+    acc[bill.type][bill.vendor].push(bill);
     return acc;
   }, {});
 
@@ -113,13 +120,22 @@ const ExpenseBills = () => {
         title="Audit Bills"
         paths={
           selectedYear
-            ? selectedVendorType
-              ? [
-                  "Audit Bills",
-                  `${selectedYear.start_year}-${selectedYear.end_year}`,
-                  selectedVendorType.charAt(0).toUpperCase() +
-                    selectedVendorType.slice(1),
-                ]
+            ? selectedType
+              ? selectedVendor
+                ? [
+                    "Audit Bills",
+                    `${selectedYear.start_year}-${selectedYear.end_year}`,
+                    selectedType.charAt(0).toUpperCase() +
+                      selectedType.slice(1),
+                    selectedVendor.charAt(0).toUpperCase() +
+                      selectedVendor.slice(1),
+                  ]
+                : [
+                    "Audit Bills",
+                    `${selectedYear.start_year}-${selectedYear.end_year}`,
+                    selectedType.charAt(0).toUpperCase() +
+                      selectedType.slice(1),
+                  ]
               : [
                   "Audit Bills",
                   `${selectedYear.start_year}-${selectedYear.end_year}`,
@@ -182,8 +198,8 @@ const ExpenseBills = () => {
                         fetchExpenseBills(year.id);
                       }}
                     >
-                      <td className="border px-3 py-2">{index + 1}</td>
-                      <td className="border px-3 py-2 text-blue-600 hover:underline">
+                      <td className="border px-3 py-4">{index + 1}</td>
+                      <td className="border px-3 py-2 text-blue-600 hover:underline font-semibold">
                         {year.start_year} - {year.end_year}
                       </td>
                       {user.role === "admin" && (
@@ -205,17 +221,6 @@ const ExpenseBills = () => {
                               <Edit size={16} /> Edit
                             </button>
                           )}
-                          {/* {hasPermission("Audit Bills", "delete") && (
-                            <button
-                              className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200 transition-colors"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteYear(year.id);
-                              }}
-                            >
-                              <Trash2 size={16} /> Delete
-                            </button>
-                          )} */}
                         </div>
                       </td>
                     </tr>
@@ -233,13 +238,13 @@ const ExpenseBills = () => {
           </>
         )}
 
-        {/* Step 2: Vendor-Type List */}
-        {selectedYear && !selectedVendorType && (
+        {/* Step 2: Type List */}
+        {selectedYear && !selectedType && (
           <>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 ">
               <button
                 onClick={() => setSelectedYear(null)}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 font-semibold"
               >
                 <ArrowLeft size={18} /> Back to Years
               </button>
@@ -261,50 +266,51 @@ const ExpenseBills = () => {
               <div className="py-6 text-center">
                 <Loader2 className="mx-auto animate-spin text-red-500" />
               </div>
-            ) : Object.keys(vendorTypeGroups).length === 0 ? (
-              <p className="text-center py-6">No Vendors Found.</p>
+            ) : Object.keys(groupedByType).length === 0 ? (
+              <p className="text-center py-6">No Types Found.</p>
             ) : (
               <table className="w-full border text-sm mt-4">
                 <thead className="bg-gray-100">
                   <tr className="text-left">
-                    <th className="border px-3 py-2">SI</th>
-                    <th className="border px-3 py-2">Vendor</th>
+                    <th className="border px-3 py-4">SI</th>
                     <th className="border px-3 py-2">Type</th>
                     <th className="border px-3 py-2 text-center">
-                      No. of Bills
+                      No. of Merchants
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.keys(vendorTypeGroups).map((key, index) => {
-                    const [vendor, type] = key.split(" - ");
-                    return (
-                      <tr
-                        key={key}
-                        className="hover:bg-gray-50 cursor-pointer"
-                        onClick={() => setSelectedVendorType(key)}
-                      >
-                        <td className="border px-3 py-2">{index + 1}</td>
-                        <td className="border px-3 py-2 font-medium hover:cursor-pointer text-blue-800 hover:underline">
-                          {vendor}
-                        </td>
-                        <td className="border px-3 py-2 ">
-                          {type === "expense" ? (
-                            <span className=" text-xs font-medium bg-red-50 text-red-700 rounded px-2 py-1">
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </span>
-                          ) : (
-                            <span className="text-xs font-medium bg-green-50 text-green-700 rounded px-2 py-1">
-                              {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </span>
-                          )}
-                        </td>
-                        <td className="border px-3 py-2 text-center">
-                          {vendorTypeGroups[key].length}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {Object.keys(groupedByType || []).map((type, index) => (
+                    <tr
+                      key={type}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setSelectedType(type)}
+                    >
+                      <td className="border px-3 py-4">{index + 1}</td>
+                      <td className="border px-3 py-2 ">
+                        {type === "expense" ? (
+                          <span className="text-sm font-semibold bg-red-50 text-red-700 rounded px-2 py-1">
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        ) : type === "income" ? (
+                          <span className="text-sm font-semibold bg-green-50 text-green-700 rounded px-2 py-1">
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        ) : type === "payable" ? (
+                          <span className="text-sm font-semibold bg-blue-50 text-blue-700 rounded px-2 py-1">
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-semibold bg-violet-50 text-violet-700 rounded px-2 py-1">
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="border px-3 py-2 text-center">
+                        {Object.keys(groupedByType[type]).length}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             )}
@@ -319,15 +325,115 @@ const ExpenseBills = () => {
           </>
         )}
 
-        {/* Step 3: Bills Table for Selected Vendor-Type */}
-        {selectedYear && selectedVendorType && (
+        {/* Step 3: Vendor List for Selected Type */}
+        {selectedYear && selectedType && !selectedVendor && (
           <>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex  flex-col md:flex-row items-start md:items-center justify-between mb-4">
               <button
-                onClick={() => setSelectedVendorType(null)}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4"
+                onClick={() => setSelectedType(null)}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 font-semibold whitespace-nowrap"
               >
-                <ArrowLeft size={18} /> Back to Vendors
+                <div className="flex items-center gap-2">
+                  <ArrowLeft size={18} /> Back to Types
+                </div>
+                <span className="text-blue-500">
+                  ( Selected Type:{" "}
+                  {selectedType.charAt(0).toUpperCase() + selectedType.slice(1)}{" "}
+                  )
+                </span>
+              </button>
+
+              {hasPermission("Audit Bills", "create") && (
+                <button
+                  onClick={() => {
+                    setShowModal(true);
+                    setEditData(null);
+                  }}
+                  className="rounded bg-red-500 hover:bg-red-600 text-white px-3 py-2 flex gap-2 items-center text-sm"
+                >
+                  <BadgePlus size={16} />
+                  <span>Create Expense Bill</span>
+                </button>
+              )}
+            </div>
+            <table className="w-full border text-sm mt-4">
+              <thead className="bg-gray-100">
+                <tr className="text-left">
+                  <th className="border px-3 py-2">SI</th>
+                  <th className="border px-3 py-2">Merchant</th>
+                  <th className="border px-3 py-2">Type</th>
+                  <th className="border px-3 py-2 text-center">No. of Bills</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.keys(groupedByType[selectedType] || []).map(
+                  (vendor, index) => (
+                    <tr
+                      key={vendor}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setSelectedVendor(vendor)}
+                    >
+                      <td className="border px-3 py-4">{index + 1}</td>
+                      <td className="border px-3 py-2 text-blue-800 hover:underline font-semibold text-md">
+                        {vendor.charAt(0).toUpperCase() + vendor.slice(1)}
+                      </td>
+                      <td className="border px-3 py-2 ">
+                        {selectedType === "expense" ? (
+                          <span className="text-sm font-semibold bg-red-50 text-red-700 rounded px-2 py-1">
+                            {selectedType.charAt(0).toUpperCase() +
+                              selectedType.slice(1)}
+                          </span>
+                        ) : selectedType === "income" ? (
+                          <span className="text-sm font-semibold bg-green-50 text-green-700 rounded px-2 py-1">
+                            {selectedType.charAt(0).toUpperCase() +
+                              selectedType.slice(1)}
+                          </span>
+                        ) : selectedType === "payable" ? (
+                          <span className="text-sm font-semibold bg-blue-50 text-blue-700 rounded px-2 py-1">
+                            {selectedType.charAt(0).toUpperCase() +
+                              selectedType.slice(1)}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-semibold bg-violet-50 text-violet-700 rounded px-2 py-1">
+                            {selectedType.charAt(0).toUpperCase() +
+                              selectedType.slice(1)}
+                          </span>
+                        )}
+                      </td>
+                      <td className="border px-3 py-2 text-center">
+                        {groupedByType[selectedType][vendor].length}
+                      </td>
+                    </tr>
+                  )
+                )}
+              </tbody>
+            </table>
+
+            <AddExpenseBill
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+              editData={editData}
+              financialYearId={selectedYear.id}
+              onSuccess={() => fetchExpenseBills(selectedYear.id)}
+            />
+          </>
+        )}
+
+        {/* Step 4: Bills Table for Selected Vendor */}
+        {selectedYear && selectedType && selectedVendor && (
+          <>
+            <div className="flex  flex-col md:flex-row items-start md:items-center justify-between mb-4">
+              <button
+                onClick={() => setSelectedVendor(null)}
+                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 font-semibold whitespace-nowrap"
+              >
+                <ArrowLeft size={18} /> Back to Merchant{" "}
+                <span className="text-blue-500">
+                  ( Selected merchant:{" "}
+                  {selectedVendor.charAt(0).toUpperCase() +
+                    selectedVendor.slice(1)}{" "}
+                  )
+                </span>
               </button>
 
               {hasPermission("Audit Bills", "create") && (
@@ -348,134 +454,155 @@ const ExpenseBills = () => {
               <thead className="bg-gray-100">
                 <tr className="text-left">
                   <th className="border px-3 py-2">SI</th>
-                  <th className="border px-3 py-2">Vendor</th>
+                  <th className="border px-3 py-2">Merchant</th>
                   <th className="border px-3 py-2">Title</th>
-                  <th className="border px-3 py-2">Bill Period</th>
-                  <th className="border px-3 py-2">Bill Type</th>
-                  <th className="border px-3 py-2">Bills</th>
+                  <th className="border px-3 py-2 whitespace-nowrap">
+                    Bill Period
+                  </th>
+                  <th className="border px-3 py-2">Type</th>
+                  <th className="border px-3 py-2 whitespace-nowrap">
+                    Download Files
+                  </th>
                   {user.role === "admin" && (
-                    <th className="border px-3 py-2">Created By</th>
+                    <th className="border px-3 py-2 whitespace-nowrap">
+                      Created By
+                    </th>
                   )}
                   <th className="border px-3 py-2">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {vendorTypeGroups[selectedVendorType] &&
-                vendorTypeGroups[selectedVendorType].length > 0 ? (
-                  vendorTypeGroups[selectedVendorType].map((bill, index) => (
-                    <tr key={bill.id}>
-                      <td className="border px-3 py-2">{index + 1}</td>
-                      <td className="border px-3 py-2">{bill.vendor}</td>
-                      <td className="border px-3 py-2">{bill.title}</td>
-                      <td className="border px-3 py-2 whitespace-nowrap">
-                        {bill.start_date && bill.end_date && (
-                          <>
-                            {new Date(bill.start_date).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}{" "}
-                            -{" "}
-                            {new Date(bill.end_date).toLocaleDateString(
-                              "en-GB",
-                              {
-                                day: "2-digit",
-                                month: "short",
-                                year: "numeric",
-                              }
-                            )}
-                          </>
-                        )}
-                      </td>
-                      <td className="border px-3 py-2 ">
-                        {" "}
-                        {bill.type === "expense" ? (
-                          <span className="px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded ">
-                            {bill.type.charAt(0).toUpperCase() +
-                              bill.type.slice(1)}
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded ">
-                            {bill.type.charAt(0).toUpperCase() +
-                              bill.type.slice(1)}
-                          </span>
-                        )}
-                      </td>
-                      <td className="border px-3 py-2 relative">
-                        <button
-                          onClick={() =>
-                            setOpenBillDropdown((prev) =>
-                              prev === bill.id ? null : bill.id
-                            )
-                          }
-                          className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition whitespace-nowrap"
-                        >
-                          Bills ({bill.bills?.length || 0})
-                        </button>
-
-                        {openBillDropdown === bill.id &&
-                          bill.bills?.length > 0 && (
-                            <div
-                              ref={billDropdownRef}
-                              className="absolute z-50 mt-1 bg-white border shadow-lg rounded p-2 flex flex-col gap-1 max-h-60 overflow-y-auto min-w-[150px]"
-                            >
-                              {bill.bills.map((item) => (
-                                <a
-                                  key={item.id}
-                                  href={item.bill_address}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-800 text-xs hover:bg-green-200 transition"
-                                >
-                                  <Download size={12} />
-                                  {item.bill_address.split("/").pop()}
-                                </a>
-                              ))}
-                            </div>
-                          )}
-                      </td>
-
-                      {user.role === "admin" && (
-                        <td className="border px-3 py-2">
-                          {bill?.creator?.name || "Admin"}
+                {groupedByType[selectedType][selectedVendor] &&
+                groupedByType[selectedType][selectedVendor].length > 0 ? (
+                  groupedByType[selectedType][selectedVendor].map(
+                    (bill, index) => (
+                      <tr key={bill.id}>
+                        <td className="border px-3 py-2">{index + 1}</td>
+                        <td className="border px-3 py-2 whitespace-nowrap">
+                          {bill.vendor}
                         </td>
-                      )}
-
-                      <td className="border px-3 py-2">
-                        <div className="flex gap-2">
-                          {hasPermission("Audit Bills", "update") && (
-                            <button
-                              className="inline-flex items-center gap-1.5 rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 transition-colors"
-                              onClick={() => {
-                                setShowModal(true);
-                                setEditData(bill);
-                              }}
-                            >
-                              <Edit size={14} />
-                              Edit
-                            </button>
+                        <td className="border px-3 py-2 whitespace-nowrap">
+                          {bill.title}
+                        </td>
+                        <td className="border px-3 py-2 whitespace-nowrap">
+                          {bill.start_date && bill.end_date && (
+                            <>
+                              {new Date(bill.start_date).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}{" "}
+                              -{" "}
+                              {new Date(bill.end_date).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                }
+                              )}
+                            </>
                           )}
-
-                          {hasPermission("Audit Bills", "delete") && (
-                            <button
-                              className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200 transition-colors"
-                              onClick={() => handleDeleteBill(bill.id)}
-                            >
-                              <Trash2 size={14} />
-                              Delete
-                            </button>
+                        </td>
+                        <td className="border px-3 py-2 ">
+                          {selectedType === "expense" ? (
+                            <span className="text-sm font-semibold bg-red-50 text-red-700 rounded px-2 py-1">
+                              {selectedType.charAt(0).toUpperCase() +
+                                selectedType.slice(1)}
+                            </span>
+                          ) : selectedType === "income" ? (
+                            <span className="text-sm font-semibold bg-green-50 text-green-700 rounded px-2 py-1">
+                              {selectedType.charAt(0).toUpperCase() +
+                                selectedType.slice(1)}
+                            </span>
+                          ) : selectedType === "payable" ? (
+                            <span className="text-sm font-semibold bg-blue-50 text-blue-700 rounded px-2 py-1">
+                              {selectedType.charAt(0).toUpperCase() +
+                                selectedType.slice(1)}
+                            </span>
+                          ) : (
+                            <span className="text-sm font-semibold bg-violet-50 text-violet-700 rounded px-2 py-1">
+                              {selectedType.charAt(0).toUpperCase() +
+                                selectedType.slice(1)}
+                            </span>
                           )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                        </td>
+                        <td className="border px-3 py-2 relative">
+                          <button
+                            onClick={() =>
+                              setOpenBillDropdown((prev) =>
+                                prev === bill.id ? null : bill.id
+                              )
+                            }
+                            className="px-2 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 transition whitespace-nowrap"
+                          >
+                            Bills ({bill.bills?.length || 0})
+                          </button>
+
+                          {openBillDropdown === bill.id &&
+                            bill.bills?.length > 0 && (
+                              <div
+                                ref={billDropdownRef}
+                                className="absolute z-50 mt-1 bg-white border shadow-lg rounded p-2 flex flex-col gap-1 max-h-60 overflow-y-auto min-w-[150px]"
+                              >
+                                {bill.bills.map((item) => (
+                                  <a
+                                    key={item.id}
+                                    href={item.bill_address}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-1 rounded bg-green-100 text-green-800 text-xs hover:bg-green-200 transition"
+                                  >
+                                    <Download size={12} />
+                                    {item.bill_address.split("/").pop()}
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                        </td>
+
+                        {user.role === "admin" && (
+                          <td className="border px-3 py-2">
+                            {bill?.creator?.name || "Admin"}
+                          </td>
+                        )}
+
+                        <td className="border px-3 py-2">
+                          <div className="flex gap-2">
+                            {hasPermission("Audit Bills", "update") && (
+                              <button
+                                className="inline-flex items-center gap-1.5 rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 transition-colors"
+                                onClick={() => {
+                                  setShowModal(true);
+                                  setEditData(bill);
+                                }}
+                              >
+                                <Edit size={14} />
+                                Edit
+                              </button>
+                            )}
+
+                            {hasPermission("Audit Bills", "delete") && (
+                              <button
+                                className="inline-flex items-center gap-1.5 rounded-md bg-red-100 px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-200 transition-colors"
+                                onClick={() => handleDeleteBill(bill.id)}
+                              >
+                                <Trash2 size={14} />
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  )
                 ) : (
                   <tr>
-                    <td colSpan={8} className="text-center py-6">
-                      No bills found for this vendor-type.
+                    <td colSpan={7} className="text-center py-6">
+                      No Expense Bills Found.
                     </td>
                   </tr>
                 )}

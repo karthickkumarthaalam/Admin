@@ -1,0 +1,356 @@
+"use client";
+import React, { useRef } from "react";
+import { X, Download } from "lucide-react";
+import html2pdf from "html2pdf.js";
+
+// Convert number to words
+const numberToWords = (num) => {
+  const a = [
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+  const b = [
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
+  const convert = (n) => {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + " " + a[n % 10];
+    if (n < 1000)
+      return a[Math.floor(n / 100)] + " Hundred " + convert(n % 100);
+    if (n < 100000)
+      return convert(Math.floor(n / 1000)) + " Thousand " + convert(n % 1000);
+    if (n < 10000000)
+      return convert(Math.floor(n / 100000)) + " Lakh " + convert(n % 100000);
+    return (
+      convert(Math.floor(n / 10000000)) + " Crore " + convert(n % 10000000)
+    );
+  };
+  return convert(Math.floor(num)) + " Only";
+};
+
+const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
+  const pdfRef = useRef(null);
+  if (!isOpen || !payslip) return null;
+
+  const {
+    user,
+    month,
+    currency,
+    total_earnings,
+    total_deductions,
+    net_salary,
+    items = [],
+    paid_days,
+    lop_days,
+    paid_date,
+  } = payslip;
+
+  const earnings = items.filter((i) => i.type === "earning");
+  const deductions = items.filter((i) => i.type === "deduction");
+
+  const formatMonth = (m) => {
+    if (!m) return "-";
+    const [year, mo] = m.split("-");
+    return new Date(year, mo - 1).toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const formatCurrency = (amt) =>
+    `${currency?.symbol || ""} ${Number(amt).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+
+  const handleDownload = () => {
+    const element = pdfRef.current;
+    const opt = {
+      filename: `${user?.name || "Payslip"}_${month}.pdf`,
+      html2canvas: {
+        scale: 2, // high quality
+        useCORS: true,
+        scrollY: 0,
+      },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] }, // automatically breaks pages
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col items-center overflow-y-auto">
+        {/* Toolbar */}
+        <div className="w-full sticky top-0 z-20 bg-gradient-to-r from-gray-600 to-gray-800 text-white px-6 py-3 flex justify-between items-center shadow-md mb-10">
+          <h2 className="text-lg font-semibold">Employee Payslip</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 bg-white/10 border border-white/30 px-3 py-1.5 rounded-md text-sm hover:bg-white/20 transition"
+            >
+              <Download size={16} /> Download
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        {/* PDF Content */}
+        <div
+          ref={pdfRef}
+          className="relative w-[210mm] bg-white text-slate-800 p-10 flex flex-col border border-gray-300 border-b-0"
+        >
+          {/* Watermark */}
+          <img
+            src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
+            alt="Watermark"
+            className="absolute top-1/2 left-1/2 w-[350px] h-[300px] opacity-5 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none"
+          />
+
+          {/* Main Content */}
+          <div className="flex flex-col h-full  justify-between z-10 relative ">
+            {/* Header */}
+            <div className="flex justify-between items-center border-b border-slate-400 pb-4 mb-6">
+              <div className="flex items-center gap-4">
+                <img
+                  src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
+                  alt="Logo"
+                  className="h-14"
+                />
+                <div>
+                  <h1 className="text-xl font-bold text-gray-800">
+                    THAALAM MEDIA GMBH
+                  </h1>
+                  <p className="text-xs text-gray-600">
+                    Talacker 41, Zürich | www.thaalam.ch
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-600 text-sm">Payslip for the month</p>
+                <p className="text-gray-800 font-bold">{formatMonth(month)}</p>
+              </div>
+            </div>
+
+            {/* Employee Info + Net Pay */}
+            <div className="grid grid-cols-2 gap-6 mb-8 ml-2">
+              {/* Employee Summary (Left Column) */}
+              <div className="space-y-2">
+                <h2 className="text-sm text-gray-800 font-semibold uppercase  pb-1">
+                  Employee Summary
+                </h2>
+                <div className="grid grid-cols-[150px_1fr] gap-x-2 gap-y-1">
+                  <p className="text-sm text-gray-700">Employee Name</p>
+                  <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                    : {user?.name || "-"}
+                  </p>
+
+                  <p className="text-sm text-gray-700">Employee ID</p>
+                  <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                    : {user?.employee_id || "-"}
+                  </p>
+
+                  <p className="text-sm text-gray-700">Employee Email</p>
+                  <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                    : {user?.email || "-"}
+                  </p>
+
+                  <p className="text-sm text-gray-700">Department</p>
+                  <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                    : {user?.department?.department_name || "-"}
+                  </p>
+                  {user?.account_number && (
+                    <>
+                      <p className="text-sm text-gray-700">Account Number</p>
+                      <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                        : {`XXXX XXXX ${user.account_number.slice(-4)}`}
+                      </p>
+                    </>
+                  )}
+
+                  {user?.pan_number && (
+                    <>
+                      <p className="text-sm text-gray-700">PAN Number</p>
+                      <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                        : {`XXX XXX ${user.pan_number.slice(-4)}`}
+                      </p>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Payment Info (Right Column, no heading) */}
+              <div className="flex justify-end">
+                <div className="grid grid-cols-[150px_1fr] gap-x-2 gap-y-1"></div>
+              </div>
+            </div>
+
+            {/* Earnings & Deductions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 border-2 border-gray-200 rounded-xl shadow-sm">
+              {/* Earnings */}
+              <div className="p-5 flex flex-col justify-between">
+                <div>
+                  <div className="font-semibold flex justify-between items-center border-b-2 border-gray-200 py-2 text-gray-800 mb-3 uppercase text-sm tracking-wide">
+                    <h3>Earnings</h3>
+                    <h3>Amount</h3>
+                  </div>
+                  {earnings.length ? (
+                    earnings.map((e) => (
+                      <div
+                        key={e.id}
+                        className="flex justify-between py-1.5 text-sm"
+                      >
+                        <span>{e.name}</span>
+                        <span className="font-semibold text-gray-800">
+                          {formatCurrency(e.amount)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm italic text-center py-3">
+                      No earnings
+                    </p>
+                  )}
+                </div>
+
+                {/* Always aligned footer */}
+                <div className="flex justify-between pt-3 mt-3 font-bold text-gray-800 border-t border-gray-200">
+                  <span>Gross Salary</span>
+                  <span>{formatCurrency(total_earnings)}</span>
+                </div>
+              </div>
+
+              {/* Deductions */}
+              <div className="p-5 flex flex-col justify-between">
+                <div>
+                  <div className="font-semibold flex justify-between items-center border-b-2 border-gray-200 py-2 text-gray-800 mb-3 uppercase text-sm tracking-wide">
+                    <h3>Deductions</h3>
+                    <h3>Amount</h3>
+                  </div>
+                  {deductions.length ? (
+                    deductions.map((d) => (
+                      <div
+                        key={d.id}
+                        className="flex justify-between py-1.5 text-sm"
+                      >
+                        <span>{d.name}</span>
+                        <span className="font-semibold text-gray-800">
+                          {formatCurrency(d.amount)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-gray-500 text-sm italic text-center py-3">
+                      No deductions
+                    </p>
+                  )}
+                </div>
+
+                {/* Always aligned footer */}
+                <div className="flex justify-between pt-3 mt-3 font-bold text-gray-800 border-t border-gray-200">
+                  <span>Total Deductions</span>
+                  <span>{formatCurrency(total_deductions)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Total NET Payable */}
+            <div className="p-4 rounded-xl border border-gray-300 flex justify-between items-center shadow-sm  mb-5">
+              <div className="space-y-1">
+                <p className="text-gray-800 font-semibold text-sm tracking-wide">
+                  Total NET PAYABLE SALARY
+                </p>
+                <p className="text-gray-500 text-xs">
+                  Gross Salary - Total Deductions
+                </p>
+              </div>
+              <div className=" text-gray-800 font-bold">
+                {formatCurrency(net_salary)}
+              </div>
+            </div>
+
+            {/* Amount in words */}
+            <p className="text-right text-sm text-gray-500 mb-4">
+              Amount In words:{" "}
+              <span className="font-bold">{numberToWords(net_salary)}</span>
+            </p>
+
+            {/* Footer */}
+            <div className="pt-16">
+              <div className="flex justify-between items-end">
+                {/* Left: Signature Section */}
+                <div className="w-1/3 text-center">
+                  <img
+                    src={`${window.location.origin}/A8J3K9Z5QW/signature.png`}
+                    alt="Authorized Signature"
+                    className="ml-10 h-14 w-auto mb-2"
+                  />
+                  <p className="text-gray-800 text-xs font-semibold leading-tight">
+                    DHARSHAN RAJAKOBAL
+                  </p>
+                  <p className="text-gray-800 text-sm font-semibold">
+                    Authorized Signatory of CEO
+                  </p>
+                </div>
+
+                {/* Right: Date Section */}
+                <div className="w-1/3 text-right">
+                  <div className="inline-block text-left">
+                    <p className="text-gray-800 text-xs font-semibold mb-1">
+                      {"     "}
+                      {paid_date
+                        ? new Date(paid_date).toLocaleDateString("en-IN", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "-"}
+                    </p>
+                    <p className="text-gray-800 text-sm font-semibold">
+                      Date of Issue{" "}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ViewPayslipModal;
