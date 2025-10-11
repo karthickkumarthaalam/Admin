@@ -15,6 +15,8 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
     total_earnings: 0,
     total_deductions: 0,
     net_salary: 0,
+    conversion_currency_id: "",
+    converted_net_salary: 0,
   };
 
   const [form, setForm] = useState(initialState);
@@ -60,6 +62,10 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
           total_earnings: Number(editPayslipData.total_earnings || 0),
           net_salary: Number(editPayslipData.net_salary || 0),
           items: editPayslipData.items || [],
+          converted_net_salary: Number(
+            editPayslipData.converted_net_salary || 0
+          ),
+          conversion_currency_id: editPayslipData.conversion_currency_id,
         });
       } else {
         setForm(initialState);
@@ -69,9 +75,11 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: name.endsWith("_id") ? Number(value) : value,
+    }));
   };
-
   const handleAddItem = () => {
     if (!currencySymbol) {
       toast.error("Please select Currency");
@@ -106,25 +114,24 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
       }
     }
 
-    recalcTotals(updatedItems);
-    setForm((prev) => ({ ...prev, items: updatedItems }));
+    const totals = recalcTotals(updatedItems);
+    setForm((prev) => ({ ...prev, items: updatedItems, ...totals }));
   };
 
-  const recalcTotals = (updatedItems) => {
-    const totalEarnings = updatedItems
+  const recalcTotals = (items) => {
+    const totalEarnings = items
       .filter((i) => i.type === "earning")
       .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
-    const totalDeductions = updatedItems
+    const totalDeductions = items
       .filter((i) => i.type === "deduction")
       .reduce((sum, i) => sum + Number(i.amount || 0), 0);
 
-    setForm((prev) => ({
-      ...prev,
+    return {
       total_earnings: totalEarnings,
       total_deductions: totalDeductions,
       net_salary: totalEarnings - totalDeductions,
-    }));
+    };
   };
 
   const handleSubmit = async () => {
@@ -132,6 +139,12 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
       setLoading(true);
       if (!form.user_id || !form.currency_id || !form.month) {
         toast.error("User, Currency, and Month are required");
+        return;
+      }
+
+      if (form.items.length === 0) {
+        toast.error("Please add at least one payslip category");
+        setLoading(false);
         return;
       }
 
@@ -163,7 +176,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
       <div className="bg-gray-50 rounded-2xl shadow-xl w-full max-w-4xl h-[95vh] flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-100  text-white rounded-t-2xl">
+        <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-200 rounded-t-2xl">
           <h2 className="text-lg font-semibold text-red-900 ">
             {editPayslipData ? "Edit Payslip" : "Add Payslip"}
           </h2>
@@ -265,7 +278,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                 name="paid_date"
                 value={form.paid_date}
                 onChange={handleChange}
-                className="w-full border rounded-lg p-2 focus:ring-2 foscu:ring-red-500 focus:outline-none"
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
             </div>
           </div>
@@ -401,6 +414,40 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
               <span className="text-blue-600 font-bold">
                 {currencySymbol} {form.net_salary.toFixed(2)}
               </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm text-gray-800 mb-1 font-semibold">
+                Converted Currency
+              </label>
+              <select
+                name="conversion_currency_id"
+                value={form.conversion_currency_id}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              >
+                <option value="">Select Currency</option>
+                {currenciesList.map((cur) => (
+                  <option key={cur.id} value={cur.id}>
+                    {cur.code} ({cur.symbol})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-gray-800">
+                Converted Salary
+              </label>
+              <input
+                type="number"
+                name="converted_net_salary"
+                value={form.converted_net_salary}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              />
             </div>
           </div>
         </div>

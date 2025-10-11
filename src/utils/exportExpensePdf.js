@@ -10,8 +10,14 @@ const getBase64Logo = async (url) => {
   });
 };
 
-
-export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, month, year, date }) => {
+export const exportExpensePDF = async ({
+  expenses,
+  submittedBy,
+  reportedTo,
+  month,
+  year,
+  date,
+}) => {
   const element = document.createElement("div");
 
   let totalAmount = 0;
@@ -27,7 +33,9 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
     }
   });
 
-  const logoSrc = await getBase64Logo(`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`);
+  const logoSrc = await getBase64Logo(
+    `${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`
+  );
 
   let reportDuration = "";
   let durationTitle = "";
@@ -37,15 +45,16 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
     reportDuration = `${formattedDate}`;
     durationTitle = `Date: ${formattedDate}`;
   } else {
-    const monthName = new Date(year, month - 1).toLocaleString("default", { month: "long" });
+    const monthName = new Date(year, month - 1).toLocaleString("default", {
+      month: "long",
+    });
     const monthStart = new Date(year, month - 1, 1).toLocaleDateString("en-GB");
     const monthEnd = new Date(year, month, 0).toLocaleDateString("en-GB");
     reportDuration = `${monthStart} - ${monthEnd}`;
     durationTitle = `${monthName} month ${year} Expenses`;
   }
 
-  const currencySymbol =
-    expenses[0]?.categories?.[0]?.currency?.symbol || "₹";
+  const currencySymbol = expenses[0]?.categories?.[0]?.currency?.symbol || "₹";
 
   element.innerHTML = `
     <div style="font-family: 'Segoe UI', sans-serif; padding: 40px; color: #333;">
@@ -70,17 +79,27 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
         <tr>
           <td style="width: 33.33%; vertical-align: top; text-align: left; padding: 12px 0;">
             <h3 style="font-size: 12px; color: #1f1f2e;">Submitted By</h3>
-            <p style="font-size: 12px; font-weight: bold;">${submittedBy.name}</p>
-            <p style="font-size: 12px; font-weight: bold;">${submittedBy.email}</p>
+            <p style="font-size: 12px; font-weight: bold;">${
+              submittedBy.name
+            }</p>
+            <p style="font-size: 12px; font-weight: bold;">${
+              submittedBy.email
+            }</p>
           </td>
           <td style="width: 33.33%; vertical-align: top; text-align: left; border-right: 1px solid #e1e1ea; padding: 12px 0 12px 10px;">
             <h3 style="font-size: 12px; color: #1f1f2e;">Reported To</h3>
-            <p style="font-size: 12px; font-weight: bold;">${reportedTo.name}</p>
-            <p style="font-size: 12px; font-weight: bold;">${reportedTo.email}</p>
+            <p style="font-size: 12px; font-weight: bold;">${
+              reportedTo.name
+            }</p>
+            <p style="font-size: 12px; font-weight: bold;">${
+              reportedTo.email
+            }</p>
           </td>
           <td style="width: 33.33%; vertical-align: top; padding: 12px 0 12px 30px;">
             <h3 style="font-size: 12px; color: #1f1f2e;">Submitted On</h3>
-            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">${new Date().toLocaleDateString("en-GB")}</p>
+            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">${new Date().toLocaleDateString(
+              "en-GB"
+            )}</p>
             <h3 style="font-size: 12px; color: #1f1f2e;">Report Duration</h3>
             <p style="font-size: 12px; font-weight: bold;">${reportDuration}</p>
           </td>
@@ -98,36 +117,70 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
           </tr>
         </thead>
         <tbody>
-          ${expenses.map((exp, index) => {
-    const categoryNames = exp.categories?.map(cat => `
+          ${expenses
+            .map((exp, index) => {
+              const categoryNames =
+                exp.categories
+                  ?.map(
+                    (cat) => `
                 <div style="margin-bottom: 10px; line-height: 1.2;">
                   <div>${cat.category_name}</div>
-                  <div style="font-size: 11px; color: #555;">${cat.description || "-"}</div>
+                  <div style="font-size: 11px; color: #555;">${
+                    cat.description || "-"
+                  }</div>
                 </div>
-              `).join('') || '';
+              `
+                  )
+                  .join("") || "";
 
-    const categoryAmounts = exp.categories?.map(cat => `
+              const categoryAmounts =
+                exp.categories
+                  ?.map(
+                    (cat) => `
                 <div style="margin-bottom: 4px; line-height: 2.2; text-align: right; font-weight:bold;">
                   ${cat.currency?.symbol || "₹"}${cat.amount.toFixed(2)}
                 </div>
-              `).join('') || '';
+              `
+                  )
+                  .join("") || "";
 
-    return `
+              return `
                 <tr style="page-break-inside: avoid; break-inside:avoid;">
-                  <td style="padding: 6px; text-align: left; vertical-align: top;">${index + 1}.</td>
+                  <td style="padding: 6px; text-align: left; vertical-align: top;">${
+                    index + 1
+                  }.</td>
                   <td style="padding: 6px; vertical-align: top;">
                     <div style="font-weight: bold;">${exp.document_id}</div>
-                    <div style="font-weight: bold;">${new Date(exp.date).toLocaleDateString("en-GB")}</div>
-                    <div>${exp.vendor_type === "vendor" ? "Merchant" : "User"}: ${exp.merchant || "-"}</div>
-                    ${exp.paymentMode?.name ? `<div>Paid Via: ${exp.paymentMode.name}</div>` : ""}
-                    ${exp.paidThrough?.name ? `<div>Paid Through: ${exp.paidThrough.name}</div>` : ""}
-                    ${exp.status === "completed" ? `<div>Completed On: ${new Date(exp.completed_date).toLocaleDateString("en-GB")}</div>` : ""}
+                    <div style="font-weight: bold;">${new Date(
+                      exp.date
+                    ).toLocaleDateString("en-GB")}</div>
+                    <div>${
+                      exp.vendor_type === "vendor" ? "Merchant" : "User"
+                    }: ${exp.merchant || "-"}</div>
+                    ${
+                      exp.paymentMode?.name
+                        ? `<div>Paid Via: ${exp.paymentMode.name}</div>`
+                        : ""
+                    }
+                    ${
+                      exp.paidThrough?.name
+                        ? `<div>Paid Through: ${exp.paidThrough.name}</div>`
+                        : ""
+                    }
+                    ${
+                      exp.status === "completed"
+                        ? `<div>Completed On: ${new Date(
+                            exp.completed_date
+                          ).toLocaleDateString("en-GB")}</div>`
+                        : ""
+                    }
                   </td>
                   <td style="padding: 6px; vertical-align: top;">${categoryNames}</td>
                   <td style="padding: 6px; vertical-align: top;">${categoryAmounts}</td>
                 </tr>
               `;
-  }).join('')}
+            })
+            .join("")}
         </tbody>
       </table>
 
@@ -145,7 +198,9 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
           </tr>
           <tr>
             <td>Total Pending:</td>
-            <td><strong>${currencySymbol}${pendingAmount.toFixed(2)}</strong></td>
+            <td><strong>${currencySymbol}${pendingAmount.toFixed(
+    2
+  )}</strong></td>
           </tr>
         </table>
         <hr style="border: 1px dashed #e1e1ea"/>
@@ -163,8 +218,10 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
       </table>
     </div>
     `;
+  // Temporarily append to DOM
+  document.body.appendChild(element);
 
-  html2pdf()
+  await html2pdf()
     .set({
       margin: 0.5,
       filename: `Expense_Report_${new Date().toISOString().split("T")[0]}.pdf`,
@@ -173,6 +230,7 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
         useCORS: true,
         allowTaint: false,
         scrollY: 0,
+        windowWidth: element.scrollWidth, // helps avoid layout clipping
       },
       jsPDF: {
         unit: "in",
@@ -182,4 +240,7 @@ export const exportExpensePDF = async ({ expenses, submittedBy, reportedTo, mont
     })
     .from(element)
     .save();
+
+  // Clean up
+  document.body.removeChild(element);
 };

@@ -2,11 +2,12 @@
 import React, { useRef } from "react";
 import { X, Download } from "lucide-react";
 import html2pdf from "html2pdf.js";
+import VerifiedQRCode from "../../../../utils/verifiedQrCode";
 
 // Convert number to words
 const numberToWords = (num) => {
   const a = [
-    "",
+    "Zero",
     "One",
     "Two",
     "Three",
@@ -70,10 +71,14 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
     paid_days,
     lop_days,
     paid_date,
+    conversionCurrency,
+    converted_net_salary,
   } = payslip;
 
   const earnings = items.filter((i) => i.type === "earning");
   const deductions = items.filter((i) => i.type === "deduction");
+
+  const qrData = `https://thaalam.ch/payslip/verify.php?qrid=${payslip.id}`;
 
   const formatMonth = (m) => {
     if (!m) return "-";
@@ -209,6 +214,17 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                       </p>
                     </>
                   )}
+                  <p className="text-sm text-gray-700">Date of Issue</p>
+                  <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                    :{" "}
+                    {paid_date
+                      ? new Date(paid_date).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </p>
                 </div>
               </div>
 
@@ -288,7 +304,7 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
             </div>
 
             {/* Total NET Payable */}
-            <div className="p-4 rounded-xl border border-gray-300 flex justify-between items-center shadow-sm  mb-5">
+            <div className="p-4 rounded-xl border border-gray-300 flex justify-between items-start shadow-sm  mb-5">
               <div className="space-y-1">
                 <p className="text-gray-800 font-semibold text-sm tracking-wide">
                   Total NET PAYABLE SALARY
@@ -296,27 +312,43 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                 <p className="text-gray-500 text-xs">
                   Gross Salary - Total Deductions
                 </p>
+                <p className="text-xs text-gray-800 font-semibold">
+                  {" "}
+                  Total NET PAYABLE SALARY IN{" "}
+                  {conversionCurrency?.code || "INR"}
+                </p>
+                <p className="text-xs text-gray-800 font-semibold">
+                  Amount In words
+                </p>
               </div>
-              <div className=" text-gray-800 font-bold">
-                {formatCurrency(net_salary)}
+              <div>
+                <p className=" text-gray-800 font-bold pb-6 text-right">
+                  {formatCurrency(net_salary)}
+                </p>
+                <p className="text-gray-600 text-sm text-right">
+                  <span className="text-gray-800 font-bold">
+                    {conversionCurrency?.symbol || "₹ "} {converted_net_salary}
+                  </span>
+                </p>
+                <p className="text-right text-xs text-gray-600">
+                  <span className="text-gray-700 font-bold">
+                    {numberToWords(converted_net_salary)}
+                  </span>
+                </p>
               </div>
             </div>
 
             {/* Amount in words */}
-            <p className="text-right text-sm text-gray-500 mb-4">
-              Amount In words:{" "}
-              <span className="font-bold">{numberToWords(net_salary)}</span>
-            </p>
 
             {/* Footer */}
             <div className="pt-16">
               <div className="flex justify-between items-end">
                 {/* Left: Signature Section */}
-                <div className="w-1/3 text-center">
+                <div className="w-1/3 text-center relative flex flex-col items-center">
                   <img
                     src={`${window.location.origin}/A8J3K9Z5QW/signature.png`}
                     alt="Authorized Signature"
-                    className="ml-10 h-14 w-auto mb-2"
+                    className="h-14 w-auto mb-2"
                   />
                   <p className="text-gray-800 text-xs font-semibold leading-tight">
                     DHARSHAN RAJAKOBAL
@@ -324,25 +356,11 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                   <p className="text-gray-800 text-sm font-semibold">
                     Authorized Signatory of CEO
                   </p>
+                  {/* ✅ QR Code Section */}
                 </div>
-
                 {/* Right: Date Section */}
                 <div className="w-1/3 text-right">
-                  <div className="inline-block text-left">
-                    <p className="text-gray-800 text-xs font-semibold mb-1">
-                      {"     "}
-                      {paid_date
-                        ? new Date(paid_date).toLocaleDateString("en-IN", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })
-                        : "-"}
-                    </p>
-                    <p className="text-gray-800 text-sm font-semibold">
-                      Date of Issue{" "}
-                    </p>
-                  </div>
+                  <VerifiedQRCode qrData={qrData} size={80} />
                 </div>
               </div>
             </div>
