@@ -69,16 +69,16 @@ const BudgetMerchant = () => {
           )}
         </div>
 
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
+        <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full  text-sm">
+            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-left">
               <tr>
-                <th className="border px-3 py-2 text-left">SI</th>
-                <th className="border px-3 py-2 text-left">Merchant Name</th>
+                <th className="border-b px-3 py-3 text-left">SI</th>
+                <th className="border-b px-3 py-3 text-left">Merchant Name</th>
                 {user.role === "admin" && (
-                  <th className="border px-3 py-2 text-left">Created By</th>
+                  <th className="border-b px-3 py-3 text-left">Created By</th>
                 )}
-                <th className="border px-3 py-2 text-left">Actions</th>
+                <th className="border-b px-3 py-3 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -105,16 +105,16 @@ const BudgetMerchant = () => {
                       index % 2 !== 0 ? "bg-white" : "bg-gray-50"
                     } hover:shadow-md`}
                   >
-                    <td className="border px-3 py-2">{index + 1}</td>
-                    <td className="border px-3 py-2">
+                    <td className="border-b px-3 py-3">{index + 1}</td>
+                    <td className="border-b px-3 py-3">
                       {merchant.merchant_name}
                     </td>
                     {user.role === "admin" && (
-                      <td className="border px-3 py-2">
+                      <td className="border-b px-3 py-3">
                         {merchant.creator?.name || "Admin"}
                       </td>
                     )}
-                    <td className="border px-3 py-2">
+                    <td className="border-b px-3 py-3">
                       <div className="flex gap-2">
                         {hasPermission("Budget", "update") && (
                           <button

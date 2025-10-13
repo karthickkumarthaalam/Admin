@@ -162,9 +162,10 @@ const Expenses = () => {
           </div>
         </div>
 
-        <div className="mt-4 flex justify-center md:justify-end items-center gap-4 flex-wrap">
-          <div className="flex gap-4">
-            {user.email === "admin" && (
+        <div className="mt-4 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 w-full overflow-x-auto">
+          {/* Left: Show Deleted Toggle */}
+          {user.email === "admin" && (
+            <div className="flex-shrink-0">
               <button
                 onClick={() => {
                   setViewDeleted((prev) => {
@@ -172,7 +173,7 @@ const Expenses = () => {
                     return !prev;
                   });
                 }}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-200 ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border shadow-sm transition-all duration-200 ${
                   viewDeleted
                     ? "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
                     : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200"
@@ -190,92 +191,106 @@ const Expenses = () => {
                   </>
                 )}
               </button>
-            )}
-            {!viewDeleted && (
-              <div className="flex gap-4">
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => {
-                    setDate(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
-                />
-                <select
-                  value={month}
-                  onChange={(e) => {
-                    setMonth(e.target.value);
-                    setCurrentPage(1);
-                    setDate("");
-                  }}
-                  className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
-                >
-                  <option value="">All Months</option>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {new Date(0, i).toLocaleString("default", {
-                        month: "long",
-                      })}
-                    </option>
-                  ))}
-                </select>
+            </div>
+          )}
 
-                <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
-                  <button
-                    onClick={() => debouncedYearChange(year - 1)}
-                    className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+          {/* Right: Filters + Search */}
+          <div className="">
+            <div className="flex gap-4 min-w-max items-center">
+              {!viewDeleted && (
+                <>
+                  {/* Date */}
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => {
+                      setDate(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  />
+
+                  {/* Month */}
+                  <select
+                    value={month}
+                    onChange={(e) => {
+                      setMonth(e.target.value);
+                      setCurrentPage(1);
+                      setDate("");
+                    }}
+                    className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
                   >
-                    –
-                  </button>
-                  <div className="px-4 py-2 text-sm">{year}</div>
-                  <button
-                    onClick={() => debouncedYearChange(year + 1)}
-                    className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-                  >
-                    +
-                  </button>
-                </div>
+                    <option value="">All Months</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        {new Date(0, i).toLocaleString("default", {
+                          month: "long",
+                        })}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Year */}
+                  <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
+                    <button
+                      onClick={() => debouncedYearChange(year - 1)}
+                      className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+                    >
+                      –
+                    </button>
+                    <div className="px-4 py-2 text-sm">{year}</div>
+                    <button
+                      onClick={() => debouncedYearChange(year + 1)}
+                      className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
+                    >
+                      +
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Search Box */}
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Search Expenses..."
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
+                />
               </div>
-            )}
-          </div>
-          <div className="relative w-64">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              type="text"
-              placeholder="Search Expenses..."
-              onChange={(e) => handleSearch(e.target.value)}
-              className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
-            />
+            </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border text-sm ">
-            <thead className="bg-gray-100">
+        <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full text-sm ">
+            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
               <tr>
-                <th className="border px-3 py-2 w-[20px] whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 w-[20px] whitespace-nowrap text-left">
                   SI
                 </th>
-                <th className="border px-3 py-2 min-w-[260px] md:w-[500px] whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 min-w-[260px] md:w-[500px] whitespace-nowrap text-left">
                   Details
                 </th>
-                <th className="border px-3 py-2 min-w-[260px] md:w-[250px] whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 min-w-[260px] md:w-[250px] whitespace-nowrap text-left">
                   Status
                 </th>
-                <th className="border px-3 py-2 min-w-[320px] md:w-[450px] whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 min-w-[320px] md:w-[450px] whitespace-nowrap text-left">
                   Category
                 </th>
-                <th className="border px-3 py-2 w-[60px]  whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 w-[60px]  whitespace-nowrap text-left">
                   Total Amount
                 </th>
-                <th className="birder px-3 py-2 w-[60px] whitespace-nowrap text-left">
+                <th className="border-b px-3 py-3 w-[60px] whitespace-nowrap text-left">
                   Pending Amount
                 </th>
-                <th className="border px-3 py-2 w-[60px] text-left">Actions</th>
+                <th className="border-b px-3 py-3 w-[60px] text-left">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -303,12 +318,12 @@ const Expenses = () => {
                     } hover:bg-gray-100 transition`}
                   >
                     {/* SI */}
-                    <td className="border px-3 py-4 text-sm text-gray-600 font-medium align-top">
+                    <td className="border-b px-3 py-4 text-sm text-gray-600 font-medium align-top">
                       {(currentPage - 1) * pageSize + index + 1}
                     </td>
 
                     {/* Expense Info */}
-                    <td className="border px-3 py-4 text-sm text-gray-700 align-top w-60">
+                    <td className="border-b px-3 py-4 text-sm text-gray-700 align-top w-60">
                       <div className="space-y-1">
                         <div>
                           <span className="font-semibold text-gray-800">
@@ -356,7 +371,7 @@ const Expenses = () => {
                     </td>
 
                     {/* Status */}
-                    <td className="border px-3 py-4 text-sm align-top text-gray-700">
+                    <td className="border-b px-3 py-4 text-sm align-top text-gray-700">
                       <span
                         className={`inline-block px-3 py-1 rounded-full text-xs font-medium border 
               ${
@@ -381,7 +396,7 @@ const Expenses = () => {
                     </td>
 
                     {/* Category Table */}
-                    <td className="border px-3 py-4 align-top">
+                    <td className="border-b px-3 py-4 align-top">
                       {expense.categories && expense.categories.length > 0 ? (
                         <div className="rounded-md overflow-hidden border border-gray-200">
                           <table className="text-xs w-full">
@@ -489,7 +504,7 @@ const Expenses = () => {
                     </td>
 
                     {/* Total Amount */}
-                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
+                    <td className="border-b px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
                       {(() => {
                         const allCurrencies = expense.categories?.map(
                           (cat) => cat.currency?.symbol
@@ -505,7 +520,7 @@ const Expenses = () => {
                     </td>
 
                     {/* Total Amount */}
-                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
+                    <td className="border-b px-3 py-4 text-sm align-top whitespace-nowrap text-gray-800 font-semibold">
                       {(() => {
                         const allCurrencies = expense.categories?.map(
                           (cat) => cat.currency?.symbol
@@ -521,7 +536,7 @@ const Expenses = () => {
                     </td>
 
                     {/* Actions */}
-                    <td className="border px-3 py-4 align-top">
+                    <td className="border-b px-3 py-4 align-top">
                       {!viewDeleted ? (
                         <div className="flex gap-2">
                           {hasPermission("Expenses", "update") && (

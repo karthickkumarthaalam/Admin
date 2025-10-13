@@ -10,14 +10,19 @@ const AddExpenseBill = ({
   financialYearId,
   onSuccess,
 }) => {
-  const [form, setForm] = useState({
+  const initialState = {
     title: "",
     vendor: "",
     start_date: "",
     end_date: "",
     type: "expense",
-  });
+    currency_id: "",
+    amount: 0,
+  };
+
+  const [form, setForm] = useState(initialState);
   const [merchants, setMerchants] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
   const [files, setFiles] = useState([]);
   const [existingBills, setExistingBills] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -33,9 +38,19 @@ const AddExpenseBill = ({
     }
   };
 
+  const fetchCurrency = async () => {
+    try {
+      const res = await apiCall("/currency", "GET");
+      setCurrencies(res.data);
+    } catch (error) {
+      toast.error("Failed to load currency");
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       fetchMerchants();
+      fetchCurrency();
     }
   }, [isOpen]);
 
@@ -47,17 +62,13 @@ const AddExpenseBill = ({
         start_date: editData.start_date || "",
         end_date: editData.end_date || "",
         type: editData.type || "expense",
+        currency_id: editData.currency_id || "",
+        amount: editData.amount || 0,
       });
-      setFiles([]); // reset new files
-      setExistingBills(editData.bills || []); // load existing bills
+      setFiles([]);
+      setExistingBills(editData.bills || []);
     } else {
-      setForm({
-        title: "",
-        vendor: "",
-        start_date: "",
-        end_date: "",
-        type: "expense",
-      });
+      setForm(initialState);
       setFiles([]);
       setExistingBills([]);
     }
@@ -102,6 +113,10 @@ const AddExpenseBill = ({
       formData.append("end_date", form.end_date);
       formData.append("type", form.type);
       formData.append("financial_year_id", financialYearId);
+      if (form.currency_id && form.currency_id !== "") {
+        formData.append("currency_id", form.currency_id);
+      }
+      formData.append("amount", form.amount);
 
       files.forEach((file) => formData.append("bills", file));
 
@@ -131,7 +146,7 @@ const AddExpenseBill = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl w-full max-w-lg p-6 relative overflow-auto max-h-[90vh] shadow-lg">
+      <div className="bg-gray-50 rounded-xl w-full max-w-2xl p-6 relative overflow-auto max-h-[90vh] shadow-lg">
         <button
           onClick={onClose}
           className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
@@ -139,65 +154,102 @@ const AddExpenseBill = ({
           <X size={24} />
         </button>
 
-        <h2 className="text-xl font-semibold mb-4 text-red-600">
+        <h2 className="text-xl font-semibold mb-4 text-red-800">
           {editData ? "Edit Expense Bill" : "Add Expense Bill"}
         </h2>
 
         <div className="grid gap-3">
           {/* Merchant */}
-          <label className="font-semibold text-gray-800">Merchant</label>
-          <select
-            value={form.vendor}
-            onChange={(e) => setForm({ ...form, vendor: e.target.value })}
-            className="border rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
-          >
-            <option value="">Select Merchant</option>
-            {merchants.map((m) => (
-              <option key={m.id} value={m.merchant_name}>
-                {m.merchant_name}
-              </option>
-            ))}
-          </select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-gray-600">Merchant</label>
+              <select
+                value={form.vendor}
+                onChange={(e) => setForm({ ...form, vendor: e.target.value })}
+                className="border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
+              >
+                <option value="">Select Merchant</option>
+                {merchants.map((m) => (
+                  <option key={m.id} value={m.merchant_name}>
+                    {m.merchant_name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Title */}
-          <label className="font-semibold text-gray-700">Title</label>
-          <input
-            type="text"
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="border rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
-          />
-
-          {/* Dates */}
-          <label className="font-semibold text-gray-700">Billing Periods</label>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              value={form.start_date}
-              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
-              className="border rounded px-3 py-2 w-full focus:ring focus:ring-red-300 outline-none"
-            />
-            <input
-              type="date"
-              value={form.end_date}
-              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-              className="border rounded px-3 py-2 w-full focus:ring focus:ring-red-300 outline-none"
-            />
+            {/* Title */}
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-gray-600">Title</label>
+              <input
+                type="text"
+                placeholder="Title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
+              />
+            </div>
           </div>
 
           {/* Type */}
-          <label className="font-semibold text-gray-700">Type</label>
+          <label className="font-semibold text-gray-600">Type</label>
           <select
             value={form.type}
             onChange={(e) => setForm({ ...form, type: e.target.value })}
-            className="border rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
+            className="border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
           >
             <option value="expense">Expense</option>
             <option value="income">Income</option>
             <option value="payable">Payable</option>
             <option value="others">Others</option>
           </select>
+
+          {/* Dates */}
+          <label className="font-semibold text-gray-600">Billing Periods</label>
+          <div className="flex gap-2">
+            <input
+              type="date"
+              value={form.start_date}
+              onChange={(e) => setForm({ ...form, start_date: e.target.value })}
+              className="border border-gray-300 rounded px-3 py-2 w-full focus:ring focus:ring-red-300 outline-none"
+            />
+            <input
+              type="date"
+              value={form.end_date}
+              onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+              className="border border-gray-300 rounded px-3 py-2 w-full focus:ring focus:ring-red-300 outline-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-gray-600">Currency</label>
+              <select
+                value={form.currency_id}
+                onChange={(e) =>
+                  setForm({ ...form, currency_id: e.target.value })
+                }
+                className="border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
+              >
+                <option value="">Select currency</option>
+                {currencies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code} ( {c.symbol} )
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Title */}
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-gray-600">amount</label>
+              <input
+                type="number"
+                value={form.amount}
+                onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                className="border border-gray-300 rounded px-3 py-2 focus:ring focus:ring-red-300 outline-none"
+              />
+            </div>
+          </div>
 
           {/* Upload new files */}
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer hover:border-red-400 transition">

@@ -119,16 +119,16 @@ const Currency = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Country</th>
-                    <th className="py-2 px-4 border">Currency Name</th>
-                    <th className="py-2 px-4 border">Code</th>
-                    <th className="py-2 px-4 border">Symbol</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full  text-sm">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-left">
+                  <tr>
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Country</th>
+                    <th className="py-3 px-4 border-b">Currency Name</th>
+                    <th className="py-3 px-4 border-b">Code</th>
+                    <th className="py-3 px-4 border-b">Symbol</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -136,7 +136,7 @@ const Currency = () => {
                     <tr>
                       <td
                         colSpan="6"
-                        className="py-6 px-4 border text-center text-gray-500 text-sm"
+                        className="py-6 px-4 borde-b text-center text-gray-500 text-sm"
                       >
                         No Currencies found.
                       </td>
@@ -144,18 +144,18 @@ const Currency = () => {
                   ) : (
                     currencies.map((currency, index) => (
                       <tr key={currency.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-2 px-4 borde-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-2 px-4 borde-b">
                           {currency.country_name}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-2 px-4 borde-b">
                           {currency.currency_name}
                         </td>
-                        <td className="py-2 px-4 border">{currency.code}</td>
-                        <td className="py-2 px-4 border">{currency.symbol}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-2 px-4 borde-b">{currency.code}</td>
+                        <td className="py-2 px-4 borde-b">{currency.symbol}</td>
+                        <td className="py-2 px-4 borde-b">
                           <div className="flex items-center gap-2">
                             {hasPermission("Currency", "update") && (
                               <button

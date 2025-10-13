@@ -168,29 +168,29 @@ const Budget = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
+        <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full  text-sm">
+            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-left">
               <tr>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   SI
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Budget Id
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Details
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Date
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Expense
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Income
                 </th>
-                <th className="border px-3 py-2 whitespace-nowrap text-left align-top">
+                <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   Actions
                 </th>
               </tr>
@@ -219,12 +219,12 @@ const Budget = () => {
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:shadow-md`}
                   >
-                    <td className="border px-3 py-4 text-sm text-gray-500 align-top font-medium">
+                    <td className="border-b px-4 py-3 text-sm text-gray-500 align-top font-medium">
                       {(currentPage - 1) * pageSize + index + 1}
                     </td>
 
                     {/* Budget ID with pill style */}
-                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap">
+                    <td className="border-b px-4 py-3 text-sm align-top whitespace-nowrap">
                       <span
                         className="inline-block bg-blue-100 text-blue-600 font-semibold text-xs px-3 py-1 rounded-full shadow-sm cursor-pointer"
                         onClick={() => {
@@ -237,7 +237,7 @@ const Budget = () => {
                     </td>
 
                     {/* Title and Creator with pseudo-avatar */}
-                    <td className="border px-3 py-4 text-sm align-top">
+                    <td className="border-b px-4 py-3 text-sm align-top">
                       <div className="space-y-1">
                         <div className="font-semibold text-gray-800">
                           {budget?.title}
@@ -249,7 +249,7 @@ const Budget = () => {
                     </td>
 
                     {/* Date/From-To */}
-                    <td className="border px-3 py-4 text-sm align-top whitespace-nowrap text-gray-700">
+                    <td className="border-b px-4 py-3 text-sm align-top whitespace-nowrap text-gray-700">
                       {budget?.date ? (
                         <div className="text-gray-800">
                           {new Date(budget?.date).toLocaleDateString("en-GB")}
@@ -273,7 +273,7 @@ const Budget = () => {
                     </td>
 
                     {/* +Expense with red pill style */}
-                    <td className="border px-3 py-4 align-top text-left whitespace-nowrap">
+                    <td className="border-b px-4 py-3 align-top text-left whitespace-nowrap">
                       {hasPermission("Budget", "update") && (
                         <button
                           onClick={() => openBudgetItemModal(budget, "expense")}
@@ -285,7 +285,7 @@ const Budget = () => {
                     </td>
 
                     {/* +Income +Sponsers with green & blue pill */}
-                    <td className="border px-3 py-4 align-top whitespace-nowrap">
+                    <td className="border-b px-4 py-3 align-top whitespace-nowrap">
                       <div className="flex  gap-2">
                         {hasPermission("Budget", "update") && (
                           <>
@@ -311,7 +311,7 @@ const Budget = () => {
                     </td>
 
                     {/* Actions with icon hover and tooltips */}
-                    <td className="border px-3 py-4 align-top whitespace-nowrap">
+                    <td className="border-b px-4 py-3 align-top whitespace-nowrap">
                       {!viewDeleted ? (
                         <div className="flex gap-3 items-center">
                           {hasPermission("Budget", "update") && (

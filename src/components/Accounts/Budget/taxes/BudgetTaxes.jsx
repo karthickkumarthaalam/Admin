@@ -85,19 +85,18 @@ const BudgetTaxes = () => {
             </button>
           )}
         </div>
-
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
+        <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full  text-sm">
+            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-left">
               <tr>
-                <th className="border px-3 py-2 text-left">SI</th>
-                <th className="border px-3 py-2 text-left">Tax Name</th>
-                <th className="border px-3 py-2 text-left">Percentage (%)</th>
-                <th className="border px-3 py-2 text-left">Status</th>
+                <th className="border-b px-3 py-3 text-left">SI</th>
+                <th className="border-b px-3 py-3 text-left">Tax Name</th>
+                <th className="border-b px-3 py-3 text-left">Percentage (%)</th>
+                <th className="border-b px-3 py-3 text-left">Status</th>
                 {user.role === "admin" && (
-                  <th className="border px-3 py-2 text-left">Created By</th>
+                  <th className="border-b px-3 py-3 text-left">Created By</th>
                 )}
-                <th className="border px-3 py-2 text-left">Actions</th>
+                <th className="border-b px-3 py-3 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -124,16 +123,16 @@ const BudgetTaxes = () => {
                       index % 2 === 0 ? "bg-white" : "bg-gray-50"
                     } hover:shadow-md`}
                   >
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-3 align-top">
                       {(currentPage - 1) * pageSize + index + 1}
                     </td>
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-2 align-top">
                       {tax.tax_name}
                     </td>
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-2 align-top">
                       {tax.tax_percentage}%
                     </td>
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-2 align-top">
                       <span
                         onClick={() => handleToggleStatus(tax.id)}
                         className={`cursor-pointer text-xs px-2 py-1 rounded ${
@@ -146,11 +145,11 @@ const BudgetTaxes = () => {
                       </span>
                     </td>
                     {user.role === "admin" && (
-                      <td className="border px-3 py-2 align-top">
+                      <td className="border-b px-3 py-2 align-top">
                         {tax?.creator?.name || "Admin"}
                       </td>
                     )}
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-2 align-top">
                       <div className="flex gap-2">
                         {hasPermission("Budget", "update") && (
                           <button
