@@ -88,7 +88,7 @@ const ForgotPassword = () => {
         onSubmit={isOtpSent ? handlePasswordReset : handleEmailSubmit}
         className="bg-white p-12 rounded-lg shadow-lg w-[450px] space-y-6"
       >
-        <h2 className="text-3xl font-medium text-center text-red-600">
+        <h2 className="text-2xl font-semibold text-center text-gray-800">
           Reset Password
         </h2>
 
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
                 setErrors({ ...errors, email: "" });
               }}
               placeholder=" "
-              className={`peer w-full border ${
+              className={`peer w-full border rounded-lg ${
                 errors.email ? "border-red-500" : "border-gray-300"
               } p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
                 errors.email ? "focus:ring-red-800" : "focus:ring-red-500"
@@ -136,7 +136,7 @@ const ForgotPassword = () => {
                 setErrors({ ...errors, otp: "" });
               }}
               placeholder=" "
-              className={`peer w-full border ${
+              className={`peer w-full border rounded-lg ${
                 errors.otp ? "border-red-500" : "border-gray-300"
               } p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
                 errors.otp ? "focus:ring-red-800" : "focus:ring-red-500"
@@ -169,7 +169,7 @@ const ForgotPassword = () => {
                   setErrors({ ...errors, newPassword: "" });
                 }}
                 placeholder=" "
-                className={`peer w-full border p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
+                className={`peer w-full border p-3 pt-5  rounded-lg focus:outline-none focus:ring-1 ${
                   errors.newPassword ? "border-red-500" : "border-gray-300"
                 } ${
                   errors.newPassword
@@ -204,7 +204,7 @@ const ForgotPassword = () => {
                   setErrors({ ...errors, confirmPassword: "" });
                 }}
                 placeholder=" "
-                className={`peer w-full border p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
+                className={`peer w-full border p-3 pt-5 rounded-lg focus:outline-none focus:ring-1 ${
                   errors.confirmPassword ? "border-red-500" : "border-gray-300"
                 } ${
                   errors.confirmPassword
@@ -233,7 +233,8 @@ const ForgotPassword = () => {
 
         <button
           type="submit"
-          className="w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
+          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors duration-200
+           bg-gradient-to-r from-gray-700 to-gray-900 cursor-not-allowed text-white`}
         >
           {isOtpSent ? "Reset Password" : "Send OTP"}
         </button>
@@ -247,7 +248,8 @@ const ForgotPassword = () => {
           <button
             type="button"
             onClick={handleEmailSubmit}
-            className="w-full bg-blue-800  text-white p-2 rounded hover:bg-blue-900"
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors duration-200
+           bg-gradient-to-l from-blue-700 to-blue-900 cursor-not-allowed text-white`}
           >
             Resend OTP
           </button>

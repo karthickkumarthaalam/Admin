@@ -105,7 +105,7 @@ const Sidebar = () => {
     <>
       {/* Mobile Toggle Button */}
       <button
-        className="md:hidden fixed top-4 left-6 z-50 bg-white p-2 rounded-lg shadow-md text-blue-600 hover:bg-red-50 transition"
+        className="md:hidden fixed top-3 left-6 z-50 bg-gray-900 p-2 rounded-lg shadow-md text-gray-100 hover:bg-red-600/30 transition"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -114,32 +114,32 @@ const Sidebar = () => {
       {/* Overlay */}
       {isOpen && isMobile && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-20 z-40 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full bg-gradient-to-r from-gray-50 to-gray-100 text-gray-800 flex flex-col z-50 transition-transform duration-300 shadow-lg border-r border-gray-200
+        className={`fixed top-0 left-0 h-full  bg-gray-900 text-gray-200 flex flex-col z-50 transition-transform duration-300 shadow-xl border-r border-gray-800
           ${isOpen || !isMobile ? "translate-x-0" : "-translate-x-full"}
           ${
             isCollapsed && !isMobile ? "w-16" : "w-52"
           } md:translate-x-0 md:relative`}
       >
         {/* Logo */}
-        <div className="px-4 py-3 border-b border-gray-200 flex flex-col items-center">
+        <div className="px-4 py-3 border-b border-gray-800 flex flex-col items-center">
           <img
             src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
             alt="Thaalam Logo"
             className={`transition-all duration-300 ${
-              isCollapsed && !isMobile ? "" : "h-14 w-20"
+              isCollapsed && !isMobile ? "h-8 w-8" : "h-14 w-20"
             }`}
           />
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 mt-4 px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
+        <nav className="flex-1 mt-4 px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-900 hover:scrollbar-thumb-gray-600">
           {allowedMenus.map(({ label, icon: Icon, path }) => (
             <NavLink
               key={label}
@@ -149,8 +149,8 @@ const Sidebar = () => {
                 `flex items-center gap-3 rounded-md p-3 transition-all duration-200 relative group
                  ${
                    isActive
-                     ? "bg-gradient-to-r from-red-500 to-red-600  text-white shadow-inner scale-[1.02]"
-                     : "hover:bg-red-50 hover:text-red-600"
+                     ? "bg-gradient-to-r from-red-600 to-red-500 text-white shadow-lg shadow-red-700/30 scale-[1.02]"
+                     : "hover:bg-gray-800 hover:text-red-400"
                  }
                  ${isCollapsed && !isMobile ? "justify-center" : ""}`
               }
@@ -162,14 +162,14 @@ const Sidebar = () => {
                 />
               </div>
 
-              {/* Show label on desktop (if not collapsed) or always on mobile */}
+              {/* Show label */}
               {(!isCollapsed || isMobile) && (
                 <span className="text-sm font-medium">{label}</span>
               )}
 
               {/* Tooltip for collapsed desktop */}
               {isCollapsed && !isMobile && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg z-50 whitespace-nowrap">
+                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-lg z-50 whitespace-nowrap">
                   {label}
                 </div>
               )}
@@ -179,10 +179,10 @@ const Sidebar = () => {
 
         {/* Collapse Button */}
         {!isMobile && (
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-800">
             <button
               onClick={toggleCollapse}
-              className="flex items-center justify-center w-full gap-2  text-gray-600 hover:text-red-600 hover:bg-gray-50 rounded-lg transition"
+              className="flex items-center justify-center w-full gap-2 text-gray-400 hover:text-red-400 hover:bg-gray-800 rounded-lg transition"
             >
               <ArrowLeftCircleIcon
                 size={18}

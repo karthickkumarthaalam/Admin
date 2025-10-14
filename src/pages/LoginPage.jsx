@@ -73,17 +73,21 @@ const LoginPage = () => {
     >
       <form
         onSubmit={handleLogin}
-        className=" p-12 rounded-lg shadow-lg w-[450px] space-y-6 backdrop-blur-sm"
+        className=" p-12 rounded-lg shadow-lg w-[450px] space-y-5 backdrop-blur-sm"
       >
         <div className="flex justify-center">
           <img
             src={`${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`}
             alt="Thaalam Logo"
-            className="w-36 h-36 object-contain mb-2"
+            className="w-36 h-auto object-contain mb-2"
           />
         </div>
-        <h2 className="text-3xl font-medium text-center text-red-600">
-          Welcome
+        <h2 className="text-2xl font-semibold text-center text-gray-800">
+          Welcome Back{" "}
+          <span className="text-xl">
+            {" "}
+            to <span className="text-red-600">Thaalam</span>
+          </span>
         </h2>
 
         {/* Email Field */}
@@ -94,7 +98,7 @@ const LoginPage = () => {
             value={form.email}
             onChange={handleChange}
             placeholder=" "
-            className={`peer w-full border ${
+            className={`peer w-full border rounded-lg ${
               errors.email ? "border-red-500" : "border-gray-300"
             } p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
               errors.email ? "focus:ring-red-800" : "focus:ring-red-500"
@@ -123,7 +127,7 @@ const LoginPage = () => {
             value={form.password}
             onChange={handleChange}
             placeholder=" "
-            className={`peer w-full border ${
+            className={`peer w-full border rounded-lg ${
               errors.password ? "border-red-500" : "border-gray-300"
             } p-3 pt-5 rounded focus:outline-none focus:ring-1 ${
               errors.password ? "focus:ring-red-800" : "focus:ring-red-500"
@@ -164,8 +168,8 @@ const LoginPage = () => {
           className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md font-medium transition-colors duration-200
               ${
                 isLoading
-                  ? "bg-red-400 cursor-not-allowed"
-                  : "bg-red-500 hover:bg-red-600"
+                  ? "bg-gradient-to-r from-gray-500 to-gray-700 cursor-not-allowed"
+                  : "bg-gradient-to-r from-gray-700 to-gray-900 "
               } text-white`}
         >
           {isLoading ? (
