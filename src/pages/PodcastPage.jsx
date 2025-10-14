@@ -21,23 +21,26 @@ const PodcastPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
-          <div className="flex flex-1 gap-2">
-            {visibleTabs.map((tab) => {
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded text-sm font-medium ${
-                    activeTab === tab.id
-                      ? "bg-red-500 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              );
-            })}
+        <div className="p-4 border-t border-gray-200 bg-white shadow-sm">
+          <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide">
+            {visibleTabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative px-4 py-2 text-sm font-semibold transition-colors duration-200 whitespace-nowrap focus:outline-none ${
+                  activeTab === tab.id
+                    ? "text-gray-900 border-b-2 border-red-500 rounded-sm"
+                    : "text-gray-600 hover:text-gray-800 border-b-2 border-transparent"
+                }`}
+              >
+                {tab.label}
+
+                {/* Optional subtle underline for active tab */}
+                {activeTab === tab.id && (
+                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-red-500 rounded-full"></span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
 

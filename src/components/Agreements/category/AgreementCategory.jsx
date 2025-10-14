@@ -78,13 +78,13 @@ const AgreementCategory = () => {
           )}
         </div>
 
-        <div className="overflow-x-auto mt-4">
-          <table className="w-full border text-sm">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-3 py-2 text-left">SI</th>
-                <th className="border px-3 py-2 text-left">Category</th>
-                <th className="border px-3 py-2 text-left">Actions</th>
+        <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+          <table className="w-full text-sm ">
+            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+              <tr className="text-left">
+                <th className="border-b px-3 py-3 text-left">SI</th>
+                <th className="border-b px-3 py-3 text-left">Category</th>
+                <th className="border-b px-3 py-3 text-left">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -111,13 +111,13 @@ const AgreementCategory = () => {
                       index % 2 !== 0 ? "bg-white" : "bg-gray-50"
                     } hover:shadow-md`}
                   >
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-3 align-top">
                       {(currentPage - 1) * pageSize + index + 1}
                     </td>
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-3 align-top">
                       {cat.category_name}
                     </td>
-                    <td className="border px-3 py-2 align-top">
+                    <td className="border-b px-3 py-3 align-top">
                       <div className="flex gap-2">
                         {hasPermission("Agreement", "update") && (
                           <button

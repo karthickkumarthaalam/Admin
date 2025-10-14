@@ -72,20 +72,20 @@ const CareersPage = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Mobile</th>
-                    <th className="py-2 px-4 border">Country</th>
-                    <th className="py-2 px-4 border">Experience</th>
-                    <th className="py-2 px-4 border whitespace-nowrap">
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Mobile</th>
+                    <th className="py-3 px-4 border-b">Country</th>
+                    <th className="py-3 px-4 border-b">Experience</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
                       Current Job
                     </th>
-                    <th className="py-2 px-4 border text-center">Resume</th>
+                    <th className="py-3 px-4 border-b text-center">Resume</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -101,11 +101,11 @@ const CareersPage = () => {
                   ) : (
                     applicants.map((app, index) => (
                       <tr key={app.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td
-                          className="py-2 px-4 border text-blue-500 hover:cursor-pointer hover:underline"
+                          className="py-3 px-4 border-b text-blue-500 hover:cursor-pointer hover:underline"
                           onClick={() => {
                             setSelectedApplicant(app);
                             setOpenModal(true);
@@ -113,14 +113,16 @@ const CareersPage = () => {
                         >
                           {app.name}
                         </td>
-                        <td className="py-2 px-4 border">{app.email}</td>
-                        <td className="py-2 px-4 border">{app.mobile}</td>
-                        <td className="py-2 px-4 border">{app.country}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">{app.email}</td>
+                        <td className="py-3 px-4 border-b">{app.mobile}</td>
+                        <td className="py-3 px-4 border-b">{app.country}</td>
+                        <td className="py-3 px-4 border-b">
                           {app.is_experienced}
                         </td>
-                        <td className="py-2 px-4 border">{app.current_job}</td>
-                        <td className="py-2 px-4 border flex justify-center">
+                        <td className="py-3 px-4 border-b">
+                          {app.current_job}
+                        </td>
+                        <td className="py-3 px-4 border-b flex justify-center">
                           {
                             <a
                               href={app.document}

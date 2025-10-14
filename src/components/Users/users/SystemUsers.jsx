@@ -144,10 +144,10 @@ const SystemUsers = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="mt-6 w-full overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg shadow-sm bg-white text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-gray-900 text-left text-xs uppercase tracking-wide">
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left text-xs uppercase tracking-wide">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b min-w-[120px] text-center">
                       Profile

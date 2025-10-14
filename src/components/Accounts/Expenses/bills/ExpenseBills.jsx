@@ -169,9 +169,13 @@ const ExpenseBills = () => {
                 <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
                   <tr className="text-left">
                     <th className="border-b px-5 py-3">SI</th>
-                    <th className="border-b px-5 py-3">Financial Year</th>
+                    <th className="border-b px-5 py-3 whitespace-nowrap">
+                      Financial Year
+                    </th>
                     {user.role === "admin" && (
-                      <th className="border-b px-5 py-3">Created By</th>
+                      <th className="border-b px-5 py-3 whitespace-nowrap">
+                        Created By
+                      </th>
                     )}
                     <th className="border-b px-5 py-3">Action</th>
                   </tr>

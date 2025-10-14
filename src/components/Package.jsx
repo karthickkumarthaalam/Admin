@@ -139,7 +139,7 @@ const Package = () => {
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
+          <div className="flex flex-row justify-center sm:justify-end mt-4 gap-2 md:gap-4">
             <div className="w-48">
               <select
                 onChange={(e) => handleLanguageFilter(e.target.value)}
@@ -171,18 +171,26 @@ const Package = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Package Id</th>
-                    <th className="py-2 px-4 border">Package Name</th>
-                    <th className="py-2 px-4 border">Duration</th>
-                    <th className="py-2 px-4 border">Monthly Price</th>
-                    <th className="py-2 px-4 border">Yearly Price per month</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Package Id
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Package Name
+                    </th>
+                    <th className="py-3 px-4 border-b">Duration</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Monthly Price
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Yearly Price per month
+                    </th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -198,22 +206,24 @@ const Package = () => {
                   ) : (
                     packages.map((pkg, index) => (
                       <tr key={pkg.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td
-                          className="py-2 px-4 border text-blue-600 hover:text-blue-700 hover:underline"
+                          className="py-3 px-4 border-b text-blue-600 hover:text-blue-700 hover:underline"
                           onClick={() => handleViewPackage(pkg)}
                         >
                           {pkg.package_id}
                         </td>
-                        <td className="py-2 px-4 border">{pkg.package_name}</td>
-                        <td className="py-2 px-4 border">{pkg.duration}</td>
-                        <td className="py-2 px-4 border">CHF {pkg.price}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
+                          {pkg.package_name}
+                        </td>
+                        <td className="py-3 px-4 border-b">{pkg.duration}</td>
+                        <td className="py-3 px-4 border-b">CHF {pkg.price}</td>
+                        <td className="py-3 px-4 border-b">
                           CHF {pkg.yearly_price}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {hasPermission("Package", "update") ? (
                             <span
                               onClick={() => handleStatusToggle(pkg)}
@@ -231,7 +241,7 @@ const Package = () => {
                             </span>
                           )}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleViewPackage(pkg)}

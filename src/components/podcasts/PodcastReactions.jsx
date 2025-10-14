@@ -50,15 +50,19 @@ const PodcastReactionStats = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Podcast Title</th>
-                    <th className="py-2 px-4 border">RJ Name</th>
-                    <th className="py-2 px-4 border">Likes</th>
-                    <th className="py-2 px-4 border">Comments</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Podcast Title
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      RJ Name
+                    </th>
+                    <th className="py-3 px-4 border-b">Likes</th>
+                    <th className="py-3 px-4 border-b">Comments</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -66,7 +70,7 @@ const PodcastReactionStats = () => {
                     <tr>
                       <td
                         colSpan="5"
-                        className="py-6 px-4 border text-center text-gray-500 text-sm"
+                        className="py-6 px-4 border-b text-center text-gray-500 text-sm"
                       >
                         No records found.
                       </td>
@@ -74,13 +78,13 @@ const PodcastReactionStats = () => {
                   ) : (
                     stats.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">{item.title}</td>
-                        <td className="py-2 px-4 border">{item.rjname}</td>
-                        <td className="py-2 px-4 border">{item.likes}</td>
-                        <td className="py-2 px-4 border">{item.comments}</td>
+                        <td className="py-3 px-4 border-b">{item.title}</td>
+                        <td className="py-3 px-4 border-b">{item.rjname}</td>
+                        <td className="py-3 px-4 border-b">{item.likes}</td>
+                        <td className="py-3 px-4 border-b">{item.comments}</td>
                       </tr>
                     ))
                   )}

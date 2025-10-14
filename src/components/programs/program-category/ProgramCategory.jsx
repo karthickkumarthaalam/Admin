@@ -155,18 +155,22 @@ const ProgramCategory = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Category</th>
-                    <th className="py-2 px-r border">Banner</th>
-                    <th className="py-2 px-4 border">Start Time</th>
-                    <th className="py-2 px-4 border">End Time</th>
-                    <th className="py-2 px-4 border">Country</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Category</th>
+                    <th className="py-3 px-4 border-b">Banner</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Start Time
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      End Time
+                    </th>
+                    <th className="py-3 px-4 border-b">Country</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -182,21 +186,23 @@ const ProgramCategory = () => {
                   ) : (
                     categories.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">{item.category}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">{item.category}</td>
+                        <td className="py-3 px-4 border-b">
                           <img
                             src={item.image_url}
                             alt="website"
                             className="w-32 h-auto rounded border"
                           />
                         </td>
-                        <td className="py-2 px-4 border">{item.start_time}</td>
-                        <td className="py-2 px-4 border">{item.end_time}</td>
-                        <td className="py-2 px-4 border">{item.country}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
+                          {item.start_time}
+                        </td>
+                        <td className="py-3 px-4 border-b">{item.end_time}</td>
+                        <td className="py-3 px-4 border-b">{item.country}</td>
+                        <td className="py-3 px-4 border-b">
                           <span
                             onClick={() => handleStatusToggle(item)}
                             className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
@@ -208,7 +214,7 @@ const ProgramCategory = () => {
                             {item.status}
                           </span>
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleViewCategory(item)}

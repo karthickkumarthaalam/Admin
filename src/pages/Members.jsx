@@ -74,16 +74,18 @@ const Members = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Member ID</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Mobile</th>
-                    <th className="py-2 px-4 border">Country</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Member ID
+                    </th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Mobile</th>
+                    <th className="py-3 px-4 border-b">Country</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -99,11 +101,11 @@ const Members = () => {
                   ) : (
                     members.map((member, index) => (
                       <tr key={member.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td
-                          className="py-2 px-4 border text-blue-600 cursor-pointer hover:underline"
+                          className="py-3 px-4 border-b text-blue-600 cursor-pointer hover:underline"
                           onClick={() => {
                             setSelectedMember(member);
                             setIsViewModalOpen(true);
@@ -111,10 +113,10 @@ const Members = () => {
                         >
                           {member.member_id}
                         </td>
-                        <td className="py-2 px-4 border">{member.name}</td>
-                        <td className="py-2 px-4 border">{member.email}</td>
-                        <td className="py-2 px-4 border">{member.phone}</td>
-                        <td className="py-2 px-4 border">{member.country}</td>
+                        <td className="py-3 px-4 border-b">{member.name}</td>
+                        <td className="py-3 px-4 border-b">{member.email}</td>
+                        <td className="py-3 px-4 border-b">{member.phone}</td>
+                        <td className="py-3 px-4 border-b">{member.country}</td>
                       </tr>
                     ))
                   )}

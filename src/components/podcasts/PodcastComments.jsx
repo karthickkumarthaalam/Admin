@@ -89,17 +89,19 @@ const PodcastComments = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Podcast</th>
-                    <th className="py-2 px-4 border">Member</th>
-                    <th className="py-2 px-4 border w-[600px]">Comment</th>
-                    <th className="py-2 px-4 border">Posted On</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Action</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Podcast</th>
+                    <th className="py-3 px-4 border-b">Member</th>
+                    <th className="py-3 px-4 border-b w-[600px]">Comment</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Posted On
+                    </th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -115,22 +117,22 @@ const PodcastComments = () => {
                   ) : (
                     comments.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 borde-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {item.Podcast?.title}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {item.Member?.name}
                         </td>
-                        <td className="py-2 px-4 border  w-[600px]">
+                        <td className="py-3 px-4 border-b  w-[600px]">
                           {item.comment}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {new Date(item.created_at).toLocaleString()}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {hasPermission("Podcast Comment", "update") ? (
                             <span
                               onClick={() => handleStatusChange(item)}
@@ -148,7 +150,7 @@ const PodcastComments = () => {
                             </span>
                           )}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <div className="flex items-center">
                             {hasPermission("Podcast Comment", "delete") && (
                               <button

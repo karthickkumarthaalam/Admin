@@ -118,17 +118,19 @@ const Advertisement = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full border text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Company</th>
-                    <th className="py-2 px-4 border">Contact Person</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Phone</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Company</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Contact Person
+                    </th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Phone</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,16 +146,18 @@ const Advertisement = () => {
                   ) : (
                     ads.map((ad, index) => (
                       <tr key={ad.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">{ad.company_name}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
+                          {ad.company_name}
+                        </td>
+                        <td className="py-3 px-4 border-b">
                           {ad.contact_person}
                         </td>
-                        <td className="py-2 px-4 border">{ad.email}</td>
-                        <td className="py-2 px-4 border">{ad.phone}</td>
-                        <td className="py-2 px-4 border capitalize">
+                        <td className="py-3 px-4 border-b">{ad.email}</td>
+                        <td className="py-3 px-4 border-b">{ad.phone}</td>
+                        <td className="py-3 px-4 border-b capitalize">
                           <button
                             onClick={() => handleStatusUpdate(ad.id, ad.status)}
                             className={`text-xs px-2.5 py-1 rounded-full font-semibold
@@ -168,7 +172,7 @@ const Advertisement = () => {
                             {ad.status}
                           </button>
                         </td>
-                        <td className="py-2 px-4 border space-x-2">
+                        <td className="py-3 px-4 border-b space-x-2">
                           <button
                             className="text-blue-600 hover:underline"
                             onClick={() => {

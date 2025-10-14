@@ -94,7 +94,7 @@ const Coupons = () => {
           title={"Coupon Report"}
           paths={["Programs", "Coupon Report"]}
         />
-        <div className="mt-4 rounded-sm shadow-md px-6 py-4 mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+        <div className="md:mt-4 rounded-sm shadow-md md:px-6 py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
           <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
               Coupon Report
@@ -131,18 +131,20 @@ const Coupons = () => {
             </div>
           ) : (
             <>
-              <div className="overflow-x-auto mt-4 max-w-full">
-                <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="py-2 px-4 border">SI</th>
-                      <th className="py-2 px-4 border">Coupon Name</th>
-                      <th className="py-2 px-4 border">Code</th>
-                      <th className="py-2 px-4 border">Description</th>
-                      <th className="py-2 px-4 border">Start</th>
-                      <th className="py-2 px-4 border">End</th>
-                      <th className="py-2 px-4 border">Status</th>
-                      <th className="py-2 px-4 border">Actions</th>
+              <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+                <table className="w-full text-sm ">
+                  <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                    <tr className="text-left">
+                      <th className="py-3 px-4 border-b">SI</th>
+                      <th className="py-3 px-4 border-b whitespace-nowrap">
+                        Coupon Name
+                      </th>
+                      <th className="py-3 px-4 border-b">Code</th>
+                      <th className="py-3 px-4 border-b">Description</th>
+                      <th className="py-3 px-4 border-b">Start</th>
+                      <th className="py-3 px-4 border-b">End</th>
+                      <th className="py-3 px-4 border-b">Status</th>
+                      <th className="py-3 px-4 border-b">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -160,29 +162,29 @@ const Coupons = () => {
                         const isExpired = coupon.status === "expired";
                         return (
                           <tr key={coupon.id}>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {(currentPage - 1) * pageSize + index + 1}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {coupon.coupon_name}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {coupon.coupon_code}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {coupon.description}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {new Date(coupon.start_date).toLocaleDateString(
                                 "en-GB"
                               )}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               {new Date(coupon.end_date).toLocaleDateString(
                                 "en-GB"
                               )}
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               <span
                                 onClick={() =>
                                   !isExpired && handleStatusToggle(coupon)
@@ -198,7 +200,7 @@ const Coupons = () => {
                                 {coupon.status}
                               </span>
                             </td>
-                            <td className="py-2 px-4 border">
+                            <td className="py-3 px-4 border-b">
                               <div className="flex items-center gap-2">
                                 {hasPermission("Coupon", "update") && (
                                   <button

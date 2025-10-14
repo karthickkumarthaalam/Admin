@@ -119,18 +119,26 @@ const Transactions = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Member ID</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Transaction ID</th>
-                    <th className="py-2 px-4 border">Transaction Date</th>
-                    <th className="py-2 px-4 border">Amount</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Refund Action</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Member ID
+                    </th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Transaction ID
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Transaction Date
+                    </th>
+                    <th className="py-3 px-4 border-b">Amount</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Refund Action
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -146,21 +154,23 @@ const Transactions = () => {
                   ) : (
                     transactions.map((txn, index) => (
                       <tr key={txn.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {txn.member.member_id}
                         </td>
-                        <td className="py-2 px-4 border">{txn.member.name}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
+                          {txn.member.name}
+                        </td>
+                        <td className="py-3 px-4 border-b">
                           {txn.transaction_id}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {new Date(txn.transaction_date).toLocaleString()}
                         </td>
-                        <td className="py-2 px-4 border">CHF {txn.amount}</td>
-                        <td className="py-2 px-4 border capitalize">
+                        <td className="py-3 px-4 border-b">CHF {txn.amount}</td>
+                        <td className="py-3 px-4 border-b capitalize">
                           <span
                             className={`px-2 py-1 text-xs rounded font-semibold ${
                               txn.payment_status === "completed"
@@ -173,7 +183,7 @@ const Transactions = () => {
                             {txn.payment_status.toUpperCase()}
                           </span>
                         </td>
-                        <td className="py-2 px-4 border relative">
+                        <td className="py-3 px-4 border-b relative">
                           {txn.refund_requested_at ? (
                             txn.refund_status === "pending" ? (
                               <>

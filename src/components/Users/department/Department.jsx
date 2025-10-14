@@ -123,14 +123,14 @@ const Department = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Department Name</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className=" text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Department Name</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -146,13 +146,13 @@ const Department = () => {
                   ) : (
                     departments.map((dept, index) => (
                       <tr key={dept.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {dept.department_name}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <span
                             onClick={() => handleStatusToggle(dept)}
                             className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
@@ -164,7 +164,7 @@ const Department = () => {
                             {dept.status}
                           </span>
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleEdit(dept.id)}

@@ -190,70 +190,72 @@ const Agreements = () => {
 
         {/* Category Table */}
         {!selectedCategory && (
-          <table className="w-full border text-sm mt-4">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="border px-3 py-2 text-left">SI</th>
-                <th className="border px-3 py-2 text-left">Category</th>
-                <th className="border px-3 py-2 text-left">
-                  No. of Agreements
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={3} className="text-center py-6">
-                    <Loader2 className="mx-auto animate-spin text-red-500" />
-                  </td>
+          <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+            <table className="w-full text-sm ">
+              <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                <tr className="text-left">
+                  <th className="border-b px-3 py-3 text-left">SI</th>
+                  <th className="border-b px-3 py-3 text-left">Category</th>
+                  <th className="border-b px-3 py-3 text-left">
+                    No. of Agreements
+                  </th>
                 </tr>
-              ) : Object.keys(groupedCategories).length === 0 ? (
-                <tr>
-                  <td colSpan={3} className="text-center py-6">
-                    No categories found.
-                  </td>
-                </tr>
-              ) : (
-                Object.entries(groupedCategories).map(([cat, items], idx) => (
-                  <tr
-                    key={cat}
-                    className="hover:bg-gray-50 cursor-pointer"
-                    onClick={() => setSelectedCategory(cat)}
-                  >
-                    <td className="border px-3 py-2">{idx + 1}</td>
-                    <td className="border px-3 py-2 text-blue-600 hover:underline">
-                      {cat}
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={3} className="text-center py-6">
+                      <Loader2 className="mx-auto animate-spin text-red-500" />
                     </td>
-                    <td className="border px-3 py-2 ">{items.length}</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : Object.keys(groupedCategories).length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="text-center py-6">
+                      No categories found.
+                    </td>
+                  </tr>
+                ) : (
+                  Object.entries(groupedCategories).map(([cat, items], idx) => (
+                    <tr
+                      key={cat}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      <td className="border-b px-3 py-3">{idx + 1}</td>
+                      <td className="border-b px-3 py-3 text-blue-600 hover:underline">
+                        {cat}
+                      </td>
+                      <td className="border-b px-3 py-3">{items.length}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {/* Agreement List for Selected Category */}
         {selectedCategory && (
-          <div className="overflow-x-auto mt-4">
-            <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="py-2 px-4 border text-left">SI</th>
-                  <th className="py-2 px-4 border text-left">Title</th>
-                  <th className="py-2 px-4 border text-left whitespace-nowrap">
+          <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+            <table className="w-full text-sm ">
+              <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                <tr className="text-left">
+                  <th className="py-3 px-4 border-b text-left">SI</th>
+                  <th className="py-3 px-4 border-b text-left">Title</th>
+                  <th className="py-3 px-4 border-b text-left whitespace-nowrap">
                     Document No
                   </th>
-                  <th className="py-2 px-4 border text-left">Date</th>
+                  <th className="py-3 px-4 border-b text-left">Date</th>
                   {user.role === "admin" && (
-                    <th className="px-4 py-2 border whitespace-nowrap text-left">
+                    <th className="px-4 py-3 border-b whitespace-nowrap text-left">
                       Created By
                     </th>
                   )}
-                  <th className="py-2 px-4 border text-center">PDF</th>
-                  <th className="py-2 px-4 border text-center whitespace-nowrap">
+                  <th className="py-3 px-4 border-b text-center">PDF</th>
+                  <th className="py-3 px-4 border-b text-center whitespace-nowrap">
                     Signed PDF
                   </th>
-                  <th className="py-2 px-4 border text-center">Action</th>
+                  <th className="py-3 px-4 border-b text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -270,20 +272,22 @@ const Agreements = () => {
                         key={agreement.id}
                         className="border-t hover:bg-gray-50 text-left"
                       >
-                        <td className="py-2 px-4 border">{index + 1}</td>
-                        <td className="py-2 px-4 border">{agreement.title}</td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">{index + 1}</td>
+                        <td className="py-3 px-4 border-b">
+                          {agreement.title}
+                        </td>
+                        <td className="py-3 px-4 border-b">
                           {agreement.document_number}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {agreement.date?.slice(0, 10)}
                         </td>
                         {user.role === "admin" && (
-                          <td className="py-2 px-4 border">
+                          <td className="py-3 px-4 border-b">
                             {agreement?.creator?.name || "Admin"}
                           </td>
                         )}
-                        <td className="py-2 px-4 border text-center">
+                        <td className="py-3 px-4 border-b text-center">
                           {uploadingPdfId === agreement.id ? (
                             <Loader2
                               className="animate-spin text-red-500 mx-auto"
@@ -356,7 +360,7 @@ const Agreements = () => {
                           )}
                         </td>
 
-                        <td className="py-2 px-4 border text-center">
+                        <td className="py-3 px-4 border-b text-center">
                           {uploadingSignedPdfId === agreement.id ? (
                             <Loader2
                               className="animate-spin text-green-500 mx-auto"
@@ -428,7 +432,7 @@ const Agreements = () => {
                           )}
                         </td>
 
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <div className="flex justify-center gap-2">
                             {hasPermission("Agreements", "update") && (
                               <button

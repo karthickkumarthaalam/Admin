@@ -140,16 +140,20 @@ const Banner = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Website Image</th>
-                    <th className="py-2 px-4 border">Mobile Image</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Website Image
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Mobile Image
+                    </th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -165,13 +169,13 @@ const Banner = () => {
                   ) : (
                     banners.map((banner, index) => (
                       <tr key={banner.id}>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           {banner.banner_name}
                         </td>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           {banner.website_image && (
                             <img
                               src={`${BASE_URL}/${banner.website_image.replace(
@@ -183,7 +187,7 @@ const Banner = () => {
                             />
                           )}
                         </td>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           {banner.mobile_image && (
                             <img
                               src={`${BASE_URL}/${banner.mobile_image.replace(
@@ -195,7 +199,7 @@ const Banner = () => {
                             />
                           )}
                         </td>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           {hasPermission("Banner", "update") ? (
                             <span
                               onClick={() => handleStatusToggle(banner)}
@@ -211,7 +215,7 @@ const Banner = () => {
                             "-"
                           )}
                         </td>
-                        <td className="py-2 px-4 border align-top">
+                        <td className="py-3 px-4 border-b align-top">
                           <div className="flex items-center gap-2">
                             {/* Edit and Delete Actions */}
                             {hasPermission("Banner", "update") && (

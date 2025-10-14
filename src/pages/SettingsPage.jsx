@@ -25,39 +25,42 @@ const SettingsPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="p-4 shadow-lg border-t border-dashed border-gray-200">
-          <div className="flex flex-1 gap-2">
+        <div className="p-4 border-t border-gray-200 bg-white shadow-sm">
+          <div className="flex flex-wrap gap-2 overflow-x-auto scrollbar-hide">
             {tabs
               .filter((tab) => canAccessTab(tab))
-              .map((tab) => {
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      if (tab.id === "password-manager") {
-                        if (
-                          sessionStorage.getItem(
-                            "passwordManagerAccessGranted"
-                          ) === "true"
-                        ) {
-                          setActiveTab("password-manager");
-                        } else {
-                          setShowOtpModal(true);
-                        }
+              .map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    if (tab.id === "password-manager") {
+                      if (
+                        sessionStorage.getItem(
+                          "passwordManagerAccessGranted"
+                        ) === "true"
+                      ) {
+                        setActiveTab("password-manager");
                       } else {
-                        setActiveTab(tab.id);
+                        setShowOtpModal(true);
                       }
-                    }}
-                    className={`px-4 py-2 rounded text-sm font-medium ${
-                      activeTab === tab.id
-                        ? "bg-red-500 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                );
-              })}
+                    } else {
+                      setActiveTab(tab.id);
+                    }
+                  }}
+                  className={`relative px-4 py-2 text-sm font-semibold rounded transition-colors duration-200 whitespace-nowrap focus:outline-none ${
+                    activeTab === tab.id
+                      ? "text-gray-900 border-b-2 border-red-500 rounded-sm"
+                      : "text-gray-600 hover:text-gray-800 border-b-2 border-transparent"
+                  }`}
+                >
+                  {tab.label}
+
+                  {/* Subtle underline for active tab */}
+                  {activeTab === tab.id && (
+                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-red-500 rounded-full"></span>
+                  )}
+                </button>
+              ))}
           </div>
         </div>
 

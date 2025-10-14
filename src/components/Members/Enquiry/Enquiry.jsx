@@ -109,17 +109,17 @@ const Enquiry = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4">
-              <table className="w-full border text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Subject</th>
-                    <th className="py-2 px-4 border">Purpose</th>
-                    <th className="py-2 px-4 border">Status</th>
-                    <th className="py-2 px-4 border">Actions</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Subject</th>
+                    <th className="py-3 px-4 border-b">Purpose</th>
+                    <th className="py-3 px-4 border-b">Status</th>
+                    <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -135,14 +135,18 @@ const Enquiry = () => {
                   ) : (
                     enquiries.map((enquiry, index) => (
                       <tr key={enquiry.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">{enquiry.name}</td>
-                        <td className="py-2 px-4 border">{enquiry.email}</td>
-                        <td className="py-2 px-4 border">{enquiry.subject}</td>
-                        <td className="py-2 px-4 border">{enquiry.purpose}</td>
-                        <td className="py-2 px-4 border capitalize">
+                        <td className="py-3 px-4 border-b">{enquiry.name}</td>
+                        <td className="py-3 px-4 border-b">{enquiry.email}</td>
+                        <td className="py-3 px-4 border-b">
+                          {enquiry.subject}
+                        </td>
+                        <td className="py-3 px-4 border-b">
+                          {enquiry.purpose}
+                        </td>
+                        <td className="py-3 px-4 border-b capitalize">
                           {
                             <button
                               onClick={() =>
@@ -161,7 +165,7 @@ const Enquiry = () => {
                             </button>
                           }
                         </td>
-                        <td className="py-2 px-4 border space-x-2">
+                        <td className="py-3 px-4 border-b space-x-2">
                           <button
                             className="text-blue-600 hover:underline"
                             onClick={() => {

@@ -71,15 +71,15 @@ const Permission = () => {
             <Loader2 className="animate-spin text-red-500" size={32} />
           </div>
         ) : (
-          <div className="overflow-x-auto mt-4">
-            <table className="w-full border border-gray-300 text-sm">
-              <thead>
-                <tr className="bg-gray-100 text-left">
-                  <th className="py-2 px-4 border">SI</th>
-                  <th className="py-2 px-4 border">Name</th>
-                  <th className="py-2 px-4 border">Email</th>
-                  <th className="py-2 px-4 border">Modules</th>
-                  <th className="py-2 px-4 border">Actions</th>
+          <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+            <table className="w-full text-sm ">
+              <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                <tr className="text-left">
+                  <th className="py-3 px-4 border-b">SI</th>
+                  <th className="py-3 px-4 border-b">Name</th>
+                  <th className="py-3 px-4 border-b">Email</th>
+                  <th className="py-3 px-4 border-b">Modules</th>
+                  <th className="py-3 px-4 border-b">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -95,17 +95,17 @@ const Permission = () => {
                 ) : (
                   permissions.map((item, index) => (
                     <tr key={item.system_user_id}>
-                      <td className="py-2 px-4 border">{index + 1}</td>
-                      <td className="py-2 px-4 border">
+                      <td className="py-3 px-4 border-b">{index + 1}</td>
+                      <td className="py-3 px-4 border-b">
                         {item.systemUser.name}
                       </td>
-                      <td className="py-2 px-4 border">
+                      <td className="py-3 px-4 border-b">
                         {item.systemUser.email}
                       </td>
-                      <td className="py-2 px-4 border">
+                      <td className="py-3 px-4 border-b">
                         {item.modules.map((m) => m.name).join(", ")}
                       </td>
-                      <td className="py-2 px-4 border">
+                      <td className="py-3 px-4 border-b">
                         <div className="flex gap-2 items-center">
                           <button
                             onClick={() => {

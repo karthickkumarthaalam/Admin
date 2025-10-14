@@ -73,20 +73,30 @@ const Subscribers = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto mt-4 max-w-full">
-              <table className="w-full sm:min-w-[800px] border border-gray-300 text-sm">
-                <thead>
-                  <tr className="bg-gray-100 text-left">
-                    <th className="py-2 px-4 border">SI</th>
-                    <th className="py-2 px-4 border">Member ID</th>
-                    <th className="py-2 px-4 border">Name</th>
-                    <th className="py-2 px-4 border">Email</th>
-                    <th className="py-2 px-4 border">Mobile</th>
-                    <th className="py-2 px-4 border">Package Name</th>
-                    <th className="py-2 px-4 border">Start Date</th>
-                    <th className="py-2 px-4 border">End Date</th>
-                    <th className="py-2 px-4 border">Purchase Date</th>
-                    <th className="py-2 px-4 border">Status</th>
+            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
+              <table className="w-full text-sm ">
+                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white">
+                  <tr className="text-left">
+                    <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Member ID
+                    </th>
+                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Mobile</th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Package Name
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Start Date
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      End Date
+                    </th>
+                    <th className="py-3 px-4 border-b whitespace-nowrap">
+                      Purchase Date
+                    </th>
+                    <th className="py-3 px-4 border-b">Status</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -102,40 +112,40 @@ const Subscribers = () => {
                   ) : (
                     subscribers.map((subscriber, index) => (
                       <tr key={subscriber.id}>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {subscriber.member.member_id}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {subscriber.member.name}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {subscriber.member.email}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {subscriber.member.phone}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {subscriber.package.package_name}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {new Date(subscriber.start_date).toLocaleDateString(
                             "en-GB"
                           )}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {new Date(subscriber.end_date).toLocaleDateString(
                             "en-GB"
                           )}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           {new Date(
                             subscriber.purchase_date
                           ).toLocaleDateString("en-GB")}
                         </td>
-                        <td className="py-2 px-4 border">
+                        <td className="py-3 px-4 border-b">
                           <span
                             className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
                               subscriber.status === "active"

@@ -12,16 +12,17 @@ const UserPermission = () => {
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
-      <div className="flex gap-2 mb-4 px-3">
+      <div className="flex gap-2 mb-4 px-3 flex-wrap">
         {subTabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveSubTab(tab.id)}
-            className={`px-4 py-2 rounded text-sm font-medium ${
-              activeSubTab === tab.id
-                ? "bg-blue-800 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border
+        ${
+          activeSubTab === tab.id
+            ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md border-blue-700 scale-[1.03]"
+            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-100 hover:text-blue-700 hover:border-blue-300"
+        }`}
           >
             {tab.label}
           </button>
