@@ -29,7 +29,7 @@ const MembersPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="bg-white border-b border-gray-200 px-4 pt-4">
+        <div className="bg-slate-100 border-b border-gray-200 px-4 pt-4">
           <div className="flex gap-4 overflow-x-auto scrollbar-hide">
             {visibleTabs.map((tab) => (
               <button
@@ -52,7 +52,7 @@ const MembersPage = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
           {activeTab === "members" && <Members />}
           {activeTab === "subscribers" && <Subscribers />}
           {activeTab === "transactions" && <Transactions />}

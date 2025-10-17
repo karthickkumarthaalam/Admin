@@ -71,7 +71,7 @@ const BudgetMerchant = () => {
 
         <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
           <table className="w-full  text-sm">
-            <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white text-left">
+            <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white text-left">
               <tr>
                 <th className="border-b px-3 py-3 text-left">SI</th>
                 <th className="border-b px-3 py-3 text-left">Merchant Name</th>

@@ -51,7 +51,7 @@ const Header = () => {
   };
 
   return (
-    <header className="bg-gradient-to-r from-red-700 to-red-900 shadow-lg border-b border-red-400 px-6 py-1">
+    <header className="bg-gradient-to-br from-red-700 to-red-900 shadow-lg border-b border-red-400 px-6 py-1">
       <div className="flex justify-between items-center">
         {/* Left Section - Brand & Greeting */}
         <div className="flex flex-col">

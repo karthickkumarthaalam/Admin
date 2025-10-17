@@ -35,7 +35,7 @@ const DashboardContent = () => {
 
   return (
     <div
-      className="min-h-[78vh] bg-center bg-cover"
+      className="min-h-[78vh] bg-center bg-cover bg-slate-100"
       style={{ backgroundImage: "url('/A8J3K9Z5QW/background_image.jpg')" }}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-6 ">

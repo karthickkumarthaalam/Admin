@@ -141,7 +141,7 @@ const PayslipComponent = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="min-w-full text-sm border-collapse">
-                <thead className="bg-gradient-to-r from-gray-500 to-gray-600 text-white sticky top-0 z-10">
+                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white sticky top-0 z-10">
                   <tr>
                     <th className="px-5 py-3 text-left font-semibold">#</th>
                     <th className="px-5 py-3 text-left font-semibold">

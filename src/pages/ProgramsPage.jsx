@@ -34,7 +34,7 @@ const ProgramsPage = () => {
   return (
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="p-4 border-t border-gray-200 bg-white shadow-sm">
+        <div className="p-4 border-t border-gray-200 bg-slate-100 shadow-sm">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide whitespace-nowrap">
             {visibleTabs.map((tab) => (
               <button
@@ -57,7 +57,7 @@ const ProgramsPage = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
           {activeTab === "radio-station" && <RadioStation />}
           {activeTab === "program-category" && <ProgramCategory />}
           {activeTab === "radio-program" && <RadioPrograms />}
