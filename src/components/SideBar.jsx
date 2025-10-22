@@ -15,6 +15,7 @@ import {
   Landmark,
   FileText,
   ArrowLeftCircleIcon,
+  ChartNetwork,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 
@@ -41,6 +42,12 @@ const Sidebar = () => {
       permission: "Dashboard",
     },
     { label: "Users", icon: ContactRound, path: "/users", permission: "User" },
+    {
+      label: "Site Information",
+      icon: ChartNetwork,
+      path: "/site-information",
+      permission: "Site Information",
+    },
     { label: "Banner", icon: Image, path: "/banner", permission: "Banner" },
     {
       label: "Programs",

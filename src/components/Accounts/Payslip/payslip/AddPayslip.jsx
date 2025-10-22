@@ -8,6 +8,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
     user_id: "",
     currency_id: "",
     month: "",
+    payment_mode: "",
     paid_date: "",
     items: [],
     paid_days: 0,
@@ -55,6 +56,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
           user_id: editPayslipData.user_id,
           currency_id: editPayslipData.currency_id,
           month: editPayslipData.month,
+          payment_mode: editPayslipData.payment_mode,
           paid_date: editPayslipData.paid_date,
           paid_days: Number(editPayslipData.paid_days || 0),
           lop_days: Number(editPayslipData.lop_days || 0),
@@ -251,6 +253,38 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
             </div>
 
             <div>
+              <label className="block text-sm font-semibold mb-1 textgray-800">
+                Payment Mode
+              </label>
+              <select
+                name="payment_mode"
+                value={form.payment_mode}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              >
+                <option value="">Select Payment Mode</option>
+                <option value="bank Transfer">Bank Transfer</option>
+                <option value="cash">Cash</option>
+                <option value="cheque">Cheque</option>
+                <option value="upi">UPI / Online Payment</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-gray-800">
+                Paid Date
+              </label>
+              <input
+                type="date"
+                name="paid_date"
+                value={form.paid_date}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-semibold mb-1 text-gray-800">
                 Currency
               </label>
@@ -267,19 +301,6 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                   </option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-800">
-                Paid Date
-              </label>
-              <input
-                type="date"
-                name="paid_date"
-                value={form.paid_date}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              />
             </div>
           </div>
 

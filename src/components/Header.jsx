@@ -1,6 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { LogOut, Settings, ChevronDown, User } from "lucide-react";
+import {
+  LogOut,
+  Settings,
+  ChevronDown,
+  User,
+  Sun,
+  Moon,
+  SunMoon,
+  CloudSun,
+} from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import { useAuth } from "../context/AuthContext";
 
@@ -42,29 +51,32 @@ const Header = () => {
     );
   };
 
-  const getGreeting = () => {
+  const getGreetingData = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 16) return "Good Afternoon";
-    if (hour < 20) return "Good Evening";
-    else return "Good Night";
+    if (hour < 12) return { text: "Good Morning", Icon: SunMoon };
+    if (hour < 16) return { text: "Good Afternoon", Icon: Sun };
+    if (hour < 20) return { text: "Good Evening", Icon: CloudSun };
+    return { text: "Good Night", Icon: Moon };
   };
 
+  const { text: greeting, Icon } = getGreetingData();
+
   return (
-    <header className="bg-gradient-to-br from-red-700 to-red-900 shadow-lg border-b border-red-400 px-6 py-1">
+    <header className="bg-gradient-to-br from-gray-900 to-purple-900 shadow-lg border-b border-gray-400 px-6 py-1">
       <div className="flex justify-between items-center">
         {/* Left Section - Brand & Greeting */}
         <div className="flex flex-col">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-lg">♪</span>
+              <Icon className="text-white font-semibold" size={22} />{" "}
+              {/* ✅ Proper JSX */}
             </div>
             <div>
               <h1 className="hidden md:block text-xl font-bold text-white tracking-tight">
                 Thaalam
               </h1>
               <p className="text-sm text-gray-50 mt-1">
-                {getGreeting()},{" "}
+                {greeting},{" "}
                 <span className="font-semibold text-white">
                   {user?.name?.split(" ")[0] || "User"}
                 </span>

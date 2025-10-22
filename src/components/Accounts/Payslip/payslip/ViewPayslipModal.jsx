@@ -68,6 +68,7 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
     total_deductions,
     net_salary,
     items = [],
+    payment_mode,
     paid_days,
     lop_days,
     paid_date,
@@ -225,6 +226,14 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                         })
                       : "-"}
                   </p>
+                  {payment_mode && (
+                    <>
+                      <p className="text-sm text-gray-700">Payment Mode</p>
+                      <p className="text-sm text-gray-700 font-bold whitespace-nowrap">
+                        : {payment_mode.toUpperCase()}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -312,11 +321,13 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                 <p className="text-gray-500 text-xs">
                   Gross Salary - Total Deductions
                 </p>
-                <p className="text-xs text-gray-800 font-semibold">
-                  {" "}
-                  Total NET PAYABLE SALARY IN{" "}
-                  {conversionCurrency?.code || "INR"}
-                </p>
+                {conversionCurrency && converted_net_salary && (
+                  <p className="text-xs text-gray-800 font-semibold">
+                    {" "}
+                    Total NET PAYABLE SALARY IN{" "}
+                    {conversionCurrency?.code || "INR"}
+                  </p>
+                )}
                 <p className="text-xs text-gray-800 font-semibold">
                   Amount In words
                 </p>
@@ -325,14 +336,17 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
                 <p className=" text-gray-800 font-bold pb-6 text-right">
                   {formatCurrency(net_salary)}
                 </p>
-                <p className="text-gray-600 text-sm text-right">
-                  <span className="text-gray-800 font-bold">
-                    {conversionCurrency?.symbol || "₹ "} {converted_net_salary}
-                  </span>
-                </p>
+                {conversionCurrency && converted_net_salary && (
+                  <p className="text-gray-600 text-sm text-right">
+                    <span className="text-gray-800 font-bold">
+                      {conversionCurrency?.symbol || "₹ "}{" "}
+                      {converted_net_salary}
+                    </span>
+                  </p>
+                )}
                 <p className="text-right text-xs text-gray-600">
                   <span className="text-gray-700 font-bold">
-                    {numberToWords(converted_net_salary)}
+                    {numberToWords(converted_net_salary || net_salary)}
                   </span>
                 </p>
               </div>

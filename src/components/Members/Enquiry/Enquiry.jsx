@@ -49,6 +49,14 @@ const Enquiry = () => {
   };
 
   const handleStatusUpdate = async (id, currentStatus) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to change the status of this enquiry?"
+      )
+    ) {
+      return;
+    }
+
     if (currentStatus === "closed") {
       toast.info("This enquiry is already closed and cannot be changed.");
       return;
@@ -116,8 +124,8 @@ const Enquiry = () => {
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Name</th>
                     <th className="py-3 px-4 border-b">Email</th>
+                    <th className="py-3 px-4 border-b">Phone</th>
                     <th className="py-3 px-4 border-b">Subject</th>
-                    <th className="py-3 px-4 border-b">Purpose</th>
                     <th className="py-3 px-4 border-b">Status</th>
                     <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
@@ -140,11 +148,9 @@ const Enquiry = () => {
                         </td>
                         <td className="py-3 px-4 border-b">{enquiry.name}</td>
                         <td className="py-3 px-4 border-b">{enquiry.email}</td>
+                        <td className="py-3 px-4 border-b">{enquiry.phone}</td>
                         <td className="py-3 px-4 border-b">
                           {enquiry.subject}
-                        </td>
-                        <td className="py-3 px-4 border-b">
-                          {enquiry.purpose}
                         </td>
                         <td className="py-3 px-4 border-b capitalize">
                           {

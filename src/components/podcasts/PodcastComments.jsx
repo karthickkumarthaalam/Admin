@@ -124,7 +124,7 @@ const PodcastComments = () => {
                           {item.Podcast?.title}
                         </td>
                         <td className="py-3 px-4 border-b">
-                          {item.Member?.name}
+                          {item.Member?.name || item.guest_name || "Guest"}
                         </td>
                         <td className="py-3 px-4 border-b  w-[600px]">
                           {item.comment}
