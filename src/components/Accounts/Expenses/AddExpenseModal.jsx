@@ -40,6 +40,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     totalAmount: 0,
     pendingAmount: 0,
     isMultiCurrency: false,
+    remarks: "",
     errors: {},
   });
 
@@ -69,6 +70,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     totalAmount,
     isMultiCurrency,
     pendingAmount,
+    remarks,
   } = state;
 
   useEffect(() => {
@@ -96,6 +98,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           })),
           completedDate: editExpenseData.completed_date || "",
           vendorType: editExpenseData.vendor_type || "vendor",
+          remarks: editExpenseData.remarks,
         }));
 
         if (editExpenseData.vendor_type === "user") {
@@ -142,6 +145,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           totalAmount: 0,
           pendingAmount: 0,
           isMultiCurrency: false,
+          remarks: "",
         });
       }
     }
@@ -349,6 +353,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       date,
       vendor_type: vendorType,
       expenseCategories: categories,
+      remarks: remarks,
       status,
       ...(status === "completed" && {
         payment_mode: paymentMode,
@@ -389,455 +394,471 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     : "";
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-2xl w-full max-w-[1200px] p-8 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 text-gray-500 hover:text-red-500"
-        >
-          <X size={22} />
-        </button>
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          {editExpenseData ? "Edit Expense" : "Add Expense"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Top Fields */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input label="Document No" value={documentNo || ""} readOnly />
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Expense For
-                </label>
-                <select
-                  className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-                  value={vendorType}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    setState((prev) => ({ ...prev, vendorType: val }));
-                    if (val === "user") fetchUsers();
-                  }}
-                >
-                  <option value="vendor">Vendor</option>
-                  <option value="user">User</option>
-                </select>
-              </div>
-              {vendorType === "vendor" ? (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100] md:p-4">
+      <div className="bg-slate-50 rounded-2xl w-full h-full flex flex-col overflow-hidden animate-fadeIn relative">
+        {/* ─── Sticky Header ───────────────────── */}
+        <div className="sticky top-0 z-10 bg-slate-50 border-b border-gray-200 flex justify-between items-center px-8 py-4">
+          <h2 className="text-2xl font-bold text-red-600">
+            {editExpenseData ? "Edit Expense" : "Add Expense"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-gray-700 hover:text-red-500 transition"
+          >
+            <X size={22} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto scrollbar-thin px-8 py-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Top Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input label="Document No" value={documentNo || ""} readOnly />
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold mb-1">
-                    Merchant
-                  </label>
-                  <select
-                    value={state.merchantName}
-                    onFocus={fetchMerchant}
-                    onChange={(e) => {
-                      setState((prev) => ({
-                        ...prev,
-                        merchantName: e.target.value,
-                        showAddMerchant: false,
-                      }));
-                    }}
-                    className="w-full border rounded-lg px-3 py-2 text-sm"
-                  >
-                    <option value="">Select</option>
-                    {merchants.map((m) => (
-                      <option key={m.id} value={m.merchant_name}>
-                        {m.merchant_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-sm font-semibold mb-1">
-                    Select User
+                  <label className="block text-sm text-gray-700 font-semibold mb-1">
+                    Expense For
                   </label>
                   <select
                     className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-                    value={state.merchantName}
-                    onChange={(e) =>
-                      setState((prev) => ({
-                        ...prev,
-                        merchantName: e.target.value,
-                      }))
-                    }
+                    value={vendorType}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setState((prev) => ({ ...prev, vendorType: val }));
+                      if (val === "user") fetchUsers();
+                    }}
                   >
-                    <option value="">Select User</option>
-                    {users.map((user) => (
-                      <option key={user.id} value={user.name}>
-                        {user.name}
-                      </option>
-                    ))}
+                    <option value="vendor">Vendor</option>
+                    <option value="user">User</option>
                   </select>
                 </div>
-              )}
-            </div>
-            <Input
-              label="Date"
-              type="date"
-              value={date}
-              onChange={(e) =>
-                setState((prev) => ({ ...prev, date: e.target.value }))
-              }
-            />
-            <div>
-              <label className="block text-sm font-semibold mb-1">Status</label>
-              <select
-                value={status}
-                onChange={(e) => {
-                  const newStatus = e.target.value;
-                  setState((prev) => ({
-                    ...prev,
-                    status: newStatus,
-                    completedDate:
-                      newStatus === "completed" ? getTodayDate() : "",
-                  }));
-                }}
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-              >
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-          </div>
-
-          {status === "completed" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Payment Mode
-                </label>
-                <select
-                  value={paymentMode}
-                  onFocus={fetchPaymentModes}
-                  onChange={(e) =>
-                    e.target.value === "add_new"
-                      ? setState((prev) => ({ ...prev, showAddMode: true }))
-                      : setState((prev) => ({
-                          ...prev,
-                          paymentMode: e.target.value,
-                        }))
-                  }
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">Select</option>
-                  {paymentModes.map((pm) => (
-                    <option key={pm.id} value={pm.name}>
-                      {pm.name}
-                    </option>
-                  ))}
-                  <option value="add_new" className="text-blue-500">
-                    + Add New
-                  </option>
-                </select>
-                {showAddMode && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      value={newMode}
-                      onChange={(e) =>
+                {vendorType === "vendor" ? (
+                  <div>
+                    <label className="block text-sm  text-gray-700  font-semibold mb-1">
+                      Merchant
+                    </label>
+                    <select
+                      value={state.merchantName}
+                      onFocus={fetchMerchant}
+                      onChange={(e) => {
                         setState((prev) => ({
                           ...prev,
-                          newMode: e.target.value,
-                        }))
-                      }
-                      className="border px-2 py-1 rounded w-full"
-                    />
-                    <button
-                      type="button"
-                      onClick={addNewPaymentMode}
-                      className="px-3 py-1 bg-blue-500 text-white rounded"
+                          merchantName: e.target.value,
+                          showAddMerchant: false,
+                        }));
+                      }}
+                      className="w-full border rounded-lg px-3 py-2 text-sm"
                     >
-                      +{" "}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          showAddMode: false,
-                        }))
-                      }
-                      className="px-3 py-1 bg-red-500 text-white rounded"
-                    >
-                      x
-                    </button>
+                      <option value="">Select</option>
+                      {merchants.map((m) => (
+                        <option key={m.id} value={m.merchant_name}>
+                          {m.merchant_name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-1">
-                  Paid Through
-                </label>
-                <select
-                  value={paidThrough}
-                  onFocus={fetchPaidThrough}
-                  onChange={(e) => {
-                    if (e.target.value === "add_new") {
-                      setState((prev) => ({
-                        ...prev,
-                        showAddPaidThrough: true,
-                      }));
-                    } else {
-                      setState((prev) => ({
-                        ...prev,
-                        paidThrough: e.target.value,
-                        showAddPaidThrough: false,
-                      }));
-                    }
-                  }}
-                  className="w-full border rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">Select</option>
-                  {paidThroughOptions.map((pt) => (
-                    <option key={pt.id} value={pt.name}>
-                      {pt.name}
-                    </option>
-                  ))}
-                  <option value="add_new" className="text-blue-500">
-                    + Add New
-                  </option>
-                </select>
-                {showAddPaidThrough && (
-                  <div className="mt-2 flex gap-2">
-                    <input
-                      value={newPaidThrough}
+                ) : (
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">
+                      Select User
+                    </label>
+                    <select
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                      value={state.merchantName}
                       onChange={(e) =>
                         setState((prev) => ({
                           ...prev,
-                          newPaidThrough: e.target.value,
+                          merchantName: e.target.value,
                         }))
                       }
-                      className="border px-2 py-1 rounded w-full"
-                    />
-                    <button
-                      type="button"
-                      onClick={addPaidThrough}
-                      className="px-3 py-1 bg-blue-500 text-white rounded"
                     >
-                      +
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setState((prev) => ({
-                          ...prev,
-                          showAddPaidThrough: false,
-                        }))
-                      }
-                      className="px-3 py-1 bg-red-500 text-white rounded"
-                    >
-                      x
-                    </button>
+                      <option value="">Select User</option>
+                      {users.map((user) => (
+                        <option key={user.id} value={user.name}>
+                          {user.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 )}
               </div>
               <Input
-                label="Completed Date"
+                label="Date"
                 type="date"
-                value={completedDate}
+                value={date}
                 onChange={(e) =>
-                  setState((prev) => ({
-                    ...prev,
-                    completedDate: e.target.value,
-                  }))
+                  setState((prev) => ({ ...prev, date: e.target.value }))
+                }
+              />
+              <div>
+                <label className="block text-sm text-gray-700  font-semibold mb-1">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) => {
+                    const newStatus = e.target.value;
+                    setState((prev) => ({
+                      ...prev,
+                      status: newStatus,
+                      completedDate:
+                        newStatus === "completed" ? getTodayDate() : "",
+                    }));
+                  }}
+                  className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            {status === "completed" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-700  font-semibold mb-1">
+                    Payment Mode
+                  </label>
+                  <select
+                    value={paymentMode}
+                    onFocus={fetchPaymentModes}
+                    onChange={(e) =>
+                      e.target.value === "add_new"
+                        ? setState((prev) => ({ ...prev, showAddMode: true }))
+                        : setState((prev) => ({
+                            ...prev,
+                            paymentMode: e.target.value,
+                          }))
+                    }
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="">Select</option>
+                    {paymentModes.map((pm) => (
+                      <option key={pm.id} value={pm.name}>
+                        {pm.name}
+                      </option>
+                    ))}
+                    <option value="add_new" className="text-blue-500">
+                      + Add New
+                    </option>
+                  </select>
+                  {showAddMode && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        value={newMode}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            newMode: e.target.value,
+                          }))
+                        }
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={addNewPaymentMode}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        +{" "}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            showAddMode: false,
+                          }))
+                        }
+                        className="px-3 py-1 bg-red-500 text-white rounded"
+                      >
+                        x
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-700  font-semibold mb-1">
+                    Paid Through
+                  </label>
+                  <select
+                    value={paidThrough}
+                    onFocus={fetchPaidThrough}
+                    onChange={(e) => {
+                      if (e.target.value === "add_new") {
+                        setState((prev) => ({
+                          ...prev,
+                          showAddPaidThrough: true,
+                        }));
+                      } else {
+                        setState((prev) => ({
+                          ...prev,
+                          paidThrough: e.target.value,
+                          showAddPaidThrough: false,
+                        }));
+                      }
+                    }}
+                    className="w-full border rounded-lg px-3 py-2 text-sm"
+                  >
+                    <option value="">Select</option>
+                    {paidThroughOptions.map((pt) => (
+                      <option key={pt.id} value={pt.name}>
+                        {pt.name}
+                      </option>
+                    ))}
+                    <option value="add_new" className="text-blue-500">
+                      + Add New
+                    </option>
+                  </select>
+                  {showAddPaidThrough && (
+                    <div className="mt-2 flex gap-2">
+                      <input
+                        value={newPaidThrough}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            newPaidThrough: e.target.value,
+                          }))
+                        }
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={addPaidThrough}
+                        className="px-3 py-1 bg-blue-500 text-white rounded"
+                      >
+                        +
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            showAddPaidThrough: false,
+                          }))
+                        }
+                        className="px-3 py-1 bg-red-500 text-white rounded"
+                      >
+                        x
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <Input
+                  label="Completed Date"
+                  type="date"
+                  value={completedDate}
+                  onChange={(e) =>
+                    setState((prev) => ({
+                      ...prev,
+                      completedDate: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Remarks"
+                type="text"
+                value={remarks}
+                onChange={(e) =>
+                  setState((prev) => ({ ...prev, remarks: e.target.value }))
                 }
               />
             </div>
-          )}
 
-          {/* Category Table */}
-          <div>
-            <h3 className="font-semibold mb-2">Expense Categories</h3>
-            <div className="overflow-hidden rounded-lg border">
-              <div className="max-h-[180px] md:max-h-[220px] overflow-y-auto">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-gray-100 text-gray-600">
-                    <tr>
-                      <th className="p-2 text-left">Category</th>
-                      <th className="p-2 text-left">Currency</th>
-                      <th className="p-2 text-left">Description</th>
-                      <th className="p-2 text-left">Amount</th>
-                      <th className="p-2 text-left whitespace-nowrap">
-                        Paid Amount
-                      </th>
-                      <th className="p-2 text-left whitespace-nowrap">
-                        Paid Date
-                      </th>
-                      <th className="p-2"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {categories.map((cat, index) => (
-                      <tr key={index} className="border-t">
-                        <td className="p-2">
-                          <select
-                            value={cat.category_name}
-                            onFocus={fetchCategory}
-                            onChange={(e) => {
-                              handleCategoryChange(
-                                index,
-                                "category_name",
-                                e.target.value
-                              );
-                            }}
-                            className="w-full border rounded px-2 py-1"
-                          >
-                            <option value="">Select Category</option>
-                            {categoryNames.map((catOption) => (
-                              <option
-                                key={catOption.id}
-                                value={catOption.category_name}
-                              >
-                                {catOption.category_name}
-                              </option>
-                            ))}
-                          </select>
-
-                          {/* Show input only for the current row */}
-                          {showAddCategoryIndex === index && (
-                            <div className="mt-2 flex gap-2">
-                              <input
-                                value={state.addCategoryName}
-                                onChange={(e) =>
-                                  setState((prev) => ({
-                                    ...prev,
-                                    addCategoryName: e.target.value,
-                                  }))
-                                }
-                                className="border px-2 py-1 rounded w-full"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => addNewCategoryName(index)}
-                                className="px-3 py-1 bg-blue-500 text-white"
-                              >
-                                +
-                              </button>
-                              <button
-                                type="button"
-                                className="px-3 py-1 bg-red-500 text-white"
-                                onClick={() =>
-                                  setState((prev) => ({
-                                    ...prev,
-                                    showAddCategoryIndex: null,
-                                    addCategoryName: "",
-                                  }))
-                                }
-                              >
-                                x
-                              </button>
-                            </div>
-                          )}
-                        </td>
-
-                        <td className="p-2">
-                          <select
-                            value={cat.currency_name}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                index,
-                                "currency_name",
-                                e.target.value
-                              )
-                            }
-                            className="w-full border rounded px-2 py-1"
-                          >
-                            <option value="">Select</option>
-                            {currencies.map((cur) => (
-                              <option key={cur.id} value={cur.currency_name}>
-                                {cur.code} - ({cur.symbol})
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-
-                        <td className="p-2">
-                          <input
-                            type="text"
-                            value={cat.description}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                index,
-                                "description",
-                                e.target.value
-                              )
-                            }
-                            className="w-full border rounded px-2 py-1"
-                          />
-                        </td>
-
-                        <td className="p-2">
-                          <input
-                            type="number"
-                            value={cat.amount}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                index,
-                                "amount",
-                                e.target.value
-                              )
-                            }
-                            className="w-full border rounded px-2 py-1"
-                          />
-                        </td>
-
-                        <td className="p-2">
-                          <input
-                            type="number"
-                            value={cat.actual_amount}
-                            onChange={(e) =>
-                              handleCategoryChange(
-                                index,
-                                "actual_amount",
-                                e.target.value
-                              )
-                            }
-                            className={`w-full border rounded px-2 py-1 ${
-                              state.errors?.[`actual_amount_${index}`]
-                                ? "border-red-500"
-                                : ""
-                            }`}
-                          />
-                          {state.errors?.[`actual_amount_${index}`] && (
-                            <p className="text-red-500 text-xs mt-1">
-                              {state.errors[`actual_amount_${index}`]}
-                            </p>
-                          )}
-                        </td>
-
-                        <td className="p-2">
-                          <input
-                            type="date"
-                            value={cat.paid_date || ""}
-                            onChange={(e) => {
-                              handleCategoryChange(
-                                index,
-                                "paid_date",
-                                e.target.value || ""
-                              );
-                            }}
-                            className="w-full border rounded px-2 py-1"
-                          />
-                        </td>
-
-                        <td className="p-2 text-center">
-                          {categories.length > 1 && (
-                            <button
-                              type="button"
-                              onClick={() => removeCategory(index)}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </td>
+            {/* Category Table */}
+            <div>
+              <h3 className="font-semibold mb-2">Expense Categories</h3>
+              <div className="overflow-hidden rounded-lg border">
+                <div className="max-h-[180px] md:max-h-[370px] overflow-y-auto scrollbar-thin">
+                  <table className="min-w-full text-sm">
+                    <thead className="bg-gray-700 text-gray-100">
+                      <tr>
+                        <th className="p-2 text-left">Category</th>
+                        <th className="p-2 text-left">Currency</th>
+                        <th className="p-2 text-left">Description</th>
+                        <th className="p-2 text-left">Amount</th>
+                        <th className="p-2 text-left whitespace-nowrap">
+                          Paid Amount
+                        </th>
+                        <th className="p-2 text-left whitespace-nowrap">
+                          Paid Date
+                        </th>
+                        <th className="p-2"></th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white">
+                      {categories.map((cat, index) => (
+                        <tr key={index} className="border-t">
+                          <td className="p-2">
+                            <select
+                              value={cat.category_name}
+                              onFocus={fetchCategory}
+                              onChange={(e) => {
+                                handleCategoryChange(
+                                  index,
+                                  "category_name",
+                                  e.target.value
+                                );
+                              }}
+                              className="w-full border rounded px-2 py-1"
+                            >
+                              <option value="">Select Category</option>
+                              {categoryNames.map((catOption) => (
+                                <option
+                                  key={catOption.id}
+                                  value={catOption.category_name}
+                                >
+                                  {catOption.category_name}
+                                </option>
+                              ))}
+                            </select>
+
+                            {/* Show input only for the current row */}
+                            {showAddCategoryIndex === index && (
+                              <div className="mt-2 flex gap-2">
+                                <input
+                                  value={state.addCategoryName}
+                                  onChange={(e) =>
+                                    setState((prev) => ({
+                                      ...prev,
+                                      addCategoryName: e.target.value,
+                                    }))
+                                  }
+                                  className="border px-2 py-1 rounded w-full"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => addNewCategoryName(index)}
+                                  className="px-3 py-1 bg-blue-500 text-white"
+                                >
+                                  +
+                                </button>
+                                <button
+                                  type="button"
+                                  className="px-3 py-1 bg-red-500 text-white"
+                                  onClick={() =>
+                                    setState((prev) => ({
+                                      ...prev,
+                                      showAddCategoryIndex: null,
+                                      addCategoryName: "",
+                                    }))
+                                  }
+                                >
+                                  x
+                                </button>
+                              </div>
+                            )}
+                          </td>
+
+                          <td className="p-2">
+                            <select
+                              value={cat.currency_name}
+                              onChange={(e) =>
+                                handleCategoryChange(
+                                  index,
+                                  "currency_name",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full border rounded px-2 py-1"
+                            >
+                              <option value="">Select</option>
+                              {currencies.map((cur) => (
+                                <option key={cur.id} value={cur.currency_name}>
+                                  {cur.code} - ({cur.symbol})
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+
+                          <td className="p-2">
+                            <input
+                              type="text"
+                              value={cat.description}
+                              onChange={(e) =>
+                                handleCategoryChange(
+                                  index,
+                                  "description",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full border rounded px-2 py-1"
+                            />
+                          </td>
+
+                          <td className="p-2">
+                            <input
+                              type="number"
+                              value={cat.amount}
+                              onChange={(e) =>
+                                handleCategoryChange(
+                                  index,
+                                  "amount",
+                                  e.target.value
+                                )
+                              }
+                              className="w-full border rounded px-2 py-1"
+                            />
+                          </td>
+
+                          <td className="p-2">
+                            <input
+                              type="number"
+                              value={cat.actual_amount}
+                              onChange={(e) =>
+                                handleCategoryChange(
+                                  index,
+                                  "actual_amount",
+                                  e.target.value
+                                )
+                              }
+                              className={`w-full border rounded px-2 py-1 ${
+                                state.errors?.[`actual_amount_${index}`]
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                            />
+                            {state.errors?.[`actual_amount_${index}`] && (
+                              <p className="text-red-500 text-xs mt-1">
+                                {state.errors[`actual_amount_${index}`]}
+                              </p>
+                            )}
+                          </td>
+
+                          <td className="p-2">
+                            <input
+                              type="date"
+                              value={cat.paid_date || ""}
+                              onChange={(e) => {
+                                handleCategoryChange(
+                                  index,
+                                  "paid_date",
+                                  e.target.value || ""
+                                );
+                              }}
+                              className="w-full border rounded px-2 py-1"
+                            />
+                          </td>
+
+                          <td className="p-2 text-center">
+                            {categories.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeCategory(index)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-            {vendorType === "vendor" && (
               <button
                 type="button"
                 onClick={addCategory}
@@ -845,46 +866,46 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
               >
                 <Plus size={16} className="mr-1" /> Add Another Row
               </button>
-            )}
-            {isMultiCurrency ? (
-              <span className="text-sm text-red-500 p-2">
-                Total cannot be calculated due to multiple currencies
-              </span>
-            ) : (
-              <div className="flex flex-col text-right">
-                <span>
-                  Total Amount:{" "}
-                  <span className="text-lg font-semibold">
-                    {currencySymbol} {totalAmount.toFixed(2)}
-                  </span>
+              {isMultiCurrency ? (
+                <span className="text-sm text-red-500 p-2">
+                  Total cannot be calculated due to multiple currencies
                 </span>
-                <span>
-                  Pending Amount:{" "}
-                  <span className="text-lg font-semibold">
-                    {currencySymbol} {pendingAmount.toFixed(2)}
+              ) : (
+                <div className="flex flex-col text-right">
+                  <span>
+                    Total Amount:{" "}
+                    <span className="text-lg font-semibold">
+                      {currencySymbol} {totalAmount.toFixed(2)}
+                    </span>
                   </span>
-                </span>
-              </div>
-            )}
-          </div>
+                  <span>
+                    Pending Amount:{" "}
+                    <span className="text-lg font-semibold">
+                      {currencySymbol} {pendingAmount.toFixed(2)}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-4 pt-4 border-t mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 rounded bg-red-500 text-white hover:bg-red-600"
-            >
-              {editExpenseData ? "Edit" : "Submit"}
-            </button>
-          </div>
-        </form>
+            {/* Action Buttons */}
+          </form>
+        </div>
+        <div className="sticky bottom-0 z-10 bg-slate-100 border-t border-gray-200 flex justify-end gap-4 px-8 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2 rounded-lg border bg-white border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+          >
+            {editExpenseData ? "Update" : "Submit"}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -893,14 +914,16 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 // Reusable Input Component
 const Input = ({ label, value, onChange, type = "text", readOnly = false }) => (
   <div>
-    <label className="block text-sm font-semibold mb-1">{label}</label>
+    <label className="block text-sm text-gray-700  font-semibold mb-1">
+      {label}
+    </label>
     <input
       type={type}
       value={value}
       onChange={onChange}
       readOnly={readOnly}
       className={`w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none ${
-        readOnly ? "bg-gray-100" : ""
+        readOnly ? "bg-gray-100 focus:ring-0" : ""
       }`}
     />
   </div>

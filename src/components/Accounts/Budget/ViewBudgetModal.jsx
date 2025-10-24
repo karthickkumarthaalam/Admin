@@ -155,35 +155,31 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
           {title}
         </h3>
         <div className="overflow-x-auto rounded-xl shadow ring-1 ring-gray-200">
-          <table className="min-w-full text-sm bg-white">
-            <thead className="bg-gray-100 text-gray-700 border-b border-gray-200">
+          <table className="min-w-full text-sm bg-white border-2 border-gray-100">
+            <thead className="bg-gray-700 text-gray-100 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
-                  ID
-                </th>
-                <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
+                <th className="px-4 py-2 text-left  whitespace-nowrap">ID</th>
+                <th className="px-4 py-2 text-left  whitespace-nowrap">
                   Category
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
+                <th className="px-4 py-2 text-left  whitespace-nowrap">
                   Sub-category
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
+                <th className="px-4 py-2 text-left  whitespace-nowrap">
                   Description
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 whitespace-nowrap">
-                  Qty
-                </th>
+                <th className="px-4 py-2 text-left  whitespace-nowrap">Qty</th>
 
                 {isActualBudget ? (
-                  <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                  <th className="px-4 py-2 text-right  whitespace-nowrap">
                     Actual Amount
                   </th>
                 ) : (
                   <>
-                    <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                    <th className="px-4 py-2 text-right  whitespace-nowrap">
                       Amount
                     </th>
-                    <th className="px-4 py-2 text-right text-gray-600 whitespace-nowrap">
+                    <th className="px-4 py-2 text-right  whitespace-nowrap">
                       Total Amount
                     </th>
                   </>
@@ -263,11 +259,11 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
   if (!isOpen || !budget) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-7xl max-h-[90vh]  shadow-xl p-8">
-        <div className="flex justify-between items-start border-b border-dashed pb-4 mb-3">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center md:p-4">
+      <div className="bg-slate-50 rounded-2xl w-full  h-full  shadow-xl p-6 animate-fadeIn">
+        <div className="flex justify-between items-start border-b border-dashed pb-2 mb-3">
           <div>
-            <h2 className="text-2xl font-bold text-red-500 mb-1">
+            <h2 className="text-2xl font-bold text-red-600 mb-1">
               View Budget
             </h2>
             <p className="text-sm text-gray-500">
@@ -296,7 +292,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
             </button>
           </div>
         </div>
-        <div className="overflow-y-auto  max-h-[70vh] pr-1">
+        <div className="overflow-y-auto scrollbar-thin max-h-[75vh] pr-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-700 mb-8">
             <div>
               <span className="font-semibold">Title:</span> {budget.title}
@@ -328,20 +324,20 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                 Applied Taxes
               </h3>
               <div className="rounded-xl">
-                <table className="w-full text-sm bg-white ">
-                  <thead className="bg-gray-100 text-gray-700">
+                <table className="w-full text-sm bg-white">
+                  <thead className="bg-gray-700 text-gray-100">
                     <tr>
-                      <th className="border px-3 py-2 text-left">Tax Name</th>
-                      <th className="border px-3 py-2 text-left">Percentage</th>
-                      <th className="border px-3 py-2 text-right">Amount</th>
+                      <th className=" px-3 py-2 text-left">Tax Name</th>
+                      <th className=" px-3 py-2 text-left">Percentage</th>
+                      <th className=" px-3 py-2 text-right">Amount</th>
                     </tr>
                   </thead>
                   <tbody>
                     {appliedTaxes.map((tax, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="border px-3 py-2">{tax.tax_name}</td>
-                        <td className="border px-3 py-2">{tax.percentage}%</td>
-                        <td className="border px-3 py-2 text-right text-blue-900">
+                        <td className=" px-3 py-2">{tax.tax_name}</td>
+                        <td className=" px-3 py-2">{tax.percentage}%</td>
+                        <td className=" px-3 py-2 text-right text-blue-900">
                           {budget.currency?.symbol || "₹"}{" "}
                           {tax.amount.toLocaleString("en-IN", {
                             minimumFractionDigits: 2,
@@ -376,53 +372,53 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
             </h3>
             <div className="overflow-x-auto rounded-xl">
               <table className="min-w-full text-sm border border-gray-200 bg-white rounded-md">
-                <thead className="bg-gray-50 text-gray-700">
+                <thead className="bg-slate-600 text-slate-100">
                   <tr>
-                    <th className="border px-4 py-2 text-left whitespace-nowrap">
+                    <th className=" px-4 py-2 text-left whitespace-nowrap">
                       Total Income
                     </th>
-                    <th className="border px-4 py-2 text-left whitespace-nowrap">
+                    <th className=" px-4 py-2 text-left whitespace-nowrap">
                       Total Sponsors
                     </th>
-                    <th className="border px-4 py-2 text-left whitespace-nowrap">
+                    <th className=" px-4 py-2 text-left whitespace-nowrap">
                       Total Expense
                     </th>
-                    <th className="border px-4 py-2 text-left whitespace-nowrap">
+                    <th className=" px-4 py-2 text-left whitespace-nowrap">
                       Total Tax
                     </th>
-                    <th className="border px-4 py-2 text-left whitespace-nowrap">
+                    <th className=" px-4 py-2 text-left whitespace-nowrap">
                       Profit / Loss
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="border px-4 py-2 text-blue-800 font-medium whitespace-nowrap">
+                    <td className=" px-4 py-2 text-blue-800 font-medium whitespace-nowrap">
                       {budget.currency?.symbol || "₹"}{" "}
                       {totalIncome.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="border px-4 py-2 text-yellow-700 font-medium whitespace-nowrap">
+                    <td className=" px-4 py-2 text-yellow-700 font-medium whitespace-nowrap">
                       {budget.currency?.symbol || "₹"}{" "}
                       {totalSponsers.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="border px-4 py-2 text-rose-700 font-medium whitespace-nowrap">
+                    <td className=" px-4 py-2 text-rose-700 font-medium whitespace-nowrap">
                       {budget.currency?.symbol || "₹"}{" "}
                       {totalExpense.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
                     </td>
-                    <td className="border px-4 py-2 text-purple-700 font-medium whitespace-nowrap">
+                    <td className=" px-4 py-2 text-purple-700 font-medium whitespace-nowrap">
                       {budget.currency?.symbol || "₹"}{" "}
                       {totalTax.toLocaleString("en-IN", {
                         minimumFractionDigits: 2,
                       })}
                     </td>
                     <td
-                      className={`border px-4 py-2 font-bold whitespace-nowrap ${
+                      className={` px-4 py-2 font-bold whitespace-nowrap ${
                         profit >= 0 ? "text-green-700" : "text-red-700"
                       }`}
                     >
@@ -439,7 +435,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3 mt-6 bg-slate-100">
           <button
             onClick={handleExport}
             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm shadow"

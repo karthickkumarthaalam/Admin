@@ -187,9 +187,13 @@ const SystemUsers = () => {
                         <td className="py-3 px-4 border-b">
                           <div className="flex justify-center">
                             <img
-                              src={`${
-                                process.env.REACT_APP_API_BASE_URL
-                              }/${item.image_url?.replace(/\\/g, "/")}`}
+                              src={
+                                item.image_url
+                                  ? `${
+                                      process.env.REACT_APP_API_BASE_URL
+                                    }/${item.image_url?.replace(/\\/g, "/")}`
+                                  : `${window.location.origin}/A8J3K9Z5QW/microphone.png`
+                              }
                               alt={item.name}
                               className="w-16 h-16 object-fit rounded-lg border border-gray-200 shadow-sm"
                             />

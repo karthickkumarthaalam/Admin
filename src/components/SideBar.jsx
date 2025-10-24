@@ -4,7 +4,7 @@ import {
   Menu,
   LayoutDashboard,
   ContactRound,
-  BriefcaseBusiness,
+  MessageCircleMore,
   BadgeDollarSign,
   Activity,
   X,
@@ -86,10 +86,10 @@ const Sidebar = () => {
       permission: "Agreements",
     },
     {
-      label: "Careers",
-      icon: BriefcaseBusiness,
-      path: "/career",
-      permission: "Careers",
+      label: "Enquiry",
+      icon: MessageCircleMore,
+      path: "/enquiry",
+      permission: "Enquiry",
     },
     { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];
@@ -112,10 +112,10 @@ const Sidebar = () => {
     <>
       {/* Mobile Toggle Button */}
       <button
-        className="md:hidden fixed top-3 left-6 z-50 bg-gray-900 p-2 rounded-lg shadow-md text-gray-100 hover:bg-red-600/30 transition"
+        className="md:hidden fixed top-2.5 left-6 z-50 bg-gray-900 p-2 rounded-lg shadow-md text-gray-100 hover:bg-red-600/30 transition"
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        {isOpen ? <X size={20} /> : <Menu size={22} />}
       </button>
 
       {/* Overlay */}

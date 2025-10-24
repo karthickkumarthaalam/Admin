@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { usePermission } from "../context/PermissionContext";
-import Members from "./Members";
-import Subscribers from "./Subscribers";
-import Transactions from "./Transactions";
 import Enquiry from "../components/Members/Enquiry/Enquiry";
 import Advertisement from "../components/Members/Advertisement/Advertisement";
+import CareersPage from "./CareersPage";
 
-const MembersPage = () => {
+const EnquiryPage = () => {
   const { hasPermission } = usePermission();
   const tabs = [
-    { id: "members", label: "Members", permission: "Members" },
-    { id: "subscribers", label: "Subscribers", permission: "Subscriber" },
-    { id: "transactions", label: "Transactions", permission: "Transaction" },
+    { id: "enquiries", label: "Enquiries", permission: "Enquiry" },
+    {
+      id: "advertisement",
+      label: "Advertisement",
+      permission: "Advertisement",
+    },
+    {
+      id: "career",
+      label: "Career",
+      permission: "Career",
+    },
   ];
 
-  const [activeTab, setActiveTab] = useState("members");
+  const [activeTab, setActiveTab] = useState("enquiries");
 
   const visibleTabs = tabs.filter(({ permission }) => {
     return hasPermission(permission, "read");
@@ -47,13 +53,13 @@ const MembersPage = () => {
         </div>
 
         <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
-          {activeTab === "members" && <Members />}
-          {activeTab === "subscribers" && <Subscribers />}
-          {activeTab === "transactions" && <Transactions />}
+          {activeTab === "enquiries" && <Enquiry />}
+          {activeTab === "advertisement" && <Advertisement />}
+          {activeTab === "career" && <CareersPage />}
         </div>
       </div>
     </>
   );
 };
 
-export default MembersPage;
+export default EnquiryPage;

@@ -175,11 +175,11 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-gray-50 rounded-2xl shadow-xl w-full max-w-4xl h-[95vh] flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100] md:p-4">
+      <div className="bg-slate-50 rounded-2xl shadow-xl w-full h-full flex flex-col animate-fadeIn">
         {/* Header */}
-        <div className="flex justify-between items-center px-6 py-4 border-b bg-gray-200 rounded-t-2xl">
-          <h2 className="text-lg font-semibold text-red-900 ">
+        <div className="flex justify-between items-center px-6 py-4 border-b  rounded-t-2xl">
+          <h2 className="text-xl font-semibold text-red-600 ">
             {editPayslipData ? "Edit Payslip" : "Add Payslip"}
           </h2>
           <button
@@ -191,9 +191,9 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+        <div className="flex-1 overflow-y-auto scrollbar-thin px-6 py-4 space-y-6">
           {/* Form Fields */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid  grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-semibold mb-1 text-gray-800">
                 Employee
@@ -224,6 +224,25 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                 onChange={handleChange}
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-1 text-gray-800">
+                Currency
+              </label>
+              <select
+                name="currency_id"
+                value={form.currency_id}
+                onChange={handleChange}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
+              >
+                <option value="">Select Currency</option>
+                {currenciesList.map((cur) => (
+                  <option key={cur.id} value={cur.id}>
+                    {cur.code} ({cur.symbol})
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -283,25 +302,6 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                 className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-1 text-gray-800">
-                Currency
-              </label>
-              <select
-                name="currency_id"
-                value={form.currency_id}
-                onChange={handleChange}
-                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-red-500 focus:outline-none"
-              >
-                <option value="">Select Currency</option>
-                {currenciesList.map((cur) => (
-                  <option key={cur.id} value={cur.id}>
-                    {cur.code} ({cur.symbol})
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
 
           {/* Payslip Items Table */}
@@ -319,17 +319,17 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
             </div>
 
             <div className="border rounded-lg overflow-hidden">
-              <div className="max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10">
+              <div className="max-h-[250px] overflow-y-auto rounded-xl scrollbar-thin">
+                <table className="w-full text-sm border bg-white">
+                  <thead className="bg-gray-700 text-gray-100 sticky top-0 z-10">
                     <tr>
-                      <th className="p-2 text-left border">Category</th>
-                      <th className="p-2 text-center border">Type</th>
-                      <th className="p-2 text-left border">Name</th>
-                      <th className="p-2 text-right border">
+                      <th className="p-2 text-left ">Category</th>
+                      <th className="p-2 text-center ">Type</th>
+                      <th className="p-2 text-left ">Name</th>
+                      <th className="p-2 text-right ">
                         Amount ({currencySymbol})
                       </th>
-                      <th className="p-2 text-center border">Action</th>
+                      <th className="p-2 text-center ">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -348,7 +348,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                           key={idx}
                           className="border-b hover:bg-gray-50 transition"
                         >
-                          <td className="p-2 border">
+                          <td className="p-2 ">
                             <select
                               value={item.component_id}
                               onChange={(e) =>
@@ -379,7 +379,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                           >
                             {item.type || "-"}
                           </td>
-                          <td className="p-2 border">
+                          <td className="p-2 ">
                             <input
                               value={item.name}
                               onChange={(e) =>
@@ -388,7 +388,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                               className="w-full border rounded p-1"
                             />
                           </td>
-                          <td className="p-2 text-right border">
+                          <td className="p-2 text-right ">
                             {currencySymbol}{" "}
                             <input
                               type="number"
@@ -399,7 +399,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                               className="w-24 border rounded p-1 text-right"
                             />
                           </td>
-                          <td className="p-2 text-center border">
+                          <td className="p-2 text-center ">
                             <button
                               onClick={() => handleRemoveItem(idx)}
                               className="text-red-600 hover:text-red-800 transition"
@@ -474,10 +474,10 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
         </div>
 
         {/* Footer Buttons */}
-        <div className="flex justify-end gap-3 p-4 border-t bg-gray-100 rounded-b-2xl">
+        <div className="flex justify-end gap-3 p-4 border-t bg-slate-100 rounded-b-2xl">
           <button
             onClick={onClose}
-            className="border px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+            className="border px-4 py-2 rounded-lg bg-white hover:bg-gray-100 transition"
           >
             Cancel
           </button>

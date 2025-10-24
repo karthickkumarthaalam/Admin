@@ -32,6 +32,7 @@ import CopyrightFooter from "./components/CopyRightsComponent";
 import MembersPage from "./pages/MembersPage";
 import CareersPage from "./pages/CareersPage";
 import SiteInformationPage from "./pages/SiteInformationPage";
+import EnquiryPage from "./pages/EnquiryPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -158,10 +159,12 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/career"
+          path="/enquiry"
           element={
-            hasPermission("Career", "read") ? (
-              <CareersPage />
+            hasPermission("Career", "read") ||
+            hasPermission("Advertisement", "read") ||
+            hasPermission("Enquiry", "read") ? (
+              <EnquiryPage />
             ) : (
               <Navigate to="/" />
             )

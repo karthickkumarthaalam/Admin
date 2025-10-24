@@ -12,12 +12,12 @@ const SiteInformationPage = () => {
     {
       id: "visitor-report",
       label: "Visitor Reports",
-      permission: "site-information",
+      permission: "Site Information",
     },
     {
       id: "visitor-details",
       label: "Visitor Details",
-      permission: "site-information",
+      permission: "Site Information",
     },
   ];
 

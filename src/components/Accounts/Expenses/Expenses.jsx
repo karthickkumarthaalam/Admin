@@ -162,7 +162,7 @@ const Expenses = () => {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 w-full overflow-x-auto">
+        <div className="mt-4 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 w-full overflow-x-auto scrollbar-none">
           {/* Left: Show Deleted Toggle */}
           {user.email === "admin" && (
             <div className="flex-shrink-0">

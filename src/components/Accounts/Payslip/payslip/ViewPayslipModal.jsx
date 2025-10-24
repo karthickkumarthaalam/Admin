@@ -1,8 +1,10 @@
 "use client";
-import React, { useRef } from "react";
-import { X, Download } from "lucide-react";
+import React, { useRef, useState } from "react";
+import { X, Download, Send, Loader2 } from "lucide-react";
 import html2pdf from "html2pdf.js";
 import VerifiedQRCode from "../../../../utils/verifiedQrCode";
+import { toast } from "react-toastify";
+import { apiCall } from "../../../../utils/apiCall";
 
 // Convert number to words
 const numberToWords = (num) => {
@@ -58,6 +60,10 @@ const numberToWords = (num) => {
 
 const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
   const pdfRef = useRef(null);
+  const [sending, setSending] = useState(false);
+  const [email, setEmail] = useState("");
+  const [showEmailModal, setShowEmailModal] = useState(false);
+
   if (!isOpen || !payslip) return null;
 
   const {
@@ -112,13 +118,58 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
     html2pdf().set(opt).from(element).save();
   };
 
+  const handleSendEmail = async () => {
+    if (!email) {
+      toast.error("Please enter an email address");
+      return;
+    }
+
+    try {
+      setSending(true);
+
+      const element = pdfRef.current;
+      const opt = {
+        html2canvas: {
+          scale: 2, // high quality
+          useCORS: true,
+          scrollY: 0,
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+      const pdfBlob = await html2pdf().set(opt).from(element).outputPdf("blob");
+
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("filename", `${user?.name || "payslip"}_${month}.pdf`);
+      formData.append("payslip", pdfBlob, "payslip.pdf");
+
+      const res = await apiCall("/payslip/send-email", "POST", formData);
+
+      if (res.status === "success") {
+        toast.success("Payslip send successfully");
+        setShowEmailModal(false);
+        setEmail("");
+      }
+    } catch (error) {
+      toast.error("Failed to send Email, Error sending payslip");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col items-center overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100]  md:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl  w-full h-full flex flex-col items-center overflow-y-auto scrollbar-none animate-fadeIn">
         {/* Toolbar */}
-        <div className="w-full sticky top-0 z-20 bg-gradient-to-r from-gray-600 to-gray-800 text-white px-6 py-3 flex justify-between items-center shadow-md mb-10">
+        <div className="w-full sticky top-0 z-20 bg-gradient-to-r from-gray-600 to-gray-800 text-white px-6 py-3 flex justify-between items-center shadow-md mb-2">
           <h2 className="text-lg font-semibold">Employee Payslip</h2>
           <div className="flex gap-2">
+            <button
+              onClick={() => setShowEmailModal(true)}
+              className="flex items-center gap-2 bg-white/10 border border-white/30 px-3 py-2 rounded-md text-sm hover:bg-white/20 transition"
+            >
+              <Send size={16} /> Send Email
+            </button>
             <button
               onClick={handleDownload}
               className="flex items-center gap-2 bg-white/10 border border-white/30 px-3 py-1.5 rounded-md text-sm hover:bg-white/20 transition"
@@ -380,6 +431,49 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
             </div>
           </div>
         </div>
+
+        {showEmailModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] p-4">
+            <div className="bg-white w-full max-w-md rounded-xl shaodow-xl p-6 relative animate-fadeIn">
+              <button
+                onClick={() => setShowEmailModal(false)}
+                className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
+              >
+                <X size={20} />
+              </button>
+              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+                Send Payslip via Email
+              </h2>
+
+              <p className="text-sm text-gray-600 mb-4">
+                Enter the recipient’s email address to send the payslip.
+              </p>
+
+              <input
+                type="email"
+                placeholder="example@gmail.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+              />
+
+              <div className="flex justify-end mt-5">
+                <button
+                  disabled={sending}
+                  onClick={handleSendEmail}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-blue-700 transition disabled:opacity-50"
+                >
+                  {sending ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Send size={16} />
+                  )}
+                  {sending ? "Sending..." : "Send"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

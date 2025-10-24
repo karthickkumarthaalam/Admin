@@ -90,7 +90,7 @@ const Header = () => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="flex items-center space-x-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl px-2 md:px-3 py-1.5 md:py-2 transition-all duration-200 border border-white/20 shadow-sm hover:shadow-md md:min-w-[220px] group"
+              className="flex items-center space-x-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-xl px-2 md:px-3 py-1 transition-all duration-200 border border-white/20 shadow-sm hover:shadow-md md:min-w-[220px] group"
             >
               <div className="flex items-center space-x-3 flex-1">
                 <div className="relative">

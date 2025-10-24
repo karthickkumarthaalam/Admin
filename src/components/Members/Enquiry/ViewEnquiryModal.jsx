@@ -20,7 +20,7 @@ const ViewEnquiryModal = ({ isOpen, onClose, enquiry, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white rounded-lg p-6 w-[500px]">
+      <div className="bg-white rounded-lg p-6 w-[600px]">
         <div className="flex justify-between items-center mb-4 border-b border-dashed pb-2 border-gray-500">
           <h2 className="text-xl font-semibold text-gray-800">
             Enquiry Message

@@ -17,6 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import debounce from "lodash.debounce";
+import { X } from "lucide-react";
 
 const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
   const [items, setItems] = useState([]);
@@ -365,20 +366,25 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
 
   return (
     isOpen && (
-      <div className="fixed inset-0 z-[100] bg-black bg-opacity-40 flex justify-center items-center overflow-auto p-4">
-        <div
-          className="bg-white w-full rounded-xl shadow-2xl p-6 relative overflow-hidden max-h-[90vh] flex flex-col"
-          style={{ maxWidth: "95rem" }}
-        >
-          <div className="border-b pb-3 mb-6 ">
-            <h2 className="text-xl font-semibold capitalize  text-red-500">
-              {budgetData.budget_type}
-            </h2>
-            <h4>{budgetData.budget_id}</h4>
-            <h4>{budgetData.title}</h4>
+      <div className="fixed inset-0 z-[100] bg-black bg-opacity-40 flex justify-center items-center overflow-auto md:p-4">
+        <div className="bg-slate-50 w-full h-full rounded-xl shadow-2xl p-6 relative overflow-hidden flex flex-col animate-fadeIn">
+          <div className="border-b pb-3 mb-6 flex justify-between ">
+            <div>
+              <h2 className="text-xl font-semibold capitalize  text-red-600">
+                {budgetData.budget_type}
+              </h2>
+              <h4>{budgetData.budget_id}</h4>
+              <h4>{budgetData.title}</h4>
+            </div>
+
+            <X
+              size={24}
+              className="font-bold text-gray-900 hover:text-red-600"
+              onClick={onClose}
+            />
           </div>
 
-          <div className="flex-1 overflow-y-auto ">
+          <div className="flex-1 overflow-y-auto scrollbar-thin">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -394,14 +400,14 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                 }
               }}
             >
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto rounded-xl">
                 <table className="min-w-[1200px] w-full border text-sm text-left shadow-sm rounded-md">
-                  <thead className="sticky top-0 bg-gray-100 text-gray-700 uppercase text-xs z-10">
+                  <thead className="sticky top-0 bg-gray-700 text-gray-100 uppercase text-xs z-10">
                     <tr>
                       {tableHeaders.map((head, i) => (
                         <th
                           key={i}
-                          className="px-3 py-2 border whitespace-nowrap"
+                          className="p-3 whitespace-nowrap"
                           style={{
                             width: head.width,
                             minWidth: head.width,
@@ -423,10 +429,8 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                           subCategoryMap[item.category] || [];
                         return (
                           <SortableRow key={`row-${idx}`} id={`row-${idx}`}>
-                            <td className="border p-2 cursor-move text-gray-500">
-                              ☰
-                            </td>
-                            <td className="border p-2">
+                            <td className="p-3 cursor-move text-gray-500">☰</td>
+                            <td className="p-3">
                               <select
                                 value={item.category}
                                 onChange={(e) =>
@@ -445,7 +449,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 ))}
                               </select>
                             </td>
-                            <td className="border p-2">
+                            <td className="p-2">
                               <select
                                 value={item.sub_category}
                                 onChange={(e) =>
@@ -466,7 +470,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 ))}
                               </select>
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <input
                                 value={item.description || ""}
                                 onChange={(e) =>
@@ -479,7 +483,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 className="w-full px-2 py-1 border rounded-md"
                               />
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <select
                                 value={item.merchant}
                                 onChange={(e) =>
@@ -499,7 +503,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                               </select>
                             </td>
 
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <input
                                 type="number"
                                 value={item.quantity}
@@ -513,7 +517,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 className="w-full px-2 py-1 border rounded-md"
                               />
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <select
                                 value={item.units}
                                 onChange={(e) =>
@@ -529,7 +533,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 ))}
                               </select>
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <input
                                 type="number"
                                 value={item.amount}
@@ -543,7 +547,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 className="w-full px-2 py-1 border rounded-md"
                               />
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <div className="relative">
                                 <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
                                   {budgetData.currency?.symbol || "₹"}
@@ -568,7 +572,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 />
                               </div>
                             </td>
-                            <td className="border p-2">
+                            <td className=" p-2">
                               <div className="relative">
                                 <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500">
                                   {budgetData.currency?.symbol || "₹"}
@@ -587,7 +591,7 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
                                 />
                               </div>
                             </td>
-                            <td className="border p-2 text-center">
+                            <td className=" p-2 text-center">
                               {items.length > 1 && (
                                 <button
                                   className="text-red-600 hover:scale-210 transition"
@@ -709,16 +713,16 @@ const AddBudgetItemsModal = ({ isOpen, onClose, budgetData, reloadData }) => {
             )}
           </div>
 
-          <div className="flex justify-end items-center mt-4 border-t pt-4">
+          <div className="flex justify-end items-center mt-4 border-t pt-4 bg-slate-100">
             <div className="flex gap-3">
               <button
-                className="px-5 py-2 rounded border border-gray-300 text-gray-700 hover:bg-gray-100"
+                className="px-5 py-2 bg-white rounded-lg  border border-gray-300 text-gray-700 hover:bg-gray-100"
                 onClick={onClose}
               >
                 Cancel
               </button>
               <button
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
                 onClick={handleSubmit}
               >
                 Save
