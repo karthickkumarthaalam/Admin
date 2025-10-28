@@ -1,18 +1,10 @@
 import React, { useState, useEffect } from "react";
-import {
-  BadgePlus,
-  Search,
-  Loader2,
-  Edit2,
-  Trash2,
-  ScanEye,
-} from "lucide-react";
+import { BadgePlus, Search, Loader2, Trash2, UserCircle } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
 import BreadCrumb from "../../../components/BreadCrum";
 import AddSystemUserModal from "./AddSystemUserModal";
-import ViewSystemUserModal from "./ViewSystemUserModal";
 
 const SystemUsers = () => {
   const [showModal, setShowModal] = useState(false);
@@ -23,7 +15,6 @@ const SystemUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [showUserModal, setShowUserModal] = useState(false);
 
   const pageSize = 20;
 
@@ -192,7 +183,7 @@ const SystemUsers = () => {
                                   ? `${
                                       process.env.REACT_APP_API_BASE_URL
                                     }/${item.image_url?.replace(/\\/g, "/")}`
-                                  : `${window.location.origin}/A8J3K9Z5QW/microphone.png`
+                                  : `${window.location.origin}/A8J3K9Z5QW/profile.png`
                               }
                               alt={item.name}
                               className="w-16 h-16 object-fit rounded-lg border border-gray-200 shadow-sm"
@@ -201,7 +192,10 @@ const SystemUsers = () => {
                         </td>
 
                         {/* Name */}
-                        <td className="py-3 px-4 border-b font-medium text-gray-800">
+                        <td
+                          className="py-3 px-4 border-b font-bold text-gray-700 cursor-pointer"
+                          onClick={() => handleEdit(item.id)}
+                        >
                           {item.name}
                         </td>
 
@@ -237,25 +231,6 @@ const SystemUsers = () => {
                         {/* Actions */}
                         <td className="py-3 px-4 border-b">
                           <div className="flex justify-center gap-3">
-                            <button
-                              onClick={() => {
-                                setSelectedUser(item);
-                                setShowUserModal(true);
-                              }}
-                              className="text-gray-600 hover:text-green-600 transition"
-                              title="View"
-                            >
-                              <ScanEye size={16} />
-                            </button>
-
-                            <button
-                              onClick={() => handleEdit(item.id)}
-                              className="text-gray-600 hover:text-blue-600 transition"
-                              title="Edit"
-                            >
-                              <Edit2 size={16} />
-                            </button>
-
                             <button
                               onClick={() => handleDelete(item.id)}
                               className="text-gray-600 hover:text-red-600 transition"
@@ -298,11 +273,6 @@ const SystemUsers = () => {
           )}
         </div>
 
-        <ViewSystemUserModal
-          isOpen={showUserModal}
-          onClose={() => setShowUserModal(false)}
-          userData={selectedUser}
-        />
         {/* Add/Edit Modal */}
         <AddSystemUserModal
           isOpen={showModal}

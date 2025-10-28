@@ -43,8 +43,9 @@ const Advertisement = () => {
   }, 500);
 
   const statusCycle = {
-    pending: "resolved",
-    resolved: "closed",
+    pending: "intimated",
+    intimated: "in-progress",
+    "in-progress": "closed",
     closed: "pending",
   };
 
@@ -94,7 +95,8 @@ const Advertisement = () => {
             >
               <option value="">All Status</option>
               <option value="pending">Pending</option>
-              <option value="resolved">Resolved</option>
+              <option value="intimated">Intimated</option>
+              <option value="in-progress">In Progress</option>
               <option value="closed">Closed</option>
             </select>
           </div>
@@ -164,8 +166,10 @@ const Advertisement = () => {
                                 ${
                                   ad.status === "pending"
                                     ? "bg-yellow-100 text-yellow-800"
-                                    : ad.status === "resolved"
+                                    : ad.status === "in-progress"
                                     ? "bg-green-100 text-green-800"
+                                    : ad.status === "intimated"
+                                    ? "bg-blue-100 text-blue-800"
                                     : "bg-gray-200 text-gray-700"
                                 }`}
                           >

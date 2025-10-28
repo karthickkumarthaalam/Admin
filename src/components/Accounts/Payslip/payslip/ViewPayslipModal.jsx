@@ -97,10 +97,13 @@ const ViewPayslipModal = ({ isOpen, onClose, payslip }) => {
   };
 
   const formatCurrency = (amt) =>
-    `${currency?.symbol || ""} ${Number(amt).toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
+    `${currency?.symbol || ""} ${Number(amt).toLocaleString(
+      currency?.symbol === "CHF" ? "en-CH" : "en-IN",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`;
 
   const handleDownload = () => {
     const element = pdfRef.current;

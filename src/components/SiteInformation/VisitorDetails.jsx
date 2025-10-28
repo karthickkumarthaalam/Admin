@@ -32,12 +32,6 @@ const VisitorDetails = () => {
     }
   };
 
-  // Debounced search
-  const handleSearch = debounce((value) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
-  }, 500);
-
   useEffect(() => {
     fetchVisitors();
   }, [currentPage, searchQuery]);
@@ -70,12 +64,13 @@ const VisitorDetails = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Visitor ID</th>
                     <th className="py-3 px-4 border-b">IP</th>
                     <th className="py-3 px-4 border-b">Country</th>
+                    <th className="py-3 px-4 border-b">Region</th>
                     <th className="py-3 px-4 border-b">City</th>
                     <th className="py-3 px-4 border-b">Page</th>
                     <th className="py-3 px-4 border-b">Visited At</th>
@@ -99,12 +94,26 @@ const VisitorDetails = () => {
                         </td>
                         <td className="py-3 px-4 border-b">{v.visitor_id}</td>
                         <td className="py-3 px-4 border-b">{v.ip}</td>
-                        <td className="py-3 px-4 border-b">{v.country}</td>
-                        <td className="py-3 px-4 border-b">{v.city}</td>
+                        <td className="py-3 px-4 border-b text-blue-600 font-bold">
+                          {v.country}
+                        </td>
+                        <td className="py-3 px-4 border-b text-teal-700 font-bold">
+                          {v.region}
+                        </td>
+                        <td className="py-3 px-4 border-b text-slate-600 font-bold">
+                          {v.city}
+                        </td>
                         <td className="py-3 px-4 border-b">{v.page}</td>
-                        <td className="py-3 px-4 border-b">
+                        <td className="py-3 px-4 border-b text-slate-900">
                           {v.created_at
-                            ? new Date(v.created_at).toLocaleString()
+                            ? new Date(v.created_at).toLocaleString("en-IN", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: true,
+                              })
                             : "—"}
                         </td>
                       </tr>

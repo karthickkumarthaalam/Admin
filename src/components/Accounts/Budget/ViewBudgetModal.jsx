@@ -60,6 +60,17 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
     setAppliedTaxes(updatedTaxes);
   }, [isActualBudget, incomeItems, originalTaxes]);
 
+  const formatCurrency = (amount) => {
+    const currencySymbol = budget.currency?.symbol;
+    return `${currencySymbol || "₹"} ${Number(amount).toLocaleString(
+      currencySymbol === "CHF" ? "en-CH" : "en-IN",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`;
+  };
+
   const handleExport = async () => {
     await exportBudgetPDF({
       budgetInfo: {
@@ -207,13 +218,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                     </td>
                     {isActualBudget ? (
                       <td className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap">
-                        {budget.currency?.symbol || "₹"}{" "}
-                        {Number(item.actual_amount || 0).toLocaleString(
-                          "en-IN",
-                          {
-                            minimumFractionDigits: 2,
-                          }
-                        )}
+                        {formatCurrency(item.actual_amount)}
                       </td>
                     ) : (
                       [
@@ -221,19 +226,13 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                           key="amount"
                           className="px-4 py-2 text-right text-blue-700 whitespace-nowrap"
                         >
-                          {budget.currency?.symbol || "₹"}{" "}
-                          {Number(item.amount).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}
+                          {formatCurrency(item.amount)}
                         </td>,
                         <td
                           key="total"
                           className="px-4 py-2 text-right text-blue-900 font-medium whitespace-nowrap"
                         >
-                          {budget.currency?.symbol || "₹"}{" "}
-                          {Number(item.total_amount).toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}
+                          {formatCurrency(item.total_amount)}
                         </td>,
                       ]
                     )}
@@ -245,11 +244,8 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         </div>
         <div className="bg-gray-50 ">
           <p className="px-4 py-3 text-right text-blue-900 ">
-            <span className="font-semibold"> Total {title} Amount: </span>
-            {budget.currency?.symbol || "₹"}{" "}
-            {totalSum.toLocaleString("en-IN", {
-              minimumFractionDigits: 2,
-            })}
+            Total {title} Amount:
+            <span className="font-semibold"> {formatCurrency(totalSum)}</span>
           </p>
         </div>
       </div>
@@ -338,10 +334,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                         <td className=" px-3 py-2">{tax.tax_name}</td>
                         <td className=" px-3 py-2">{tax.percentage}%</td>
                         <td className=" px-3 py-2 text-right text-blue-900">
-                          {budget.currency?.symbol || "₹"}{" "}
-                          {tax.amount.toLocaleString("en-IN", {
-                            minimumFractionDigits: 2,
-                          })}
+                          {formatCurrency(tax.amount)}
                         </td>
                       </tr>
                     ))}
@@ -350,16 +343,15 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
               </div>
               <div className="bg-gray-50">
                 <p className="px-4 py-3 text-right text-blue-900">
-                  <span className="font-semibold">Total Tax Amount: </span>
-                  {budget.currency?.symbol || "₹"}{" "}
-                  {appliedTaxes
-                    .reduce(
-                      (sum, tax) => sum + (parseFloat(tax.amount) || 0),
-                      0
-                    )
-                    .toLocaleString("en-IN", {
-                      minimumFractionDigits: 2,
-                    })}
+                  Total Tax Amount:{" "}
+                  <span className="font-semibold">
+                    {formatCurrency(
+                      appliedTaxes.reduce(
+                        (sum, tax) => sum + (parseFloat(tax.amount) || 0),
+                        0
+                      )
+                    )}{" "}
+                  </span>
                 </p>
               </div>
             </div>
@@ -394,28 +386,16 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                 <tbody>
                   <tr>
                     <td className=" px-4 py-2 text-blue-800 font-medium whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {totalIncome.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatCurrency(totalIncome)}
                     </td>
                     <td className=" px-4 py-2 text-yellow-700 font-medium whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {totalSponsers.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatCurrency(totalSponsers)}
                     </td>
                     <td className=" px-4 py-2 text-rose-700 font-medium whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {totalExpense.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatCurrency(totalExpense)}
                     </td>
                     <td className=" px-4 py-2 text-purple-700 font-medium whitespace-nowrap">
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {totalTax.toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatCurrency(totalTax)}
                     </td>
                     <td
                       className={` px-4 py-2 font-bold whitespace-nowrap ${
@@ -423,10 +403,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                       }`}
                     >
                       {profit >= 0 ? "🔺 Profit: " : "🔻 Loss: "}
-                      {budget.currency?.symbol || "₹"}{" "}
-                      {Math.abs(profit).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })}
+                      {formatCurrency(Math.abs(profit))}
                     </td>
                   </tr>
                 </tbody>

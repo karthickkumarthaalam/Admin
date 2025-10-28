@@ -43,6 +43,16 @@ export const exportBudgetPDF = async ({
   const formatDate = (date) =>
     date ? new Date(date).toLocaleDateString("en-GB") : "-";
 
+  const formatCurrency = (amount) => {
+    return `${Number(amount || 0).toLocaleString(
+      currencySymbol === "CHF" ? "en-CH" : "en-IN",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`;
+  };
+
   const groupItemsByCategory = (items) => {
     const map = new Map();
     items.forEach((item) => {
@@ -83,17 +93,17 @@ export const exportBudgetPDF = async ({
             ${
               !actualBudgetMode
                 ? `
-              <td style="${cellStyle} text-align:right;">${Number(
-                    row.amount || 0
-                  ).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
-              <td style="${cellStyle} text-align:right;">${Number(
-                    row.total_amount || 0
-                  ).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+              <td style="${cellStyle} text-align:right;">${formatCurrency(
+                    row.amount
+                  )}</td>
+              <td style="${cellStyle} text-align:right;">${formatCurrency(
+                    row.total_amount
+                  )}</td>
             `
                 : `
-              <td colspan="2" style="${cellStyle} text-align:right;">${Number(
-                    row.actual_amount || 0
-                  ).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</td>
+              <td colspan="2" style="${cellStyle} text-align:right;">${formatCurrency(
+                    row.actual_amount
+                  )}</td>
             `
             }
           </tr>`;
@@ -180,7 +190,7 @@ export const exportBudgetPDF = async ({
       <div style="display: flex; justify-content: space-between; gap: 20px;">
         <div>
           <p><strong>Event Name:</strong> ${title}</p>
-          <p><strong>Created By:</strong> ${created_by}</p>
+          <p><strong>Submitted By:</strong> ${created_by}</p>
         </div>
         <div>
           ${
@@ -220,11 +230,9 @@ export const exportBudgetPDF = async ({
                     ${expenseGroupedHTML}
                   </tbody>
                 </table>
-                <p style="text-align:right; font-size:12px; margin-bottom: 30px;">Total Expense: <strong>${currencySymbol} ${Number(
+                <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: red;"><span style="color: black">Total Expense:</span> <strong>${currencySymbol} ${formatCurrency(
               expenseTotal
-            ).toLocaleString("en-IN", {
-              minimumFractionDigits: 2,
-            })}</strong></p>
+            )}</strong></p>
               </div>`
           : ""
       }
@@ -255,11 +263,9 @@ export const exportBudgetPDF = async ({
             ${incomeGroupedHTML}
           </tbody>
         </table>
-        <p style="text-align:right; font-size:12px; margin-bottom: 30px;">Total Income: <strong>${currencySymbol} ${Number(
+        <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: green;"><span style="color: black">Total Income:</span> <strong>${currencySymbol} ${formatCurrency(
               incomeTotal
-            ).toLocaleString("en-IN", {
-              minimumFractionDigits: 2,
-            })}</strong></p>
+            )}</strong></p>
       </div>
 `
           : ""
@@ -291,20 +297,17 @@ export const exportBudgetPDF = async ({
                       <td style="padding: 6px; border: 1px solid #ddd;">${
                         tax.percentage
                       }</td>
-                      <td style="padding: 6px; border: 1px solid #ddd; text-align: right">${currencySymbol} ${tax.amount.toLocaleString(
-                      "en-IN",
-                      { minimumFractionDigits: 2 }
+                      <td style="padding: 6px; border: 1px solid #ddd; text-align: right">${currencySymbol} ${formatCurrency(
+                      tax.amount
                     )}</td>
                     </tr>`
                   )
                   .join("")}
               </tbody>
             </table>
-                    <p style="text-align:right; font-size:12px; margin-bottom: 30px;">Total Tax: <strong>${currencySymbol} ${Number(
+                    <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: red;"><span style="color: black">Total Tax:</span> <strong>${currencySymbol} ${formatCurrency(
                 taxTotal
-              ).toLocaleString("en-IN", {
-                minimumFractionDigits: 2,
-              })}</strong></p>`
+              )}</strong></p>`
             : `<p style="font-size: 12px; color: gray;">No taxes applied.</p>`
         }
       </div>`
@@ -337,11 +340,9 @@ export const exportBudgetPDF = async ({
             ${sponsersGroupedHTML}
           </tbody>
         </table>
-        <p style="text-align:right; font-size:12px; margin-bottom: 30px;">Total Sponsers Income: <strong>${currencySymbol} ${Number(
+        <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: green;"><span style="color: black">Total Sponsers Income:</span> <strong>${currencySymbol} ${formatCurrency(
               sponsersTotal
-            ).toLocaleString("en-IN", {
-              minimumFractionDigits: 2,
-            })}</strong></p>
+            )}</strong></p>
       </div>`
           : ""
       }
@@ -362,35 +363,24 @@ export const exportBudgetPDF = async ({
           </thead>
           <tbody>
             <tr>
-              <td style="padding: 8px; border: 1px solid #ddd;">
-                ${currencySymbol} ${Number(
-            incomeTotal + sponsersTotal
-          ).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+              <td style="padding: 8px; border: 1px solid #ddd; color: green;">
+                ${currencySymbol} ${formatCurrency(incomeTotal + sponsersTotal)}
               </td>
-              <td style="padding: 8px; border: 1px solid #ddd;">
-                ${currencySymbol} ${Number(expenseTotal).toLocaleString(
-            "en-IN",
-            { minimumFractionDigits: 2 }
-          )}
+              <td style="padding: 8px; border: 1px solid #ddd; color: red;">
+                ${currencySymbol} ${formatCurrency(expenseTotal)}
               </td>
-                 <td style="padding: 8px; border: 1px solid #ddd;">
-                ${currencySymbol} ${Number(taxTotal).toLocaleString("en-IN", {
-            minimumFractionDigits: 2,
-          })}
+                 <td style="padding: 8px; border: 1px solid #ddd; color: red;">
+                ${currencySymbol} ${formatCurrency(taxTotal)}
               </td>
               <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">
                 ${
                   profit >= 0
-                    ? `<span style="color: green;">🔺 ${currencySymbol} ${Number(
+                    ? `<span style="color: green;">🔺 ${currencySymbol} ${formatCurrency(
                         profit
-                      ).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })} (Profit)</span>`
-                    : `<span style="color: red;">🔻 ${currencySymbol} ${Math.abs(
-                        profit
-                      ).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                      })} (Loss)</span>`
+                      )} (Profit)</span>`
+                    : `<span style="color: red;">🔻 ${currencySymbol} ${formatCurrency(
+                        Math.abs(profit)
+                      )} (Loss)</span>`
                 }
               </td>
             </tr>
@@ -400,21 +390,6 @@ export const exportBudgetPDF = async ({
       `
         : ""
     }
-
-
-      <div style="display: flex; justify-content: space-between; margin-top: 60px;">
-        <div style="width: 45%;">
-          <p style="font-size: 14px;"><strong>Submitted By:</strong></p>
-          <div style="margin-top: 50px; border-top: 1px solid #000; width: 50%;"></div>
-          <p style="margin-top: 4px; font-size: 12px;">Signature</p>
-        </div>
-
-        <div style="width: 45%;">
-          <p style="font-size: 14px;"><strong>Reported To:</strong></p>
-          <div style="margin-top: 50px; border-top: 1px solid #000; width: 50%;"></div>
-          <p style="margin-top: 4px; font-size: 12px;">Signature</p>
-        </div>
-      </div>
     </div>
   `;
 

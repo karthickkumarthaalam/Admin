@@ -194,7 +194,24 @@ function App() {
     <AuthProvider>
       <PermissionProvider>
         <BrowserRouter basename="/A8J3K9Z5QW">
-          <ToastContainer position="top-right" autoClose={3000} />
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            theme="light" // options: "light", "dark", "colored"
+            toastStyle={{
+              borderRadius: "10px",
+              fontSize: "14px",
+              fontWeight: 500,
+              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+            }}
+          />
+
           <AppRoutes />
         </BrowserRouter>
       </PermissionProvider>
