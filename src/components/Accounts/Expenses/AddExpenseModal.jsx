@@ -901,6 +901,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           </button>
           <button
             type="submit"
+            onClick={handleSubmit}
             className="px-6 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
           >
             {editExpenseData ? "Update" : "Submit"}
