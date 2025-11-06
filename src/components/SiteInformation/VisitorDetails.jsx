@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import debounce from "lodash.debounce";
 import { apiCall } from "../../utils/apiCall";
 import BreadCrumb from "../../components/BreadCrum";
 

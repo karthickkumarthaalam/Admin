@@ -16,6 +16,7 @@ import {
   FileText,
   ArrowLeftCircleIcon,
   ChartNetwork,
+  Newspaper,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 
@@ -54,6 +55,12 @@ const Sidebar = () => {
       icon: Activity,
       path: "/programs",
       permission: "Radio Station",
+    },
+    {
+      label: "News",
+      icon: Newspaper,
+      path: "/news",
+      permission: "News",
     },
     {
       label: "Podcasts",

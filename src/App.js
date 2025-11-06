@@ -30,9 +30,9 @@ import UsersPage from "./pages/UsersPage";
 import AccountsPage from "./pages/AccountsPage";
 import CopyrightFooter from "./components/CopyRightsComponent";
 import MembersPage from "./pages/MembersPage";
-import CareersPage from "./pages/CareersPage";
 import SiteInformationPage from "./pages/SiteInformationPage";
 import EnquiryPage from "./pages/EnquiryPage";
+import NewsPage from "./pages/NewsPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -136,6 +136,12 @@ function AppRoutes() {
             ) : (
               <Navigate to="/" />
             )
+          }
+        />
+        <Route
+          path="/news"
+          element={
+            hasPermission("News", "read") ? <NewsPage /> : <Navigate to="/" />
           }
         />
         <Route

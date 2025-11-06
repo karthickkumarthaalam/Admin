@@ -51,7 +51,7 @@ const SiteInformationPage = () => {
           </div>
         </div>
 
-        <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
+        <div className="flex-1 p-1 bg-slate-100">
           {activeTab === "visitor-report" && <VisitorReport />}
           {activeTab === "visitor-details" && <VisitorDetails />}
         </div>
