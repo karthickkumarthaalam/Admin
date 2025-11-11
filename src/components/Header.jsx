@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "./Notification/NotificationBell";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -87,6 +88,7 @@ const Header = () => {
 
         {/* Right Section - User Menu */}
         <div className="flex items-center space-x-4">
+          <NotificationBell />
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}

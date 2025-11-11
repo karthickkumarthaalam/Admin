@@ -118,9 +118,11 @@ const NewsComments = () => {
                 <th className="px-3 py-3 text-left">SI</th>
                 <th className="px-3 py-3 text-left">News Title</th>
                 <th className="px-3 py-3 text-left">Comment</th>
-                <th className="px-3 py-3 text-left">Posted By</th>
+                <th className="px-3 py-3 text-left whitespace-nowrap">
+                  Posted By
+                </th>
                 <th className="px-3 py-3 text-left">Status</th>
-                <th className="px-3 py-3 text-left">Action</th>
+                <th className="px-3 py-3 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -176,32 +178,34 @@ const NewsComments = () => {
                     <td className="px-4 py-3">{renderStatusText(c.status)}</td>
 
                     {/* Action column */}
-                    <td className="px-4 py-3  gap-2">
+                    <td className="px-4 py-3 ">
                       {/* Status update dropdown */}
-                      {hasPermission("News", "update") && (
-                        <select
-                          value={c.status}
-                          onChange={(e) =>
-                            handleStatusChange(c.id, e.target.value)
-                          }
-                          className="border border-gray-300 rounded-md px-2 py-1 text-xs font-medium bg-white hover:border-gray-400 focus:ring-1 focus:ring-blue-400 transition"
-                        >
-                          <option value="pending">Pending</option>
-                          <option value="approved">Approved</option>
-                          <option value="rejected">Rejected</option>
-                        </select>
-                      )}
+                      <div className="flex items-center gap-2 justify-center">
+                        {hasPermission("News", "update") && (
+                          <select
+                            value={c.status}
+                            onChange={(e) =>
+                              handleStatusChange(c.id, e.target.value)
+                            }
+                            className="border border-gray-300 rounded-md px-2 py-1 text-xs font-medium bg-white hover:border-gray-400 focus:ring-1 focus:ring-blue-400 transition"
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                          </select>
+                        )}
 
-                      {/* Delete button */}
-                      {hasPermission("News", "delete") && (
-                        <button
-                          onClick={() => handleDelete(c.id)}
-                          className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition"
-                          title="Delete Comment"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      )}
+                        {/* Delete button */}
+                        {hasPermission("News", "delete") && (
+                          <button
+                            onClick={() => handleDelete(c.id)}
+                            className="p-1.5 text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 rounded-md transition"
+                            title="Delete Comment"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

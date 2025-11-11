@@ -1,19 +1,21 @@
-import { ImageIcon, NewspaperIcon, X } from "lucide-react";
+import { CalendarDays, CarIcon, ImageIcon, User2, X } from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
-import AddNewsDetails from "./AddNewsDetails";
-import AddNewsMedia from "./AddNewsMedia";
+import AddEventDetails from "./AddEventDetails";
+import AddEventBanner from "./AddEventBanner";
+import AddEventCrew from "./AddEventCrew";
+import AddEventAmenity from "./AddEventAmenity";
 
-const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
-  const [activeTab, setActiveTab] = useState("news-details");
+const AddEventModal = ({ isOpen, onClose, onSuccess, editEventData }) => {
+  const [activeTab, setActiveTab] = useState("event-details");
 
-  // Reset active tab when modal opens/closes or edit data changes
+  // Reset active tab whenever modal opens/closes or edit data changes
   useEffect(() => {
     if (isOpen) {
-      setActiveTab("news-details");
+      setActiveTab("event-details");
     }
-  }, [isOpen, editNewsData]);
+  }, [isOpen, editEventData]);
 
-  // Handle backdrop click
+  // Handle backdrop click (to close modal)
   const handleBackdropClick = useCallback(
     (e) => {
       if (e.target === e.currentTarget) {
@@ -27,18 +29,30 @@ const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
 
   const tabs = [
     {
-      id: "news-details",
-      label: "News Details",
-      icon: <NewspaperIcon size={18} />,
+      id: "event-details",
+      label: "Event Details",
+      icon: <CalendarDays size={18} />,
       component: (
-        <AddNewsDetails onSuccess={onSuccess} editNewsData={editNewsData} />
+        <AddEventDetails onSuccess={onSuccess} editEventData={editEventData} />
       ),
     },
     {
-      id: "news-media",
-      label: "News Media",
+      id: "event-banner",
+      label: "Event Banner",
       icon: <ImageIcon size={18} />,
-      component: <AddNewsMedia newsId={editNewsData?.id} />,
+      component: <AddEventBanner eventId={editEventData?.id} />,
+    },
+    {
+      id: "event-crew",
+      label: "Event Crew",
+      icon: <User2 size={18} />,
+      component: <AddEventCrew eventId={editEventData?.id} />,
+    },
+    {
+      id: "event-amenity",
+      label: "Event Amenity",
+      icon: <CarIcon size={18} />,
+      component: <AddEventAmenity eventId={editEventData?.id} />,
     },
   ];
 
@@ -52,11 +66,11 @@ const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
         <div className="flex justify-between items-center border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-3">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-xl">
-              <NewspaperIcon className="text-blue-600" size={20} />
+              <CalendarDays className="text-blue-600" size={20} />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">
-                {editNewsData ? "Edit News Article" : "Create New News Article"}
+                {editEventData ? "Event Details" : "Create New Event"}
               </h2>
             </div>
           </div>
@@ -73,12 +87,12 @@ const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-gray-200 bg-white px-8">
+        <div className="flex border-b border-gray-200 bg-white px-8 overflow-y-scroll scrollbar-none">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-6 py-4 font-semibold text-sm transition-all duration-300 relative group ${
+              className={`flex items-center gap-3 whitespace-nowrap px-6 py-4 font-semibold text-sm transition-all duration-300 relative group  ${
                 activeTab === tab.id
                   ? "text-blue-600"
                   : "text-gray-500 hover:text-blue-500"
@@ -123,15 +137,15 @@ const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
 
         {/* Footer */}
         <div className="border-t border-gray-200 bg-white px-8 py-4">
-          <div className="flex justify-between items-center text-sm text-gray-500">
+          <div className="flex justify-between items-center text-xs md:text-sm text-gray-500">
             <span>
-              {activeTab === "news-details"
-                ? "Fill in all required fields marked with *"
-                : "Upload and manage news media files"}
+              {activeTab === "event-details"
+                ? "Fill in all required event details marked with *"
+                : "Upload and manage event banners or images"}
             </span>
             <span className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              {editNewsData ? "Editing Mode" : "Creation Mode"}
+              {editEventData ? "Editing Mode" : "Creation Mode"}
             </span>
           </div>
         </div>
@@ -140,4 +154,4 @@ const AddNewsModal = ({ isOpen, onClose, onSuccess, editNewsData }) => {
   );
 };
 
-export default AddNewsModal;
+export default AddEventModal;

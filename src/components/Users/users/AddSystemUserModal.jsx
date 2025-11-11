@@ -24,7 +24,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
       <div className="bg-white rounded-2xl shadow-2xl w-full h-full overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center border-b bg-gray-50 p-4">
-          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2 md:px-5">
             {editUserData ? "Employee Details" : "Add Employee Details"}
           </h2>
           <button onClick={onClose} className="text-red-500 hover:text-red-700">
@@ -33,15 +33,15 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 bg-gray-50">
+        <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto scrollbar-none md:px-5">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all ${
+              className={`flex items-center gap-2 px-6 py-3 font-medium text-sm transition-all whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "border-b-2 border-red-500 text-red-600 bg-white"
-                  : "text-gray-600 hover:text-red-500"
+                  ? "border-b-2 border-blue-500 text-blue-600 bg-white"
+                  : "text-gray-600 hover:text-blue-500"
               }`}
             >
               {tab.icon}
@@ -51,7 +51,7 @@ const AddSystemUserModal = ({ isOpen, onClose, editUserData, onSuccess }) => {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto scrollbar-thin p-6 bg-slate-100">
+        <div className="flex-1 overflow-y-auto scrollbar-thin p-2 md:p-6 bg-slate-100">
           {activeTab === "user" && (
             <UserDetailsTab
               onSuccess={onSuccess}

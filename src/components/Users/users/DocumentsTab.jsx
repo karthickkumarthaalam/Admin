@@ -213,16 +213,16 @@ const DocumentsTab = ({ userId }) => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-lg font-semibold text-gray-900">
             Employee Documents
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="hidden md:block text-sm text-gray-600 mt-1">
             Manage and verify employee documents
           </p>
         </div>
         <button
           onClick={() => setShowUploadForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex text-xs md:text-sm items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus size={18} />
           Upload Document

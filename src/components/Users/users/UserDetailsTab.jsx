@@ -8,6 +8,8 @@ import {
   Banknote,
   Save,
   RotateCcw,
+  X,
+  Trash2,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
@@ -44,6 +46,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
       account_number: "",
       pan_number: "",
       uan_number: "",
+      remove_image: false,
     };
   }
 
@@ -125,11 +128,12 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
     const newErrors = {};
     if (!form.name.trim()) newErrors.name = "Name is required";
     if (!form.email.trim()) newErrors.email = "Email is required";
+    if (!form.department_id) newErrors.department_id = "Department is required";
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
       newErrors.email = "Please enter a valid email address";
     }
-    if (form.phone_number && !/^\d{10}$/.test(form.phone_number)) {
-      newErrors.phone_number = "Please enter a valid 10-digit phone number";
+    if (!form.phone_number) {
+      newErrors.phone_number = "Please enter a  phone number";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -171,6 +175,25 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
     }
   };
 
+  const handleRemoveImage = () => {
+    if (!imagePreview) return;
+
+    const confirmDelete = window.confirm(
+      "Are you sure you want to remove the current image?"
+    );
+    if (!confirmDelete) return;
+
+    // Reset both preview and file
+    setImagePreview(null);
+    setForm((prev) => ({
+      ...prev,
+      image: null,
+      remove_image: true,
+    }));
+
+    toast.info("Profile image removed.");
+  };
+
   return (
     <div className="space-y-6 ">
       {/* Personal Information Section */}
@@ -209,7 +232,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
             placeholder="Enter employee ID"
           />
           <SelectInput
-            label="Department"
+            label="Department *"
             name="department_id"
             value={form.department_id}
             onChange={handleChange}
@@ -217,6 +240,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
               label: d.department_name,
               value: d.id,
             }))}
+            error={errors.department_id}
           />
           <DateInput
             label="Date of Joining"
@@ -224,10 +248,13 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
             value={form.date_of_joining}
             onChange={handleChange}
           />
+        </div>
+        <div className="mt-2">
           <FileInput
             label="Profile Image"
             onChange={handleFileChange}
             preview={imagePreview}
+            onRemove={handleRemoveImage}
           />
         </div>
       </SectionCard>
@@ -249,7 +276,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
             placeholder="user@company.com"
           />
           <TextInput
-            label="Phone Number"
+            label="Phone Number *"
             name="phone_number"
             type="tel"
             value={form.phone_number}
@@ -450,7 +477,7 @@ const TextInput = ({
       placeholder={placeholder}
       className={`border rounded-lg px-4 py-3 text-sm transition-colors focus:outline-none focus:ring-2 ${
         error
-          ? "border-red-300 focus:ring-red-500 focus:border-red-500"
+          ? "border-2 border-red-300 focus:ring-red-500 focus:border-red-500"
           : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
       }`}
     />
@@ -458,14 +485,18 @@ const TextInput = ({
   </div>
 );
 
-const SelectInput = ({ label, name, value, onChange, options }) => (
+const SelectInput = ({ label, name, value, onChange, options, error }) => (
   <div className="flex flex-col">
     <label className="font-medium text-sm text-gray-700 mb-2">{label}</label>
     <select
       name={name}
       value={value}
       onChange={onChange}
-      className="border border-gray-300 rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+      className={`border  rounded-lg px-4 py-3 text-sm bg-white focus:outline-none focus:ring-2 ${
+        error
+          ? "border-2 border-red-300 focus:ring-red-500 focus:border-red-500"
+          : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+      }  transition-colors`}
     >
       <option value="">Select {label}</option>
       {options.map((opt) =>
@@ -480,6 +511,7 @@ const SelectInput = ({ label, name, value, onChange, options }) => (
         )
       )}
     </select>
+    {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
   </div>
 );
 
@@ -496,17 +528,20 @@ const DateInput = ({ label, name, value, onChange }) => (
   </div>
 );
 
-const FileInput = ({ label, onChange, preview }) => (
-  <div className="flex  flex-col">
-    <label className="font-medium text-sm text-gray-700 mb-2">{label}</label>
-    <div className="space-x-3 flex-1 flex">
-      <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-gray-300 rounded-lg p-6 cursor-pointer hover:border-blue-400 transition-colors bg-gray-50">
-        <Upload size={24} className="text-gray-400" />
+const FileInput = ({ label, onChange, preview, onRemove }) => (
+  <div className="flex flex-col w-full">
+    {/* Label */}
+    <label className="font-semibold text-sm text-gray-800 mb-2">{label}</label>
+
+    <div className="flex flex-wrap items-start gap-4">
+      {/* Upload Box */}
+      <label className="flex flex-col items-center justify-center gap-3 w-60 h-40 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer bg-gray-50 hover:bg-blue-50 hover:border-blue-400 transition-all duration-200">
+        <Upload size={28} className="text-gray-400" />
         <div className="text-center">
-          <span className="text-sm font-medium text-gray-600">
+          <span className="text-sm font-medium text-gray-700">
             Click to upload
           </span>
-          <p className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG (max 5MB)</p>
+          <p className="text-xs text-gray-500">PNG, JPG, JPEG (max 5MB)</p>
         </div>
         <input
           type="file"
@@ -515,13 +550,22 @@ const FileInput = ({ label, onChange, preview }) => (
           className="hidden"
         />
       </label>
+
+      {/* Preview */}
       {preview && (
-        <div className="flex justify-center">
+        <div className="relative w-40 h-40">
           <img
             src={preview}
             alt="Preview"
-            className="w-32 h-32 object-cover rounded-lg border shadow-sm"
+            className="w-full h-full object-contain rounded-2xl border shadow-sm"
           />
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute -top-2 -right-2 bg-white text-red-500 hover:bg-gray-200 rounded-full shadow-md p-1.5 transition-all"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       )}
     </div>

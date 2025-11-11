@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { apiCall } from "../../../utils/apiCall";
-import socket from "../../../utils/socket";
+import { socket } from "../../../utils/socket";
 import { toast } from "react-toastify";
 import {
   DndContext,

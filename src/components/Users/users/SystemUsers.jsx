@@ -186,7 +186,7 @@ const SystemUsers = () => {
                                   : `${window.location.origin}/A8J3K9Z5QW/profile.png`
                               }
                               alt={item.name}
-                              className="w-16 h-16 object-fit rounded-lg border border-gray-200 shadow-sm"
+                              className="w-24 h-24 object-contain rounded-lg border border-gray-200 shadow-sm"
                             />
                           </div>
                         </td>
