@@ -281,9 +281,6 @@ const EventList = () => {
                           <h3 className="font-semibold whitespace-nowrap text-gray-900 line-clamp-1">
                             {item.title}
                           </h3>
-                          <p className="text-xs text-gray-600 line-clamp-1">
-                            {item.description || "—"}
-                          </p>
                         </div>
                       </div>
                     </td>

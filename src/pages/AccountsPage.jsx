@@ -46,7 +46,7 @@ const AccountsPage = () => {
     <>
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="p-4 border-t border-gray-200 bg-slate-100 shadow-sm">
-          <div className="flex  gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex  gap-2 overflow-x-auto scrollbar-none">
             {visibleTabs.map((tab) => (
               <button
                 key={tab.id}

@@ -4,11 +4,17 @@ import Category from "./category/Category";
 import Merchant from "./merchant/Merchant";
 import ExpenseBills from "./bills/ExpenseBills";
 import { usePermission } from "../../../context/PermissionContext";
+import ExpensesReport from "./reports/ExpensesReport";
 
 const ExpensePage = () => {
   const { hasPermission } = usePermission();
 
   const tabs = [
+    {
+      id: "reports",
+      label: "Reports",
+      permission: "Expenses",
+    },
     {
       id: "expense",
       label: "Expenses",
@@ -48,7 +54,7 @@ const ExpensePage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border whitespace-nowrap
+                className={`px-3 py-1.5  text-xs font-medium rounded-lg transition-all duration-300 border whitespace-nowrap
           ${
             activeTab === tab.id
               ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md border-blue-700 scale-[1.03]"
@@ -61,7 +67,8 @@ const ExpensePage = () => {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto">
+          {activeTab === "reports" && <ExpensesReport />}
           {activeTab === "expense" && <Expenses />}
           {activeTab === "categories" && <Category />}
           {activeTab === "merchant" && <Merchant />}

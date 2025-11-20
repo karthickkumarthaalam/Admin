@@ -45,7 +45,7 @@ const AddProgramCategoryModal = ({
       end_time: data.end_time || "",
       country: data.country || "",
       status: data.status || "in-active",
-      image_url: null,
+      image_url: data.image_url || null,
     });
 
     setImagePreview(data.image_url ? data.image_url : null);
@@ -86,11 +86,11 @@ const AddProgramCategoryModal = ({
       payload.append("end_time", form.end_time);
       payload.append("country", form.country);
       payload.append("status", form.status);
-      if (form.image_url) payload.append("image", form.image_url);
-      else {
-        payload.append("image", "null");
+      if (form.image_url instanceof File) {
+        payload.append("image", form.image_url);
+      } else if (form.image_url === null && editCategoryData?.image_url) {
+        payload.append("remove_image", "true");
       }
-
       if (editCategoryData) {
         await apiCall(
           `/program-category/${editCategoryData.id}`,

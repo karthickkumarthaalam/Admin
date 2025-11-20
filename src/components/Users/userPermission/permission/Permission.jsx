@@ -52,7 +52,7 @@ const Permission = () => {
         paths={["System Users", "User Permissions"]}
       />
 
-      <div className="mt-4 rounded-sm shadow-md px-4 py-3 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+      <div className="mt-4 rounded-sm shadow-md px-4 py-3 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
         <div className="flex justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
           <p className="text-sm sm:text-lg font-semibold text-gray-800">
             Permissions List

@@ -327,7 +327,7 @@ const EventCrewTab = ({ eventId }) => {
                     }}
                     className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
                   >
-                    Remove
+                    <Trash2 />
                   </button>
                 )}
               </div>
@@ -390,9 +390,9 @@ const EventCrewTab = ({ eventId }) => {
 
       {/* Crew Cards Row */}
       {crewList.length > 0 && (
-        <div className="flex gap-6 ">
+        <div className="flex flex-col gap-6 ">
           {crewList.map((crew) => (
-            <div key={crew.id} className="flex-shrink-0 w-full ">
+            <div key={crew.id}>
               <CrewCard
                 crew={crew}
                 onEdit={() => handleEdit(crew)}
@@ -415,14 +415,14 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
       <img
         src={crew.image || "https://via.placeholder.com/600x400?text=No+Image"}
         alt={crew.name}
-        className="w-full h-64 md:h-full object-cover"
+        className="w-full h-64 md:h-72 object-cover"
       />
 
       {/* Action Buttons (desktop view only) */}
       <div className="absolute top-3 right-3 hidden md:flex flex-col gap-2">
         <button
           onClick={onEdit}
-          className="p-2 bg-blue-50 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition"
+          className="p-2 bg-blue-50/70 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition"
           title="Edit"
         >
           <Edit2 size={16} />
@@ -431,8 +431,8 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
           onClick={onToggle}
           className={`p-2 rounded-lg shadow-sm transition ${
             crew.status === "active"
-              ? "bg-green-50 text-green-600 hover:bg-green-100"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-green-50/80 text-green-600 hover:bg-green-100"
+              : "bg-gray-100/80 text-gray-600 hover:bg-gray-200"
           }`}
           title={crew.status === "active" ? "Deactivate" : "Activate"}
         >
@@ -441,7 +441,7 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
         <button
           onClick={onDelete}
           disabled={deleting}
-          className="p-2 bg-red-50 text-red-600 rounded-lg shadow-sm hover:bg-red-100 transition"
+          className="p-2 bg-red-50/70 text-red-600 rounded-lg shadow-sm hover:bg-red-100 transition"
           title="Delete"
         >
           {deleting ? (

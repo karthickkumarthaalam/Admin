@@ -12,6 +12,9 @@ import {
   ClipboardPlus,
   ArchiveRestore,
   Archive,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import AddExpenseModal from "./AddExpenseModal";
 import BreadCrumb from "../../BreadCrum";
@@ -130,6 +133,25 @@ const Expenses = () => {
   };
 
   const totalPages = Math.ceil(totalRecords / pageSize);
+
+  // --- Monthly Calculations ---
+  const MonthlyTotals = expenses.reduce(
+    (acc, exp) => {
+      acc.total += exp.total_amount || 0;
+      acc.pending += exp.pending_amount || 0;
+      return acc;
+    },
+    { total: 0, pending: 0 }
+  );
+
+  const completionRate =
+    MonthlyTotals.total > 0
+      ? Math.round(
+          ((MonthlyTotals.total - MonthlyTotals.pending) /
+            MonthlyTotals.total) *
+            100
+        )
+      : 0;
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
@@ -263,6 +285,48 @@ const Expenses = () => {
                 />
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Monthly Summary Boxes */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          {/* Monthly Total */}
+          <div className="p-4 rounded-xl border border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm">
+            <div className="flex justify-between items-center mb-1">
+              <h4 className="font-medium text-sm">Monthly Total</h4>
+              <TrendingUp size={18} />
+            </div>
+            <p className="text-2xl font-bold">
+              ₹{" "}
+              {MonthlyTotals.total.toLocaleString("en-GB", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+
+          {/* Pending Total */}
+          <div className="p-4 rounded-xl border border-gray-100 bg-gradient-to-r from-amber-50 to-amber-100 text-amber-800 shadow-sm">
+            <div className="flex justify-between items-center mb-1">
+              <h4 className="font-medium text-sm">Pending Total</h4>
+              <AlertCircle size={18} />
+            </div>
+            <p className="text-2xl font-bold">
+              ₹{" "}
+              {MonthlyTotals.pending.toLocaleString("en-GB", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          </div>
+
+          {/* Completion */}
+          <div className="p-4 rounded-xl border border-gray-100 bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-800 shadow-sm">
+            <div className="flex justify-between items-center mb-1">
+              <h4 className="font-medium text-sm">Completion</h4>
+              <CheckCircle2 size={18} />
+            </div>
+            <p className="text-2xl font-bold">{completionRate}%</p>
           </div>
         </div>
 

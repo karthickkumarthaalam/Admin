@@ -28,7 +28,7 @@ const PayslipPage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border whitespace-nowrap
+                className={`px-3 py-1.5  text-xs font-medium rounded-lg transition-all duration-300 border whitespace-nowrap
           ${
             activeTab === tab.id
               ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md border-blue-700 scale-[1.03]"

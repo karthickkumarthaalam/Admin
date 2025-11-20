@@ -15,20 +15,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
   const [audioPreview, setAudioPreview] = useState(null);
   const [audioFileName, setAudioFileName] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const RJ_NAMES = [
-    "Dharshan Rajakobal",
-    "TKR Thiyagu",
-    "Selva",
-    "Guru Parameshwar",
-    "Kavi parthi",
-    "Dhusika",
-    "Sumi Krishna",
-    "Mithu Thillai",
-    "Thusika",
-    "Deva",
-    "saranya kumar",
-  ];
+  const [systemUsers, setSystemUsers] = useState([]);
 
   function initialFormState() {
     return {
@@ -46,6 +33,7 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
 
   useEffect(() => {
     if (isOpen) {
+      fetchSystemUsers();
       editPodcastData ? populateForm(editPodcastData) : resetForm();
     }
   }, [isOpen, editPodcastData]);
@@ -56,6 +44,11 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
     setImagePreview(null);
     setAudioPreview(null);
     setAudioFileName(null);
+  };
+
+  const fetchSystemUsers = async () => {
+    const res = await apiCall("/system-user?limit=1000", "GET");
+    setSystemUsers(res.data);
   };
 
   const populateForm = (data) => {
@@ -341,9 +334,9 @@ const AddPodcastModal = ({ isOpen, onClose, editPodcastData, onSuccess }) => {
           className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
         >
           <option value="">Select {label}</option>
-          {RJ_NAMES.map((rj) => (
-            <option key={rj} value={rj}>
-              {rj}
+          {systemUsers.map((rj) => (
+            <option key={rj.id} value={rj.name}>
+              {rj.name}
             </option>
           ))}
         </select>

@@ -288,7 +288,7 @@ const EventAmenityTab = ({ eventId }) => {
 
       {/* Amenity List */}
       {amenities.length > 0 ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
           {amenities.map((amenity) => (
             <AmenityCard
               key={amenity.id}
