@@ -152,7 +152,7 @@ const EventList = () => {
           ? "Try adjusting your filters or search terms"
           : "Start by creating a new event"}
       </p>
-      {hasPermission("Event", "create") && (
+      {hasPermission("Events", "create") && (
         <button
           onClick={() => setShowModal(true)}
           className="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200"
@@ -177,7 +177,7 @@ const EventList = () => {
           <h1 className="text-lg font-semibold text-gray-900">
             Event Management
           </h1>
-          {hasPermission("Event", "create") && (
+          {hasPermission("Events", "create") && (
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 shadow-sm"
@@ -321,7 +321,7 @@ const EventList = () => {
 
                     {/* Actions */}
                     <td className="px-6 py-4 flex gap-2">
-                      {hasPermission("Event", "update") && (
+                      {hasPermission("Events", "update") && (
                         <button
                           onClick={() => handleEdit(item)}
                           className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-blue-600 transition-all duration-200"
@@ -330,7 +330,7 @@ const EventList = () => {
                           <Edit size={16} />
                         </button>
                       )}
-                      {hasPermission("Event", "delete") && (
+                      {hasPermission("Events", "delete") && (
                         <button
                           onClick={() => handleDelete(item.id)}
                           disabled={deletingId === item.id}

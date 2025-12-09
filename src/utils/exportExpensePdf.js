@@ -16,7 +16,8 @@ export const exportExpensePDF = async ({
   reportedTo,
   month,
   year,
-  date,
+  fromDate,
+  toDate,
 }) => {
   const element = document.createElement("div");
 
@@ -40,10 +41,12 @@ export const exportExpensePDF = async ({
   let reportDuration = "";
   let durationTitle = "";
 
-  if (date) {
-    const formattedDate = new Date(date).toLocaleDateString("en-GB");
-    reportDuration = `${formattedDate}`;
-    durationTitle = `Date: ${formattedDate}`;
+  if (fromDate && toDate) {
+    const fromDateFormatted = new Date(fromDate).toLocaleDateString("en-GB");
+    const toDateFormatted = new Date(toDate).toLocaleDateString("en-GB");
+
+    durationTitle = `Expense Report: ${fromDateFormatted} - ${toDateFormatted}`;
+    reportDuration = `${fromDateFormatted} - ${toDateFormatted}`;
   } else {
     const monthName = new Date(year, month - 1).toLocaleString("default", {
       month: "long",

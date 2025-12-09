@@ -27,7 +27,7 @@ const SiteInformationPage = () => {
 
   return (
     <>
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-y-auto scrollbar-thin">
         <div className="p-4 bg-slate-100 shadow-sm">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide whitespace-nowrap">
             {visibleTabs.map((tab) => (

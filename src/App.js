@@ -34,6 +34,7 @@ import SiteInformationPage from "./pages/SiteInformationPage";
 import EnquiryPage from "./pages/EnquiryPage";
 import NewsPage from "./pages/NewsPage";
 import EventPage from "./pages/EventPage";
+import BlogsPage from "./pages/BlogsPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -143,6 +144,12 @@ function AppRoutes() {
           path="/news"
           element={
             hasPermission("News", "read") ? <NewsPage /> : <Navigate to="/" />
+          }
+        />
+        <Route
+          path="/blogs"
+          element={
+            hasPermission("Blogs", "read") ? <BlogsPage /> : <Navigate to="/" />
           }
         />
         <Route

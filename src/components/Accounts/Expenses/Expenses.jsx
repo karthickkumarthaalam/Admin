@@ -27,7 +27,6 @@ const Expenses = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [month, setMonth] = useState(new Date().getMonth() + 1);
-  const [year, setYear] = useState(new Date().getFullYear());
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -36,8 +35,9 @@ const Expenses = () => {
   const [loadingBillId, setLoadingBillId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [date, setDate] = useState("");
   const [viewDeleted, setViewDeleted] = useState(false);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const pageSize = 50;
 
@@ -53,11 +53,11 @@ const Expenses = () => {
         show_deleted: viewDeleted,
       });
 
-      if (date) {
-        params.append("date", date);
-      } else {
-        params.append("month", month);
-        params.append("year", year);
+      if (fromDate) params.append("from_date", fromDate);
+      if (toDate) params.append("to_date", toDate);
+
+      if (!fromDate && !toDate) {
+        if (month) params.append("month", month);
       }
 
       const response = await apiCall(`/expense?${params.toString()}`);
@@ -70,14 +70,9 @@ const Expenses = () => {
     }
   };
 
-  const debouncedYearChange = debounce((newYear) => {
-    setYear(newYear);
-    setCurrentPage(1);
-  }, 400);
-
   useEffect(() => {
     fetchExpenses();
-  }, [month, year, currentPage, searchQuery, date, viewDeleted]);
+  }, [month, currentPage, searchQuery, fromDate, toDate, viewDeleted]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -221,26 +216,40 @@ const Expenses = () => {
             <div className="flex gap-4 min-w-max items-center">
               {!viewDeleted && (
                 <>
-                  {/* Date */}
+                  {/* From Date */}
                   <input
                     type="date"
-                    value={date}
+                    value={fromDate}
                     onChange={(e) => {
-                      setDate(e.target.value);
+                      setFromDate(e.target.value);
+                      setMonth(""); // disable month when using range
                       setCurrentPage(1);
                     }}
                     className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
                   />
 
-                  {/* Month */}
+                  {/* To Date */}
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => {
+                      setToDate(e.target.value);
+                      setMonth(""); // disable month when using range
+                      setCurrentPage(1);
+                    }}
+                    className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                  />
+
                   <select
                     value={month}
                     onChange={(e) => {
                       setMonth(e.target.value);
+                      setFromDate(""); // clear date range when using month filter
+                      setToDate("");
                       setCurrentPage(1);
-                      setDate("");
                     }}
                     className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300"
+                    disabled={fromDate || toDate}
                   >
                     <option value="">All Months</option>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -251,23 +260,6 @@ const Expenses = () => {
                       </option>
                     ))}
                   </select>
-
-                  {/* Year */}
-                  <div className="flex items-center border-2 border-gray-300 rounded-md overflow-hidden">
-                    <button
-                      onClick={() => debouncedYearChange(year - 1)}
-                      className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-                    >
-                      –
-                    </button>
-                    <div className="px-4 py-2 text-sm">{year}</div>
-                    <button
-                      onClick={() => debouncedYearChange(year + 1)}
-                      className="px-3 py-2 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200"
-                    >
-                      +
-                    </button>
-                  </div>
                 </>
               )}
 
@@ -697,8 +689,9 @@ const Expenses = () => {
         onClose={() => setExportModalOpen(false)}
         expenses={expenses}
         month={month}
-        year={year}
-        date={date}
+        year={new Date().getFullYear()}
+        fromDate={fromDate}
+        toDate={toDate}
       />
     </div>
   );

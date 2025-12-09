@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Podcasts from "./Podcasts";
 import PodcastComments from "../components/podcasts/PodcastComments";
-import PodcastReactionStats from "../components/podcasts/PodcastReactions";
+// import PodcastReactionStats from "../components/podcasts/PodcastReactions";
 import { usePermission } from "../context/PermissionContext";
+import PodcastCategory from "../components/podcasts/category/PodcastCategory";
 
 const PodcastPage = () => {
   const [activeTab, setActiveTab] = useState("podcast");
@@ -10,8 +11,13 @@ const PodcastPage = () => {
 
   const tabs = [
     { id: "podcast", label: "Podcasts", permission: "Podcast" },
+    {
+      id: "podcast-category",
+      label: "Podcasts Category",
+      permission: "Podcast",
+    },
     { id: "comment", label: "Comments", permission: "Podcast Comment" },
-    { id: "reaction", label: "Reactions", permission: "Podcast Reactions" },
+    // { id: "reaction", label: "Reactions", permission: "Podcast Reactions" },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -46,8 +52,9 @@ const PodcastPage = () => {
 
         <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
           {activeTab === "podcast" && <Podcasts />}
+          {activeTab === "podcast-category" && <PodcastCategory />}
           {activeTab === "comment" && <PodcastComments />}
-          {activeTab === "reaction" && <PodcastReactionStats />}
+          {/* {activeTab === "reaction" && <PodcastReactionStats />} */}
         </div>
       </div>
     </>

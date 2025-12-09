@@ -39,8 +39,15 @@ const VisitorsDashboard = () => {
     setLoading(true);
     try {
       const [year, month] = selectedMonth.split("-");
+      const monthIndex = parseInt(month) - 1;
       const startDate = `${year}-${month}-01`;
-      const endDate = new Date(year, month, 0).toISOString().split("T")[0];
+
+      const endDateObj = new Date(Date.UTC(year, monthIndex + 1, 1));
+      endDateObj.setUTCDate(0);
+
+      const endDate = `${year}-${month}-${String(
+        endDateObj.getUTCDate()
+      ).padStart(2, "0")}`;
 
       const res = await apiCall(
         `/visit/report?startDate=${startDate}&endDate=${endDate}`,
@@ -50,17 +57,22 @@ const VisitorsDashboard = () => {
       const backendData = res.daily || [];
       const countryStats = res.byCountry || [];
 
-      // ✅ Fill missing days with 0
-      const totalDays = new Date(year, month, 0).getDate();
-      const allDays = Array.from({ length: totalDays }, (_, i) => {
-        const day = i + 1;
-        const dateStr = `${year}-${month}-${String(day).padStart(2, "0")}`;
-        const found = backendData.find((d) => d.date.startsWith(dateStr));
-        return {
+      // ✅ Generate all days in global UTC
+      const totalDays = endDateObj.getUTCDate();
+      const allDays = [];
+
+      for (let d = 1; d <= totalDays; d++) {
+        const dateStr = new Date(Date.UTC(year, monthIndex, d))
+          .toISOString()
+          .split("T")[0]; // will always be UTC
+
+        const found = backendData.find((v) => v.date === dateStr);
+
+        allDays.push({
           date: dateStr,
-          total_visits: found ? parseInt(found.total_visits) : 0,
-        };
-      });
+          total_visits: found ? found.total_visits : 0,
+        });
+      }
 
       setData(allDays);
       setCountryData(countryStats);

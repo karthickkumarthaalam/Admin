@@ -3,7 +3,15 @@ import { useState } from "react";
 import { exportExpensePDF } from "../../../utils/exportExpensePdf";
 import { toast } from "react-toastify";
 
-const ExportModal = ({ isOpen, onClose, expenses, month, year, date }) => {
+const ExportModal = ({
+  isOpen,
+  onClose,
+  expenses,
+  month,
+  year,
+  fromDate,
+  toDate,
+}) => {
   const initialState = {
     submittedByName: "",
     submittedByEmail: "",
@@ -29,7 +37,8 @@ const ExportModal = ({ isOpen, onClose, expenses, month, year, date }) => {
       },
       month,
       year,
-      date,
+      fromDate,
+      toDate,
     });
     setForm(initialState);
     onClose();

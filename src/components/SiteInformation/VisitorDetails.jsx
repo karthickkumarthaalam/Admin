@@ -72,7 +72,9 @@ const VisitorDetails = () => {
                     <th className="py-3 px-4 border-b">Region</th>
                     <th className="py-3 px-4 border-b">City</th>
                     <th className="py-3 px-4 border-b">Page</th>
-                    <th className="py-3 px-4 border-b">Visited At</th>
+                    <th className="py-3 px-4 border-b">
+                      Visited At (Global Zone)
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -105,7 +107,8 @@ const VisitorDetails = () => {
                         <td className="py-3 px-4 border-b">{v.page}</td>
                         <td className="py-3 px-4 border-b text-slate-900">
                           {v.created_at
-                            ? new Date(v.created_at).toLocaleString("en-IN", {
+                            ? new Date(v.created_at).toLocaleString("en-GB", {
+                                timeZone: "UTC",
                                 day: "2-digit",
                                 month: "short",
                                 year: "numeric",

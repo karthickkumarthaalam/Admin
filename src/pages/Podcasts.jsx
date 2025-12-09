@@ -4,16 +4,19 @@ import {
   BadgePlus,
   Search,
   Loader2,
-  Edit2,
   Trash2,
-  ScanEye,
+  Edit,
+  Calendar,
+  Clock,
+  User2,
+  UserCircle,
 } from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-import AddPodcastModal from "../components/podcasts/AddPodcastModal";
-import ViewPodcastModal from "../components/podcasts/ViewPodcastModal";
+import AddPodcastModal from "../components/podcasts/addPodcast/AddPodcastModal";
 import { usePermission } from "../context/PermissionContext";
+import { useAuth } from "../context/AuthContext";
 
 const Podcasts = () => {
   const [showModal, setShowModal] = useState(false);
@@ -25,9 +28,9 @@ const Podcasts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [languageFilter, setLanguageFilter] = useState("");
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const { hasPermission } = usePermission();
+  const { user } = useAuth();
 
   const pageSize = 20;
 
@@ -78,22 +81,20 @@ const Podcasts = () => {
     }
   };
 
-  const handleStatusToggle = async (item) => {
+  const updateStatus = async (id, status) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this podcast?"
+        "Are you sure you want to update status of this podcasts?"
       )
     )
       return;
-    const newStatus = item.status === "active" ? "inactive" : "active";
     setLoading(true);
     try {
-      await apiCall(`/podcasts/status/${item.id}`, "PATCH", {
-        status: newStatus,
-      });
+      await apiCall(`/podcasts/status/${id}`, "PATCH", { status });
+      toast.success("Status updated successfully");
       fetchPodcasts();
     } catch (error) {
-      console.error("Failed to update status:", error);
+      toast.error("Failed to update status");
     } finally {
       setLoading(false);
     }
@@ -103,11 +104,6 @@ const Podcasts = () => {
     setEditPodcastId(null);
     setSelectedPodcast(null);
     setShowModal(true);
-  };
-
-  const handleViewPodcast = (item) => {
-    setIsViewModalOpen(true);
-    setSelectedPodcast(item);
   };
 
   const totalPages = Math.ceil(totalRecords / pageSize);
@@ -128,7 +124,7 @@ const Podcasts = () => {
             {hasPermission("Podcast", "create") && (
               <button
                 onClick={handleAddPodcast}
-                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
                 <span>Add Podcast</span>
@@ -168,85 +164,205 @@ const Podcasts = () => {
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
-            <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
-              <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+            <div className="overflow-x-auto mt-4 max-w-full border border-gray-200 rounded-xl shadow-sm bg-white">
+              <table className="w-full text-sm sm:text-base">
+                {/* TABLE HEAD */}
+                <thead className="bg-gray-800 text-white">
                   <tr className="text-left">
-                    <th className="py-3 px-4 borde-b">SI</th>
-                    <th className="py-3 px-4 borde-b">Title</th>
-                    <th className="py-3 px-4 borde-b whitespace-nowrap">
-                      Published By
+                    <th className="py-3 px-3 sm:px-4">SI</th>
+                    <th className="py-3 px-3 sm:px-4">Title</th>
+                    <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                      Contributors
                     </th>
-                    <th className="py-3 px-4 borde-b whitespace-nowrap">
-                      Content Creater
+                    <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                      Published
                     </th>
-                    <th className="py-3 px-4 borde-b whitespace-nowrap">
-                      Published Date
-                    </th>
-                    <th className="py-3 px-4 borde-b whitespace-nowrap">
-                      Audio Duration
-                    </th>
-                    <th className="py-3 px-4 borde-b">Status</th>
-                    <th className="py-3 px-4 borde-b">Actions</th>
+                    {user.role === "admin" && (
+                      <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                        Status
+                      </th>
+                    )}
+                    <th className="py-3 px-3 sm:px-4">Actions</th>
                   </tr>
                 </thead>
+
+                {/* TABLE BODY */}
                 <tbody>
-                  {podcasts.length === 0 ? (
+                  {loading ? (
+                    <tr>
+                      <td colSpan="6" className="text-center py-16">
+                        <Loader2 size={28} className="mx-auto animate-spin" />
+                        <p className="mt-2 text-gray-500 font-medium text-sm">
+                          Loading podcasts...
+                        </p>
+                      </td>
+                    </tr>
+                  ) : podcasts.length === 0 ? (
                     <tr>
                       <td
                         colSpan="6"
-                        className="py-6 px-4 border text-center text-gray-500 text-sm"
+                        className="text-center py-14 text-gray-500 italic text-sm"
                       >
-                        No podcasts found.
+                        No podcasts found
                       </td>
                     </tr>
                   ) : (
                     podcasts.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className="py-3 px-4 border-b">
+                      <tr
+                        key={item.id}
+                        className="hover:bg-gray-50 transition active:bg-gray-100"
+                      >
+                        {/* SI */}
+                        <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-3 px-4 border-b">{item.title}</td>
-                        <td className="py-3 px-4 border-b">{item.rjname}</td>
-                        <td className="py-3 px-4 border-b">{item.content}</td>
-                        <td className="py-3 px-4 border-b">
-                          {new Date(item.date).toLocaleDateString()}
+
+                        {/* TITLE + OPTIONAL CATEGORY */}
+                        <td className="py-3 px-3 sm:px-4 font-bold text-slate-700">
+                          {item.title}
+                          {item.category?.name && (
+                            <p className="text-xs text-gray-500 mt-0.5 font-medium">
+                              {item.category.name}
+                            </p>
+                          )}
                         </td>
-                        <td className="py-3 px-4 border-b">{item.duration}</td>
-                        <td className="py-3 px-4 border-b">
-                          <span
-                            onClick={() => handleStatusToggle(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
-                              item.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
-                            }`}
-                          >
-                            {item.status}
-                          </span>
+
+                        {/* CONTRIBUTORS */}
+                        <td className="py-3 px-3 sm:px-4 text-gray-600">
+                          <div className="space-y-1.5 text-xs sm:text-sm">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-gray-500">
+                                Published By:
+                              </span>
+                              <span className="text-indigo-600 font-bold">
+                                {item.rjname}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-gray-500">
+                                Content Creator:
+                              </span>
+                              <span className="text-indigo-600 font-bold">
+                                {item.content}
+                              </span>
+                            </div>
+                          </div>
                         </td>
+
+                        {/* PUBLISHED DETAILS */}
+                        <td className="py-3 px-3 sm:px-4">
+                          <div className="space-y-1.5 text-xs sm:text-sm text-gray-700 font-medium">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar size={13} />
+                              <span className="whitespace-nowrap">
+                                {new Date(item.date).toLocaleDateString(
+                                  "en-IN",
+                                  {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric",
+                                  }
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <Clock size={13} />
+                              <span>{item.duration} Min</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* ADMIN STATUS BOX */}
+                        {user.role === "admin" && (
+                          <td className="py-3 px-4 border-b">
+                            <div className="flex flex-col gap-2">
+                              {/* ✅ Status Pill Dropdown */}
+                              <select
+                                value={item.status}
+                                onChange={(e) =>
+                                  updateStatus(item.id, e.target.value)
+                                }
+                                className={`font-semibold px-2 py-0.5 rounded-full text-xs border transition-all focus:ring-2 ${
+                                  item.status === "approved"
+                                    ? "bg-green-100 text-green-800 border-green-200 focus:ring-green-300"
+                                    : item.status === "reviewing"
+                                    ? "bg-yellow-100 text-yellow-800 border-yellow-200 focus:ring-yellow-300"
+                                    : "bg-blue-100 text-blue-800 border-blue-200 focus:ring-blue-300"
+                                }`}
+                              >
+                                <option value="pending">Pending</option>
+                                <option value="reviewing">Reviewing</option>
+                                <option value="approved">Approved</option>
+                              </select>
+
+                              {/* ✅ Reviewer Label */}
+                              {item.status === "reviewing" && (
+                                <div className="px-2 py-1.5 rounded-lg bg-yellow-50/50 border border-yellow-200">
+                                  <p className="text-xs font-semibold text-yellow-700">
+                                    In Review by{" "}
+                                    <span className="text-yellow-900">
+                                      {item.status_updated_by || "Admin"}
+                                    </span>
+                                  </p>
+                                  {item.status_updated_at && (
+                                    <p className="text-[10px] text-yellow-900 font-medium mt-0.5">
+                                      {new Date(
+                                        item.status_updated_at
+                                      ).toLocaleString("en-IN", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        day: "2-digit",
+                                        month: "short",
+                                      })}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              {/* ✅ Approved Label */}
+                              {item.status === "approved" && (
+                                <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
+                                  <p className="text-xs font-semibold text-green-700">
+                                    Approved by{" "}
+                                    <span className="text-green-900">
+                                      {item.status_updated_by || "Admin"}
+                                    </span>
+                                  </p>
+                                  {item.status_updated_at && (
+                                    <p className="text-[10px] text-green-900 font-medium mt-0.5">
+                                      {new Date(
+                                        item.status_updated_at
+                                      ).toLocaleString("en-IN", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        day: "2-digit",
+                                        month: "short",
+                                      })}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        )}
+
                         <td className="py-3 px-4 border-b">
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewPodcast(item)}
-                              className="text-green-600 hover:text-green-800"
-                              title="View"
-                            >
-                              <ScanEye size={16} />
-                            </button>
+                          <div className="flex items-center gap-3">
                             {hasPermission("Podcast", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 p-2 bg-blue-50 hover:bg-blue-100 rounded-md hover:scale-105"
                                 title="Edit"
                               >
-                                <Edit2 size={16} />
+                                <Edit size={16} />
                               </button>
                             )}
                             {hasPermission("Podcast", "delete") && (
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 p-2 bg-red-50 hover:bg-red-100 rounded-md hover:scale-105"
                                 title="Delete"
                               >
                                 <Trash2 size={16} />
@@ -297,12 +413,6 @@ const Podcasts = () => {
             fetchPodcasts();
             setShowModal(false);
           }}
-        />
-
-        <ViewPodcastModal
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          podcastData={selectedPodcast}
         />
       </div>
     </div>

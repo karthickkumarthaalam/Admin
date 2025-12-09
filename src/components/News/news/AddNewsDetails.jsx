@@ -27,12 +27,13 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       title: "",
       subtitle: "",
       published_by: "",
+      rj_id: "",
       content_creator: "",
       content: "",
       country: "",
       state: "",
       city: "",
-      status: "",
+      // status: "",
       video_url: "",
       audio_url: "",
       published_date: "",
@@ -60,12 +61,13 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
         title: editNewsData.title || "",
         subtitle: editNewsData.subtitle || "",
         published_by: editNewsData.published_by || "",
+        rj_id: editNewsData.rj_id || "",
         content_creator: editNewsData.content_creator || "",
         content: editNewsData.content || "",
         country: editNewsData.country || "",
         state: editNewsData.state || "",
         city: editNewsData.city || "",
-        status: editNewsData.status || "",
+        // status: editNewsData.status || "",
         video_url: editNewsData.video_url || "",
         audio_url: editNewsData.audio_url || "",
         published_date: editNewsData.published_date || "",
@@ -187,20 +189,32 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
   const handleChange = useCallback(
     (e) => {
       const { name, value } = e.target;
-      setNews((prev) => {
-        const updated = { ...prev, [name]: value };
 
-        if (name === "category") fetchSubCategories(value);
+      setNews((prev) => {
+        let updated = { ...prev, [name]: value };
+
+        if (name === "category") {
+          fetchSubCategories(value);
+        }
+
         if (name === "country") {
           fetchStates(value);
-          return { ...updated, state: "", city: "" };
+          updated = { ...updated, state: "", city: "" };
         }
-        if (name === "state") fetchCities(updated.country, value);
+
+        if (name === "state") {
+          fetchCities(updated.country, value);
+        }
+
+        if (name === "published_by") {
+          const selectedUser = users.find((u) => u.name === value);
+          updated = { ...updated, rj_id: selectedUser?.id || "" };
+        }
 
         return updated;
       });
     },
-    [fetchSubCategories, fetchStates, fetchCities]
+    [fetchSubCategories, fetchStates, fetchCities, users]
   );
 
   const handleContentChange = useCallback((value) => {
@@ -323,13 +337,13 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             placeholder="Enter content creator name"
             icon={<User size={16} />}
           />
-          <SelectInput
+          {/* <SelectInput
             label="Status"
             name="status"
             value={news.status}
             onChange={handleChange}
             options={["Draft", "Published", "Archived"]}
-          />
+          /> */}
           <DateInput
             label="Published Date"
             name="published_date"

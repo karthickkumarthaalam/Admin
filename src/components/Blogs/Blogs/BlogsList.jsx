@@ -1,24 +1,23 @@
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { usePermission } from "../../../context/PermissionContext";
+import { useAuth } from "../../../context/AuthContext";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
-import BreadCrumb from "../../BreadCrum";
-import AddNewsModal from "./AddNewsModal";
 import {
   BadgePlus,
-  Search,
   Calendar,
-  MapPin,
-  User,
-  FileText,
   Edit,
-  Trash2,
+  FileText,
   Loader2,
+  Search,
+  Trash2,
+  User,
 } from "lucide-react";
-import { useAuth } from "../../../context/AuthContext";
+import AddBlogsModal from "./AddBlogsModal";
+import BreadCrumb from "../../BreadCrum";
 
-const NewsList = () => {
-  const [news, setNews] = useState([]);
+const BlogsList = () => {
+  const [blogs, setBlogs] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -26,10 +25,10 @@ const NewsList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [editNewsData, setEditNewsData] = useState(null);
+  const [editBlogsData, setEditBlogsData] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-  const [deletingId, setDeletingId] = useState(null);
+  const [deleteId, setDeleteId] = useState(null);
 
   const { hasPermission } = usePermission();
 
@@ -37,43 +36,41 @@ const NewsList = () => {
 
   const pageSize = 20;
 
-  // Memoized API call to prevent unnecessary recreations
-  const fetchNews = useCallback(async () => {
+  const fetchBlogs = useCallback(async () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/news?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
+        `/blogs?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
           statusFilter !== "all" ? statusFilter : ""
         }&category=${categoryFilter !== "all" ? categoryFilter : ""}`
       );
-      setNews(response.data || []);
-      setTotalRecords(response.pagination?.totalRecords || 0);
+      setBlogs(response.data);
+      setTotalRecords(response.pagination.totalRecords);
     } catch (error) {
-      toast.error("Failed to fetch News List");
-      setNews([]);
+      toast.error("Failed to fetch Blogs List");
+      setBlogs([]);
       setTotalRecords(0);
     } finally {
       setLoading(false);
     }
   }, [
     currentPage,
-    debouncedSearchQuery,
     statusFilter,
     categoryFilter,
+    debouncedSearchQuery,
     pageSize,
   ]);
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await apiCall("/news-category/list", "GET");
+      const res = await apiCall("/blogs-category/list", "GET");
       setCategories(res.data || []);
-    } catch {
-      toast.error("Failed to fetch categories");
+    } catch (error) {
+      toast.error("Failed to fetch category");
       setCategories([]);
     }
   }, []);
 
-  // Debounce search input
   useEffect(() => {
     const timerId = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
@@ -84,89 +81,82 @@ const NewsList = () => {
     };
   }, [searchQuery]);
 
-  // Fetch news when dependencies change
   useEffect(() => {
-    fetchNews();
-  }, [fetchNews]);
+    fetchBlogs();
+  }, [fetchBlogs]);
 
-  // Fetch categories only once on mount
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [debouncedSearchQuery, statusFilter, categoryFilter]);
 
-  // Memoized computed values
   const totalPages = useMemo(
     () => Math.ceil(totalRecords / pageSize),
     [totalRecords, pageSize]
   );
 
   const formatDate = useCallback((dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      });
-    } catch {
-      return "Invalid Date";
-    }
+    if (!dateString) return;
+
+    return new Date(dateString).toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   }, []);
 
   const handleDelete = useCallback(
     async (id) => {
-      if (window.confirm("Are you sure you want to delete this news?")) {
-        setDeletingId(id);
+      if (window.confirm("Are you sure you want to delete this blog ?")) {
+        setDeleteId(id);
         try {
-          await apiCall(`/news/${id}`, "DELETE");
-          toast.success("News deleted successfully");
-          fetchNews();
+          await apiCall(`/blogs/${id}`, "DELETE");
+          toast.success("Blog Deleted successfully");
+          fetchBlogs();
         } catch (error) {
-          toast.error("Failed to delete news");
+          toast.error("Failed to delete blog");
         } finally {
-          setDeletingId(null);
+          setDeleteId(null);
         }
       }
     },
-    [fetchNews]
+    [fetchBlogs]
   );
 
-  const updateNewsStatus = useCallback(
+  const updateBlogsStatus = useCallback(
     async (id, status) => {
       if (
-        window.confirm("Are you sure you want to update status of this news ?")
+        window.confirm("Are you sure you want to update status of this blog ?")
       ) {
         try {
-          await apiCall(`/news/status/${id}`, "PATCH", { status });
-          toast.success("News Status updated successfully");
-          fetchNews();
+          await apiCall(`/blogs/status/${id}`, "PATCH", { status });
+          toast.success("Status updated successfully");
+          fetchBlogs();
         } catch (error) {
           toast.error("Failed to update status");
         }
       }
     },
-    [fetchNews]
+    [fetchBlogs]
   );
 
   const handleEdit = useCallback((item) => {
-    setEditNewsData(item);
     setShowModal(true);
+    setEditBlogsData(item);
   }, []);
 
   const handleModalClose = useCallback(() => {
     setShowModal(false);
-    setEditNewsData(null);
+    setEditBlogsData(null);
   }, []);
 
   const handleModalSuccess = useCallback(() => {
-    fetchNews();
+    fetchBlogs();
     handleModalClose();
-  }, [fetchNews, handleModalClose]);
+  }, [fetchBlogs, handleModalClose]);
 
   const handleFilterChange = useCallback((filterType, value) => {
     if (filterType === "status") setStatusFilter(value);
@@ -177,20 +167,19 @@ const NewsList = () => {
     setSearchQuery(e.target.value);
   }, []);
 
-  // Memoized table headers to prevent re-renders
   const tableHeaders = useMemo(() => {
     const hasActions =
-      hasPermission("News", "update") || hasPermission("News", "delete");
+      hasPermission("Blogs", "update") || hasPermission("Blogs", "delete");
 
     return (
       <thead className="bg-gray-700 text-gray-100 border-b border-gray-200">
         <tr>
           <th className="px-6 py-3 text-left font-semibold">SI</th>
           <th className="px-6 py-3 text-left font-semibold whitespace-nowrap">
-            News Details
+            Blogs Details
           </th>
           <th className="px-6 py-3 text-left font-semibold whitespace-nowrap">
-            Category & Location
+            category
           </th>
           <th className="px-6 py-3 text-left font-semibold whitespace-nowrap">
             Publishing Info
@@ -206,19 +195,77 @@ const NewsList = () => {
     );
   }, [hasPermission]);
 
-  // Memoized news rows to prevent re-renders
-  const newsRows = useMemo(() => {
-    return news.map((item, index) => (
+  const loadingState = useMemo(
+    () => (
+      <tr>
+        <td
+          colSpan={
+            hasPermission("Blogs", "update") || hasPermission("Blogs", "delete")
+              ? 6
+              : 5
+          }
+          className="px-6 py-12 text-center"
+        >
+          <div className="flex flex-col items-center justify-center space-y-3">
+            <Loader2 size={32} className="animate-spin text-blue-600" />
+            <p className="text-gray-600 font-medium">Loading Blogs...</p>
+          </div>
+        </td>
+      </tr>
+    ),
+    [hasPermission]
+  );
+
+  const emptyState = useMemo(
+    () => (
+      <tr>
+        <td
+          colSpan={
+            hasPermission("Blogs", "update") || hasPermission("Blogs", "delete")
+              ? 6
+              : 5
+          }
+          className="px-6 py-16 text-center"
+        >
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <FileText size={48} className="text-gray-300" />
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                No blogs found
+              </h3>
+              <p className="text-gray-500 text-sm">
+                {searchQuery ||
+                statusFilter !== "all" ||
+                categoryFilter !== "all"
+                  ? "Try adjusting your filters or search terms"
+                  : "Get started by creating your first Blog article"}
+              </p>
+            </div>
+            {hasPermission("Blogs", "create") && !searchQuery && (
+              <button
+                onClick={() => setShowModal(true)}
+                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
+              >
+                Create First Blog
+              </button>
+            )}
+          </div>
+        </td>
+      </tr>
+    ),
+    [hasPermission, searchQuery, statusFilter, categoryFilter]
+  );
+
+  const blogRows = useMemo(() => {
+    return blogs.map((item, index) => (
       <tr
         key={item.id}
         className="group hover:bg-slate-50 transition-all duration-200 transform"
       >
-        {/* Serial Number */}
         <td className="px-6 py-4 text-sm text-gray-600 font-bold">
           {(currentPage - 1) * pageSize + index + 1}
         </td>
 
-        {/* News Details */}
         <td className="px-6 py-4">
           <div className="flex items-start space-x-4">
             <div className="flex-1 min-w-0">
@@ -239,32 +286,19 @@ const NewsList = () => {
           </div>
         </td>
 
-        {/* Category & Location */}
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex flex-col items-start gap-2">
-              <span className="text-sm font-semibold text-gray-900 bg-purple-100 px-2 py-1 rounded-lg">
+              <span className="text-sm font-semibold text-gray-900 bg-violet-100 px-2 py-1 rounded-lg">
                 {item.category || "Uncategorized"}
                 {item.subcategory && (
                   <span className="text-blue-700"> - {item.subcategory}</span>
                 )}
               </span>
             </div>
-
-            {(item.city || item.state || item.country) && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin size={14} />
-                <span>
-                  {[item.city, item.state, item.country]
-                    .filter(Boolean)
-                    .join(", ")}
-                </span>
-              </div>
-            )}
           </div>
         </td>
 
-        {/* Publishing Info */}
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
@@ -279,21 +313,15 @@ const NewsList = () => {
                 {formatDate(item.published_date)}
               </span>
             </div>
-            {item.content_creator && (
-              <div className="text-xs text-gray-500">
-                By: {item.content_creator}
-              </div>
-            )}
           </div>
         </td>
 
-        {/* Status */}
         {user.role === "admin" && (
           <td className="px-6 py-4 border-b">
             <div className="flex flex-col gap-2">
               <select
                 value={item.status}
-                onChange={(e) => updateNewsStatus(item.id, e.target.value)}
+                onChange={(e) => updateBlogsStatus(item.id, e.target.value)}
                 className={`font-semibold px-2 py-0.5 rounded-full text-xs border transition-all focus:ring-2 ${
                   item.status === "published"
                     ? "bg-green-100 text-green-800 border-green-200 focus:ring-green-300"
@@ -358,28 +386,27 @@ const NewsList = () => {
           </td>
         )}
 
-        {/* Actions */}
-        {(hasPermission("News", "update") ||
-          hasPermission("News", "delete")) && (
+        {(hasPermission("Blogs", "update") ||
+          hasPermission("Blogs", "delete")) && (
           <td className="px-6 py-4">
             <div className="flex items-center gap-2">
-              {hasPermission("News", "update") && (
+              {hasPermission("Blogs", "update") && (
                 <button
                   onClick={() => handleEdit(item)}
                   className="p-2 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-blue-50 hover:border-blue-300 text-blue-600 transition-all duration-200"
-                  title="Edit News"
+                  title="Edit Blogs"
                 >
                   <Edit size={16} />
                 </button>
               )}
-              {hasPermission("News", "delete") && (
+              {hasPermission("Blogs", "delete") && (
                 <button
                   onClick={() => handleDelete(item.id)}
-                  disabled={deletingId === item.id}
+                  disabled={deleteId === item.id}
                   className={`p-2 px-3 border rounded-lg shadow-sm text-red-600 border-gray-200 transition-all duration-200 flex items-center gap-2 justify-center hover:bg-red-50 hover:border-red-300`}
-                  title="Delete News"
+                  title="Delete Blogs"
                 >
-                  {deletingId === item.id ? (
+                  {deleteId === item.id ? (
                     <Loader2 size={16} className="animate-spin" />
                   ) : (
                     <>
@@ -394,84 +421,21 @@ const NewsList = () => {
       </tr>
     ));
   }, [
-    news,
+    blogs,
     currentPage,
     pageSize,
     formatDate,
     hasPermission,
     handleEdit,
     handleDelete,
-    deletingId,
+    deleteId,
   ]);
-
-  // Memoized loading state
-  const loadingState = useMemo(
-    () => (
-      <tr>
-        <td
-          colSpan={
-            hasPermission("News", "update") || hasPermission("News", "delete")
-              ? 6
-              : 5
-          }
-          className="px-6 py-12 text-center"
-        >
-          <div className="flex flex-col items-center justify-center space-y-3">
-            <Loader2 size={32} className="animate-spin text-blue-600" />
-            <p className="text-gray-600 font-medium">Loading news...</p>
-          </div>
-        </td>
-      </tr>
-    ),
-    [hasPermission]
-  );
-
-  // Memoized empty state
-  const emptyState = useMemo(
-    () => (
-      <tr>
-        <td
-          colSpan={
-            hasPermission("News", "update") || hasPermission("News", "delete")
-              ? 6
-              : 5
-          }
-          className="px-6 py-16 text-center"
-        >
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <FileText size={48} className="text-gray-300" />
-            <div className="text-center">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                No news found
-              </h3>
-              <p className="text-gray-500 text-sm">
-                {searchQuery ||
-                statusFilter !== "all" ||
-                categoryFilter !== "all"
-                  ? "Try adjusting your filters or search terms"
-                  : "Get started by creating your first news article"}
-              </p>
-            </div>
-            {hasPermission("News", "create") && !searchQuery && (
-              <button
-                onClick={() => setShowModal(true)}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium"
-              >
-                Create First News
-              </button>
-            )}
-          </div>
-        </td>
-      </tr>
-    ),
-    [hasPermission, searchQuery, statusFilter, categoryFilter]
-  );
 
   return (
     <div className="flex flex-col flex-1 ">
       <BreadCrumb
-        title={"News Management"}
-        paths={["News", "News Management"]}
+        title={"Blogs Management"}
+        paths={["Blogs", "Blogs Management"]}
       />
 
       <div className="mt-4 rounded-xl shadow-sm px-4 py-4 md:px-6 md:py-6 md:mx-4 bg-white flex-1">
@@ -479,16 +443,16 @@ const NewsList = () => {
         <div className="flex flex-row justify-between items-start gap-4 border-b border-gray-200 pb-3">
           <div>
             <h1 className="text-lg font-semibold text-gray-900">
-              News Management
+              Blogs Management
             </h1>
           </div>
-          {hasPermission("News", "create") && (
+          {hasPermission("Blogs", "create") && (
             <button
               onClick={() => setShowModal(true)}
               className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
             >
               <BadgePlus size={18} />
-              <span>Add New News</span>
+              <span>Add New Blogs</span>
             </button>
           )}
         </div>
@@ -504,7 +468,7 @@ const NewsList = () => {
               />
               <input
                 type="text"
-                placeholder="Search news by title or subtitle..."
+                placeholder="Search blogs by title or subtitle..."
                 value={searchQuery}
                 onChange={handleSearchChange}
                 className="w-full pl-10 pr-4 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none focus:border-transparent transition-all duration-200"
@@ -544,16 +508,16 @@ const NewsList = () => {
           </div>
         </div>
 
-        {/* News Table */}
+        {/* Blogs Table */}
         <div className="overflow-auto rounded-lg bg-white border border-gray-200">
           <table className="min-w-full">
             {tableHeaders}
             <tbody className="divide-y divide-gray-200">
               {loading
                 ? loadingState
-                : news.length === 0
+                : blogs.length === 0
                 ? emptyState
-                : newsRows}
+                : blogRows}
             </tbody>
           </table>
         </div>
@@ -587,14 +551,14 @@ const NewsList = () => {
           </div>
         )}
       </div>
-      <AddNewsModal
+      <AddBlogsModal
         isOpen={showModal}
         onClose={handleModalClose}
         onSuccess={handleModalSuccess}
-        editNewsData={editNewsData}
+        editBlogsData={editBlogsData}
       />
     </div>
   );
 };
 
-export default NewsList;
+export default BlogsList;

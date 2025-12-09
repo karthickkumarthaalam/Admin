@@ -18,6 +18,7 @@ import {
   ChartNetwork,
   Newspaper,
   PartyPopper,
+  Notebook,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 
@@ -58,16 +59,22 @@ const Sidebar = () => {
       permission: "Radio Station",
     },
     {
+      label: "Podcasts",
+      icon: Podcast,
+      path: "/podcasts",
+      permission: "Podcast",
+    },
+    {
       label: "News",
       icon: Newspaper,
       path: "/news",
       permission: "News",
     },
     {
-      label: "Podcasts",
-      icon: Podcast,
-      path: "/podcasts",
-      permission: "Podcast",
+      label: "Blogs",
+      icon: Notebook,
+      path: "/blogs",
+      permission: "Blogs",
     },
     {
       label: "Events",
