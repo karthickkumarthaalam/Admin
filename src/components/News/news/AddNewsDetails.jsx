@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import { useAuth } from "../../../context/AuthContext";
 
 /* -------------------------------------------------------------------------- */
 /*                                Main Component                              */
@@ -51,6 +52,8 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
   const [countries, setCountries] = useState([]);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+
+  const { user } = useAuth();
 
   // Populate form when editNewsData changes
   useEffect(() => {
@@ -92,14 +95,19 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       }
     } else {
       // Reset form for new news
-      setNews(initialState);
+      setNews(() => ({
+        ...initialState,
+        published_by:
+          user?.system_user_id && user?.name !== "Admin" ? user.name : "",
+        rj_id: String(user?.system_user_id) || "",
+      }));
       setCoverPreview("");
       setCoverImage(null);
       setSubCategories([]);
       setStates([]);
       setCities([]);
     }
-  }, [editNewsData, initialState]);
+  }, [editNewsData, initialState, user]);
 
   /* ------------------------------ Fetch Data ------------------------------ */
   useEffect(() => {
@@ -339,6 +347,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
               label: u.name,
             }))}
             icon={<User size={16} />}
+            disabled={!!user?.system_user_id}
           />
           <TextInput
             label="Content Creator"
@@ -590,7 +599,7 @@ const SelectInput = ({
         disabled={disabled}
         className={`w-full border border-gray-300 rounded-xl px-4 py-3.5 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white appearance-none ${
           icon ? "pl-11" : "pl-4"
-        } ${disabled ? "bg-gray-50 text-gray-500 cursor-not-allowed" : ""}`}
+        } ${disabled ? "bg-gray-100 text-gray-900 cursor-not-allowed" : ""}`}
       >
         <option value="">Select {label}</option>
         {options.map((opt) =>

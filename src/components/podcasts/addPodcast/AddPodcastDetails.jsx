@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
+import { useAuth } from "../../../context/AuthContext";
 
 /* -------------------------------------------------------------------------- */
 /*                              LANGUAGE OPTIONS                              */
@@ -45,6 +46,8 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
   const [coverImage, setCoverImage] = useState(null);
   const [tagInput, setTagInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { user } = useAuth();
 
   /* ---------------------------- Fetch RJ Users ---------------------------- */
   useEffect(() => {
@@ -89,7 +92,10 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
         setCoverPreview(editPodcastData.image_url);
       }
     } else {
-      setPodcast(initialState);
+      setPodcast(() => ({
+        ...initialState,
+        rj_id: user?.system_user_id ? String(user.system_user_id) : "",
+      }));
       setCoverPreview("");
       setCoverImage(null);
     }
@@ -226,6 +232,7 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
             }))}
             icon={<User size={16} />}
             required
+            disabled={!!user?.system_user_id}
           />
 
           <SelectInput
@@ -420,6 +427,7 @@ const SelectInput = ({
   options,
   icon,
   required,
+  disabled = false,
 }) => (
   <div className="flex flex-col">
     <label className="font-semibold text-sm mb-2">
@@ -434,9 +442,11 @@ const SelectInput = ({
         value={value}
         onChange={onChange}
         required={required}
-        className={`w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:outline-none focus:ring-indigo-600 ${
-          icon ? "pl-10" : ""
-        }`}
+        disabled={disabled}
+        className={`w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:outline-none focus:ring-indigo-600 
+          ${icon ? "pl-10" : ""}
+          ${disabled ? "bg-gray-100 cursor-not-allowed opacity-70" : ""}
+        `}
       >
         <option value="">Select {label}</option>
         {options.map((opt) => (

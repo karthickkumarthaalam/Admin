@@ -11,6 +11,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import ReactQuill from "react-quill-new";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
+import { useAuth } from "../../../context/AuthContext";
 
 const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
   const initialState = useMemo(
@@ -35,6 +36,8 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
   const [coverImage, setCoverImage] = useState(null);
   const [coverPreview, setCoverPreview] = useState("");
 
+  const { user } = useAuth();
+
   // ✅ FIXED LOOP: runs only when editBlogsData changes
   useEffect(() => {
     if (editBlogsData) {
@@ -57,7 +60,16 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
         fetchSubCategories(editBlogsData.category);
       }
     } else {
-      handleReset();
+      setBlog(() => ({
+        ...initialState,
+        published_by:
+          user?.system_user_id && user?.name !== "Admin" ? user.name : "",
+        publisher_id: user?.system_user_id ? user.system_user_id : "",
+      }));
+
+      setCoverPreview("");
+      setCoverImage(null);
+      setSubCategories([]);
     }
   }, [editBlogsData, initialState]);
 
@@ -242,6 +254,7 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
               label: u.name,
             }))}
             icon={<User size={16} />}
+            disabled={!!user?.system_user_id}
           />
 
           <DateInput
@@ -401,7 +414,7 @@ const SelectInput = ({
         disabled={disabled}
         className={`w-full border border-gray-300 rounded-xl px-4 py-3.5 outline-none bg-white appearance-none ${
           icon ? "pl-11" : "pl-4"
-        } ${disabled ? "bg-gray-50 text-gray-500 cursor-not-allowed" : ""}`}
+        } ${disabled ? "bg-gray-100 text-gray-900 cursor-not-allowed" : ""}`}
       >
         <option value="">Select {label}</option>
         {options.map((opt) => (
