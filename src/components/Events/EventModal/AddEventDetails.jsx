@@ -152,7 +152,17 @@ const AddEventDetails = ({ onSuccess, editEventData }) => {
         return;
       }
       setLogoImage(file);
-      setLogoPreview(URL.createObjectURL(file));
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setLogoPreview(reader.result);
+      };
+
+      reader.onerror = () => {
+        console.error("File reading failer");
+      };
+
+      reader.readAsDataURL(file);
     }
   }, []);
 

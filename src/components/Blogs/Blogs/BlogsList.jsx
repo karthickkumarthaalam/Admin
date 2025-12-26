@@ -40,7 +40,7 @@ const BlogsList = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/blogs?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
+        `/blogs/admin-list?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
           statusFilter !== "all" ? statusFilter : ""
         }&category=${categoryFilter !== "all" ? categoryFilter : ""}`
       );
@@ -184,9 +184,9 @@ const BlogsList = () => {
           <th className="px-6 py-3 text-left font-semibold whitespace-nowrap">
             Publishing Info
           </th>
-          {user.role === "admin" && (
-            <th className="px-6 py-3 text-left font-semibold">Status</th>
-          )}
+
+          <th className="px-6 py-3 text-left font-semibold">Status</th>
+
           {hasActions && (
             <th className="px-6 py-3 text-left font-semibold">Actions</th>
           )}
@@ -265,7 +265,6 @@ const BlogsList = () => {
         <td className="px-6 py-4 text-sm text-gray-600 font-bold">
           {(currentPage - 1) * pageSize + index + 1}
         </td>
-
         <td className="px-6 py-4">
           <div className="flex items-start space-x-4">
             <div className="flex-1 min-w-0">
@@ -285,7 +284,6 @@ const BlogsList = () => {
             </div>
           </div>
         </td>
-
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex flex-col items-start gap-2">
@@ -298,7 +296,6 @@ const BlogsList = () => {
             </div>
           </div>
         </td>
-
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
@@ -315,10 +312,9 @@ const BlogsList = () => {
             </div>
           </div>
         </td>
-
-        {user.role === "admin" && (
-          <td className="px-6 py-4 border-b">
-            <div className="flex flex-col gap-2">
+        <td className="px-6 py-4 border-b">
+          <div className="flex flex-col gap-2">
+            {user.role === "admin" && (
               <select
                 value={item.status}
                 onChange={(e) => updateBlogsStatus(item.id, e.target.value)}
@@ -334,58 +330,59 @@ const BlogsList = () => {
                 <option value="published">Published</option>
                 <option value="archived">Archived</option>
               </select>
+            )}
 
-              {item.status === "published" && (
-                <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                  <p className="text-xs font-semibold text-green-700">
-                    Approved by{" "}
-                    <span className="text-green-900">
-                      {item.status_updated_by || "Admin"}
-                    </span>
+            {item.status === "draft" && (
+              <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
+                <p className="text-xs font-semibold text-blue-500">
+                  Status Update <span className="text-blue-900 ">Pending</span>
+                </p>
+              </div>
+            )}
+
+            {item.status === "published" && (
+              <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
+                <p className="text-xs font-semibold text-green-700">
+                  Approved by{" "}
+                  <span className="text-green-900">
+                    {item.status_updated_by || "Admin"}
+                  </span>
+                </p>
+                {item.status_updated_at && (
+                  <p className="text-[10px] text-green-900 font-medium mt-0.5">
+                    {new Date(item.status_updated_at).toLocaleString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "short",
+                    })}
                   </p>
-                  {item.status_updated_at && (
-                    <p className="text-[10px] text-green-900 font-medium mt-0.5">
-                      {new Date(item.status_updated_at).toLocaleString(
-                        "en-IN",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}
-                    </p>
-                  )}{" "}
-                </div>
-              )}
+                )}{" "}
+              </div>
+            )}
 
-              {item.status === "archived" && (
-                <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
-                  <p className="text-xs font-semibold text-red-700">
-                    Archived by{" "}
-                    <span className="text-green-900">
-                      {item.status_updated_by || "Admin"}
-                    </span>
+            {item.status === "archived" && (
+              <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
+                <p className="text-xs font-semibold text-red-700">
+                  Archived by{" "}
+                  <span className="text-green-900">
+                    {item.status_updated_by || "Admin"}
+                  </span>
+                </p>
+                {item.status_updated_at && (
+                  <p className="text-[10px] text-red-900 font-medium mt-0.5">
+                    {new Date(item.status_updated_at).toLocaleString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "short",
+                    })}
                   </p>
-                  {item.status_updated_at && (
-                    <p className="text-[10px] text-red-900 font-medium mt-0.5">
-                      {new Date(item.status_updated_at).toLocaleString(
-                        "en-IN",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}
-                    </p>
-                  )}{" "}
-                </div>
-              )}
-            </div>
-          </td>
-        )}
-
+                )}{" "}
+              </div>
+            )}
+          </div>
+        </td>
         {(hasPermission("Blogs", "update") ||
           hasPermission("Blogs", "delete")) && (
           <td className="px-6 py-4">

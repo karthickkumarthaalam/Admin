@@ -62,7 +62,17 @@ const AddRadioStationModal = ({
     const file = e.target.files[0];
     if (file) {
       setForm((prev) => ({ ...prev, logo: file }));
-      setLogoPreview(URL.createObjectURL(file));
+      const fileReader = new FileReader();
+
+      fileReader.onload = () => {
+        setLogoPreview(fileReader.result);
+      };
+
+      fileReader.onerror = () => {
+        console.error("File reading failed");
+      };
+
+      fileReader.readAsDataURL(file);
       setErrors((prev) => ({ ...prev, logo: "" }));
     }
   };

@@ -51,14 +51,38 @@ const AddFestivalGifModal = ({ isOpen, onClose, existingGif, onSuccess }) => {
   };
 
   const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, [type]: file }));
-      const previewUrl = URL.createObjectURL(file);
-      if (type === "left_side_image") setLeftPreview(previewUrl);
-      if (type === "right_side_image") setRightPreview(previewUrl);
-      setErrors((prev) => ({ ...prev, [type]: "" }));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Optional: size check (e.g. 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Image size must be less than 5MB",
+      }));
+      return;
     }
+
+    // Store file in form state
+    setForm((prev) => ({ ...prev, [type]: file }));
+
+    // Read preview safely
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      if (type === "left_side_image") setLeftPreview(reader.result);
+
+      if (type === "right_side_image") setRightPreview(reader.result);
+    };
+
+    reader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    reader.readAsDataURL(file);
+
+    // Clear error
+    setErrors((prev) => ({ ...prev, [type]: "" }));
   };
 
   const handleStatusChange = (e) => {

@@ -167,7 +167,7 @@ const Podcasts = () => {
             <div className="overflow-x-auto mt-4 max-w-full border border-gray-200 rounded-xl shadow-sm bg-white">
               <table className="w-full text-sm sm:text-base">
                 {/* TABLE HEAD */}
-                <thead className="bg-gray-800 text-white">
+                <thead className="bg-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-3 sm:px-4">SI</th>
                     <th className="py-3 px-3 sm:px-4">Title</th>
@@ -177,11 +177,9 @@ const Podcasts = () => {
                     <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
                       Published
                     </th>
-                    {user.role === "admin" && (
-                      <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
-                        Status
-                      </th>
-                    )}
+                    <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                      Status
+                    </th>
                     <th className="py-3 px-3 sm:px-4">Actions</th>
                   </tr>
                 </thead>
@@ -216,7 +214,6 @@ const Podcasts = () => {
                         <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-
                         {/* TITLE + OPTIONAL CATEGORY */}
                         <td className="py-3 px-3 sm:px-4 font-bold text-slate-700">
                           {item.title}
@@ -226,7 +223,6 @@ const Podcasts = () => {
                             </p>
                           )}
                         </td>
-
                         {/* CONTRIBUTORS */}
                         <td className="py-3 px-3 sm:px-4 text-gray-600">
                           <div className="space-y-1.5 text-xs sm:text-sm">
@@ -249,7 +245,6 @@ const Podcasts = () => {
                             </div>
                           </div>
                         </td>
-
                         {/* PUBLISHED DETAILS */}
                         <td className="py-3 px-3 sm:px-4">
                           <div className="space-y-1.5 text-xs sm:text-sm text-gray-700 font-medium">
@@ -273,12 +268,11 @@ const Podcasts = () => {
                             </div>
                           </div>
                         </td>
-
                         {/* ADMIN STATUS BOX */}
-                        {user.role === "admin" && (
-                          <td className="py-3 px-4 border-b">
-                            <div className="flex flex-col gap-2">
-                              {/* ✅ Status Pill Dropdown */}
+                        <td className="py-3 px-4 border-b">
+                          <div className="flex flex-col gap-2">
+                            {/* ✅ Status Pill Dropdown */}
+                            {user.role === "admin" && (
                               <select
                                 value={item.status}
                                 onChange={(e) =>
@@ -296,57 +290,67 @@ const Podcasts = () => {
                                 <option value="reviewing">Reviewing</option>
                                 <option value="approved">Approved</option>
                               </select>
+                            )}
+                            {item.status === "pending" && (
+                              <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
+                                <p className="text-xs font-semibold text-blue-500">
+                                  Status Update{" "}
+                                  <span className="text-blue-900 ">
+                                    Pending
+                                  </span>
+                                </p>
+                              </div>
+                            )}
 
-                              {/* ✅ Reviewer Label */}
-                              {item.status === "reviewing" && (
-                                <div className="px-2 py-1.5 rounded-lg bg-yellow-50/50 border border-yellow-200">
-                                  <p className="text-xs font-semibold text-yellow-700">
-                                    In Review by{" "}
-                                    <span className="text-yellow-900">
-                                      {item.status_updated_by || "Admin"}
-                                    </span>
+                            {/* ✅ Reviewer Label */}
+                            {item.status === "reviewing" && (
+                              <div className="px-2 py-1.5 rounded-lg bg-yellow-50/50 border border-yellow-200">
+                                <p className="text-xs font-semibold text-yellow-700">
+                                  In Review by{" "}
+                                  <span className="text-yellow-900">
+                                    {item.status_updated_by || "Admin"}
+                                  </span>
+                                </p>
+                                {item.status_updated_at && (
+                                  <p className="text-[10px] text-yellow-900 font-medium mt-0.5">
+                                    {new Date(
+                                      item.status_updated_at
+                                    ).toLocaleString("en-IN", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      day: "2-digit",
+                                      month: "short",
+                                    })}
                                   </p>
-                                  {item.status_updated_at && (
-                                    <p className="text-[10px] text-yellow-900 font-medium mt-0.5">
-                                      {new Date(
-                                        item.status_updated_at
-                                      ).toLocaleString("en-IN", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        day: "2-digit",
-                                        month: "short",
-                                      })}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
+                                )}
+                              </div>
+                            )}
 
-                              {/* ✅ Approved Label */}
-                              {item.status === "approved" && (
-                                <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                                  <p className="text-xs font-semibold text-green-700">
-                                    Approved by{" "}
-                                    <span className="text-green-900">
-                                      {item.status_updated_by || "Admin"}
-                                    </span>
+                            {/* ✅ Approved Label */}
+                            {item.status === "approved" && (
+                              <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
+                                <p className="text-xs font-semibold text-green-700">
+                                  Approved by{" "}
+                                  <span className="text-green-900">
+                                    {item.status_updated_by || "Admin"}
+                                  </span>
+                                </p>
+                                {item.status_updated_at && (
+                                  <p className="text-[10px] text-green-900 font-medium mt-0.5">
+                                    {new Date(
+                                      item.status_updated_at
+                                    ).toLocaleString("en-IN", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                      day: "2-digit",
+                                      month: "short",
+                                    })}
                                   </p>
-                                  {item.status_updated_at && (
-                                    <p className="text-[10px] text-green-900 font-medium mt-0.5">
-                                      {new Date(
-                                        item.status_updated_at
-                                      ).toLocaleString("en-IN", {
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                        day: "2-digit",
-                                        month: "short",
-                                      })}
-                                    </p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        )}
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
 
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-3">
@@ -409,6 +413,7 @@ const Podcasts = () => {
           onClose={() => setShowModal(false)}
           editPodcastId={editPodcastId}
           editPodcastData={selectedPodcast}
+          setEditPodcastData={setSelectedPodcast}
           onSuccess={() => {
             fetchPodcasts();
             setShowModal(false);

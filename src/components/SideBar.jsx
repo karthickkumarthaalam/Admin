@@ -56,7 +56,12 @@ const Sidebar = () => {
       label: "Programs",
       icon: Activity,
       path: "/programs",
-      permission: "Radio Station",
+      permission: [
+        "Radio Station",
+        "Program Category",
+        "Radio Programs",
+        "Audit Logs",
+      ],
     },
     {
       label: "Podcasts",

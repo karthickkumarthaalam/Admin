@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { apiCall } from "../../../utils/apiCall";
-import { toast } from "react-toastify";
+import { MessageCircleQuestion, Radio, RadioTower, X } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import AddRadioProgramDetails from "./AddRadioProgramDetails";
+import ProgramQuestionManagement from "./ProgramQuestionManagement";
 
 const AddRadioProgramModal = ({
   isOpen,
@@ -9,299 +9,126 @@ const AddRadioProgramModal = ({
   onSuccess,
   editProgramData,
 }) => {
-  const [form, setForm] = useState(initialFormState());
-  const [errors, setErrors] = useState({});
-  const [programCategories, setProgramCategories] = useState([]);
-  const [radioStations, setRadioStations] = useState([]);
-  const [rjUsers, setRjUsers] = useState([]);
-
-  function initialFormState() {
-    return {
-      program_category_id: "",
-      rj_id: "",
-      country: "",
-      radio_station_id: "",
-      broadcast_days: "",
-      status: "active",
-      show_host_name: true,
-      show_program_name: true,
-      show_timing: true,
-      show_host_profile: true,
-    };
-  }
+  const [activeTab, setActiveTab] = useState("program-details");
 
   useEffect(() => {
     if (isOpen) {
-      fetchDropdownData();
-      editProgramData ? populateForm(editProgramData) : resetForm();
+      setActiveTab("program-details");
     }
   }, [isOpen, editProgramData]);
 
-  const fetchDropdownData = async () => {
-    try {
-      const [categories, stations, users] = await Promise.all([
-        apiCall("/program-category?limit=100&status=active", "GET"),
-        apiCall("/radio-station?limit=100&status=active", "GET"),
-        apiCall("/system-user?limit=100&status=active", "GET"),
-      ]);
-      setProgramCategories(categories.data);
-      setRadioStations(stations.data);
-      setRjUsers(users.data);
-    } catch (err) {
-      toast.error("Failed to fetch dropdown data.");
-    }
-  };
-
-  const resetForm = () => {
-    setForm(initialFormState());
-    setErrors({});
-  };
-
-  const populateForm = (data) => {
-    setForm({
-      program_category_id: data.program_category_id || "",
-      rj_id: data.rj_id || "",
-      country: data.country || "",
-      radio_station_id: data.radio_station_id || "",
-      broadcast_days: data.broadcast_days || "",
-      status: data.status || "active",
-      show_host_name: data.show_host_name ?? true,
-      show_program_name: data.show_program_name ?? true,
-      show_timing: data.show_timing ?? true,
-      show_host_profile: data.show_host_profile ?? true,
-    });
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-    try {
-      if (editProgramData) {
-        await apiCall(`/radio-program/${editProgramData.id}`, "PATCH", form);
-        toast.success("Radio program updated successfully!");
-      } else {
-        await apiCall("/radio-program", "POST", form);
-        toast.success("Radio program created successfully!");
+  const handleBackdropClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget) {
+        onClose();
       }
-      onSuccess();
-      onClose();
-    } catch (error) {
-      toast.error("Failed to save radio program.");
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!form.program_category_id)
-      newErrors.program_category_id = "Program category is required.";
-    if (!form.rj_id) newErrors.rj_id = "RJ is required.";
-    if (!form.radio_station_id)
-      newErrors.radio_station_id = "Radio station is required.";
-    if (!form.broadcast_days)
-      newErrors.broadcast_days = "Select at least one broadcast day.";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleDayToggle = (day) => {
-    const selectedDays = form.broadcast_days
-      ? form.broadcast_days.split(",")
-      : [];
-    let updatedDays = [...selectedDays];
-    if (updatedDays.includes(day)) {
-      updatedDays = updatedDays.filter((d) => d !== day);
-    } else {
-      updatedDays.push(day);
-    }
-    setForm((prev) => ({ ...prev, broadcast_days: updatedDays.join(",") }));
-    setErrors((prev) => ({ ...prev, broadcast_days: "" }));
-  };
+    },
+    [onClose]
+  );
 
   if (!isOpen) return null;
 
+  const tabs = [
+    {
+      id: "program-details",
+      label: "Program Details",
+      icon: <Radio size={18} />,
+      component: (
+        <AddRadioProgramDetails
+          onSuccess={onSuccess}
+          editProgramData={editProgramData}
+        />
+      ),
+    },
+    {
+      id: "program-questions",
+      label: "Program Questions",
+      icon: <MessageCircleQuestion size={18} />,
+      component: (
+        <ProgramQuestionManagement radioProgramId={editProgramData?.id} />
+      ),
+    },
+  ];
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl w-full max-w-3xl p-6 relative overflow-auto max-h-[95vh]">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-gray-500 hover:text-gray-700"
-        >
-          <X size={24} />
-        </button>
-
-        <h2 className="text-2xl font-semibold text-red-600 mb-6">
-          {editProgramData ? "Edit Radio Program" : "Add Radio Program"}
-        </h2>
-
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {renderSelectInput(
-            "Program Category",
-            "program_category_id",
-            form.program_category_id,
-            handleChange,
-            programCategories.map((c) => ({
-              label: c.category,
-              value: c.id,
-            })),
-            errors.program_category_id
-          )}
-
-          {renderSelectInput(
-            "RJ / Host",
-            "rj_id",
-            form.rj_id,
-            handleChange,
-            rjUsers.map((rj) => ({ label: rj.name, value: rj.id })),
-            errors.rj_id
-          )}
-
-          {renderSelectInput(
-            "Radio Station",
-            "radio_station_id",
-            form.radio_station_id,
-            handleChange,
-            radioStations.map((s) => ({ label: s.station_name, value: s.id })),
-            errors.radio_station_id
-          )}
-
-          {renderSelectInput("Country", "country", form.country, handleChange, [
-            {
-              label: "Switzerland",
-              value: "switzerland",
-            },
-          ])}
-        </div>
-
-        {/* Broadcast Days */}
-        <div className="mt-6">{renderBroadcastDays()}</div>
-
-        {/* Settings Checkboxes */}
-        {editProgramData && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 border-t pt-4">
-            <h3 className="col-span-full font-medium text-base text-gray-700 mb-2">
-              Program Display Settings
-            </h3>
-            {renderBooleanCheckbox(
-              "Show Host Name",
-              "show_host_name",
-              form.show_host_name
-            )}
-            {renderBooleanCheckbox(
-              "Show Program Name",
-              "show_program_name",
-              form.show_program_name
-            )}
-            {renderBooleanCheckbox(
-              "Show Timing",
-              "show_timing",
-              form.show_timing
-            )}
-            {renderBooleanCheckbox(
-              "Show Host Profile",
-              "show_host_profile",
-              form.show_host_profile
-            )}
+    <div
+      onClick={handleBackdropClick}
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] backdrop-blur-md transition-all duration-300"
+    >
+      <div className="bg-white rounded-xl shadow-xl w-full h-full overflow-hidden flex flex-col transform transition-all duraiton-300 scale-100">
+        <div className="flex justify-between items-center border-b border-gray-200 bg-gradient-r from-gray-50 to-white px-6 py-3">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-blue-100 rounded-xl">
+              <RadioTower size={20} className="text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-xl font--bold text-gray-900">
+                {editProgramData ? "Edit Program" : "Create New Program"}
+              </h2>
+            </div>
           </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex justify-end gap-4 mt-8">
           <button
             onClick={onClose}
-            className="px-5 py-2 text-sm rounded border border-gray-300 hover:bg-gray-100"
+            className="p-2 hover:bg-gray-100 rounded-xl transition-all duration-200 group"
+            aria-label="Close modal"
           >
-            Cancel
+            <X
+              size={24}
+              className="text-gray-500 group-hover:text-red-500 trasition-all "
+            />
           </button>
-          <button
-            onClick={handleSubmit}
-            className="px-5 py-2 text-sm rounded bg-red-500 text-white hover:bg-red-600"
-          >
-            {editProgramData ? "Update" : "Save"}
-          </button>
+        </div>
+
+        <div className="flex border-b border-gray-200 bg-white px-8">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-3 px-6 py-4 font-semibold text-sm transition-all duration-300 relative group ${
+                activeTab === tab.id
+                  ? "text-blue-600"
+                  : "text-gray-500 hover:text-blue-500"
+              }`}
+            >
+              <div
+                className={`transition-colors duration-300 ${
+                  activeTab === tab.id
+                    ? "text-blue-600"
+                    : "text-gray-400 group-hover:text-blue-500"
+                }`}
+              >
+                {tab.icon}
+              </div>
+              {tab.label}
+
+              {/* Active indicator */}
+              <div
+                className={`absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transition-all duration-300 ${
+                  activeTab === tab.id ? "scale-100" : "scale-0"
+                }`}
+              />
+
+              {/* Hover effect */}
+              <div
+                className={`absolute bottom-0 left-0 w-full h-0.5 bg-blue-200 transition-all duration-300 ${
+                  activeTab === tab.id
+                    ? "scale-0"
+                    : "scale-0 group-hover:scale-100"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 bg-slate-100">
+          <div className="p-2 md:p-8">
+            {tabs.find((tab) => tab.id === activeTab)?.component}
+          </div>
         </div>
       </div>
     </div>
   );
-
-  // Helper Render Functions
-
-  function renderSelectInput(label, name, value, onChange, options, error) {
-    return (
-      <div className="flex flex-col">
-        <label className="font-semibold mb-1 text-sm">{label}</label>
-        <select
-          name={name}
-          value={value}
-          onChange={onChange}
-          className="border rounded px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
-        >
-          <option value="">Select {label}</option>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-        {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-      </div>
-    );
-  }
-
-  function renderBroadcastDays() {
-    const days = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
-    const selectedDays = form.broadcast_days
-      ? form.broadcast_days.split(",")
-      : [];
-
-    return (
-      <div className="flex flex-col">
-        <label className="font-semibold mb-1 text-sm">Broadcast Days</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
-          {days.map((day) => (
-            <label key={day} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                value={day}
-                checked={selectedDays.includes(day)}
-                onChange={() => handleDayToggle(day)}
-              />
-              {day}
-            </label>
-          ))}
-        </div>
-        {errors.broadcast_days && (
-          <p className="text-xs text-red-500 mt-1">{errors.broadcast_days}</p>
-        )}
-      </div>
-    );
-  }
-
-  function renderBooleanCheckbox(label, name, value) {
-    return (
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={value}
-          onChange={() => setForm((prev) => ({ ...prev, [name]: !prev[name] }))}
-        />
-        {label}
-      </label>
-    );
-  }
 };
 
 export default AddRadioProgramModal;

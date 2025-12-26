@@ -60,14 +60,41 @@ const AddPopupBannerModal = ({
   };
 
   const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, [type]: file }));
-      const previewUrl = URL.createObjectURL(file);
-      if (type === "website_image") setWebsitePreview(previewUrl);
-      if (type === "mobile_image") setMobilePreview(previewUrl);
-      setErrors((prev) => ({ ...prev, [type]: "" }));
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startswith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Please upload a valid image file",
+      }));
+      return;
     }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Image Size must be less than 15MB",
+      }));
+      return;
+    }
+
+    setForm((prev) => ({ ...prev, [type]: file }));
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (type === "website_image") setWebsitePreview(reader.result);
+      if (type === "mobile_image") setMobilePreview(reader.result);
+    };
+
+    reader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    reader.readAsDataURL(file);
+
+    setErrors((prev) => ({ ...prev, [type]: "" }));
   };
 
   const handleStatusChange = (e) => {

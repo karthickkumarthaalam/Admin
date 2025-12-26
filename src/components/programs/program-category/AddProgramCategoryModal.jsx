@@ -61,7 +61,17 @@ const AddProgramCategoryModal = ({
     const file = e.target.files[0];
     if (file) {
       setForm((prev) => ({ ...prev, image_url: file }));
-      setImagePreview(URL.createObjectURL(file));
+      const fileReader = new FileReader();
+
+      fileReader.onload = () => {
+        setImagePreview(fileReader.result);
+      };
+
+      fileReader.onerror = () => {
+        console.error("File reading failed");
+      };
+
+      fileReader.readAsDataURL(file);
       setErrors((prev) => ({ ...prev, image_url: "" }));
     }
   };

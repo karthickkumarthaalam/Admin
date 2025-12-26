@@ -57,23 +57,14 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={user ? <Navigate to="/dashboard" /> : <LoginPage />}
-      />
+      <Route path="/" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
       <Route element={user ? <AuthenticatedLayout /> : <Navigate to="/" />}>
         <Route
           path="/dashboard"
-          element={
-            hasPermission("Dashboard", "read") ? (
-              <Dashboard />
-            ) : (
-              <Navigate to="/accounts" />
-            )
-          }
+          element={hasPermission("Dashboard", "read") && <Dashboard />}
         />
         <Route
           path="/users"
@@ -175,6 +166,8 @@ function AppRoutes() {
         <Route
           path="/programs"
           element={
+            hasPermission("Program Category", "read") ||
+            hasPermission("Radio Programs", "read") ||
             hasPermission("Radio Station", "read") ? (
               <ProgramsPage />
             ) : (
@@ -216,8 +209,8 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <PermissionProvider>
-        <BrowserRouter basename="/A8J3K9Z5QW">
+      <BrowserRouter basename="/A8J3K9Z5QW">
+        <PermissionProvider>
           <ToastContainer
             position="top-center"
             autoClose={3000}
@@ -237,8 +230,8 @@ function App() {
           />
 
           <AppRoutes />
-        </BrowserRouter>
-      </PermissionProvider>
+        </PermissionProvider>
+      </BrowserRouter>
     </AuthProvider>
   );
 }

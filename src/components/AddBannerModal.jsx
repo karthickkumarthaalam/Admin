@@ -63,14 +63,46 @@ const AddBannerModal = ({ isOpen, onClose, editBannerData, onSuccess }) => {
   };
 
   const handleFileChange = (e, type) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, [type]: file }));
-      const previewUrl = URL.createObjectURL(file);
-      if (type === "website_image") setWebsitePreview(previewUrl);
-      if (type === "mobile_image") setMobilePreview(previewUrl);
-      setErrors((prev) => ({ ...prev, [type]: "" }));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate image type
+    if (!file.type.startsWith("image/")) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Please upload a valid image file",
+      }));
+      return;
     }
+
+    // Optional: size check (e.g. 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Image size must be less than 5MB",
+      }));
+      return;
+    }
+
+    // Store file in form state
+    setForm((prev) => ({ ...prev, [type]: file }));
+
+    // Read preview safely
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      if (type === "website_image") setWebsitePreview(reader.result);
+      if (type === "mobile_image") setMobilePreview(reader.result);
+    };
+
+    reader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    reader.readAsDataURL(file);
+
+    // Clear error
+    setErrors((prev) => ({ ...prev, [type]: "" }));
   };
 
   const handleCheckboxChange = (e) => {

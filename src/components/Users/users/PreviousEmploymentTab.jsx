@@ -12,7 +12,7 @@ import {
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
-const PreviousEmploymentTab = ({ userId }) => {
+const PreviousEmploymentTab = ({ userId, idType = "system_user" }) => {
   const [employments, setEmployments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -40,8 +40,9 @@ const PreviousEmploymentTab = ({ userId }) => {
 
   const fetchEmployments = async () => {
     try {
+      const idField = idType === "user" ? "user_id" : "system_user_id";
       const res = await apiCall(
-        `/previous-employment?system_user_id=${userId}`,
+        `/previous-employment?${idField}=${userId}`,
         "GET"
       );
       setEmployments(res.data || []);
@@ -84,12 +85,12 @@ const PreviousEmploymentTab = ({ userId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-
+    const idField = idType === "user" ? "user_id" : "system_user_id";
     setLoading(true);
     try {
       const payload = {
         ...form,
-        system_user_id: userId,
+        [idField]: userId,
       };
 
       if (editingId) {

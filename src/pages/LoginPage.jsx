@@ -46,7 +46,41 @@ const LoginPage = () => {
       }));
 
       sessionStorage.setItem("permissions", JSON.stringify(cleanedPermissions));
-      navigate("/dashboard");
+
+      const routeMap = {
+        Dashboard: "/dashboard",
+        User: "/users",
+        "Site Information": "/site-information",
+        Banner: "/banner",
+        "Radio Station": "/programs",
+        Podcast: "/podcasts",
+        News: "/news",
+        Blogs: "/blogs",
+        Events: "/events",
+        Package: "/packages",
+        Members: "/members",
+        Subscriber: "/members",
+        Transaction: "/members",
+        Expenses: "/accounts",
+        Budget: "/accounts",
+        Currency: "/accounts",
+        "Audit Bills": "/accounts",
+        Agreements: "/agreements",
+        Enquiry: "/enquiry",
+      };
+
+      const getFirstRouteFromPermissions = (perms) => {
+        for (const p of perms) {
+          if (p.access_type.includes("read") && routeMap[p.module_name]) {
+            return routeMap[p.module_name];
+          }
+        }
+        return "/dashboard";
+      };
+
+      const firstRoute = getFirstRouteFromPermissions(cleanedPermissions);
+      navigate(firstRoute);
+
       toast.success("Login successful!");
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");

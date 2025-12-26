@@ -22,7 +22,7 @@ const LANGUAGE_OPTIONS = ["English", "Tamil", "German", "French"];
 /* -------------------------------------------------------------------------- */
 /*                             AddPodcastDetails UI                           */
 /* -------------------------------------------------------------------------- */
-const AddPodcastDetails = ({ onSuccess, editPodcastData }) => {
+const AddPodcastDetails = ({ onNext, editPodcastData }) => {
   const initialState = useMemo(
     () => ({
       title: "",
@@ -115,7 +115,18 @@ const AddPodcastDetails = ({ onSuccess, editPodcastData }) => {
     }
 
     setCoverImage(file);
-    setCoverPreview(URL.createObjectURL(file));
+
+    const fileReader = new FileReader();
+
+    fileReader.onload = () => {
+      setCoverPreview(fileReader.result);
+    };
+
+    fileReader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    fileReader.readAsDataURL(file);
   };
 
   const toggleLanguage = (lang) => {
@@ -175,7 +186,7 @@ const AddPodcastDetails = ({ onSuccess, editPodcastData }) => {
         toast.success("Podcast created!");
       }
 
-      onSuccess?.();
+      onNext?.();
     } catch {
       toast.error("Failed to save podcast");
     } finally {
@@ -217,12 +228,15 @@ const AddPodcastDetails = ({ onSuccess, editPodcastData }) => {
             required
           />
 
-          <TextInput
+          <SelectInput
             label="Content Creator"
             name="content"
             value={podcast.content}
             onChange={handleChange}
-            placeholder="Enter creator name"
+            options={systemUsers.map((u) => ({
+              value: u.name,
+              label: u.name,
+            }))}
             icon={<User size={16} />}
           />
 
@@ -339,8 +353,8 @@ const AddPodcastDetails = ({ onSuccess, editPodcastData }) => {
           {loading
             ? "Saving..."
             : editPodcastData
-            ? "Update Podcast"
-            : "Save Podcast"}
+            ? "Update and Next"
+            : "Save and Next"}
         </button>
       </div>
     </form>

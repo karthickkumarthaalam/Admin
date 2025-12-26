@@ -3,7 +3,13 @@ import { X, Music, Image as ImageIcon } from "lucide-react";
 import AddPodcastDetails from "./AddPodcastDetails";
 import AddPodcastMedia from "./AddPodcastMedia";
 
-const AddPodcastModal = ({ isOpen, onClose, onSuccess, editPodcastData }) => {
+const AddPodcastModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  editPodcastData,
+  setEditPodcastData,
+}) => {
   const [activeTab, setActiveTab] = useState("podcast-details");
 
   // Reset tab when opening modal or switching between edit/create
@@ -11,7 +17,7 @@ const AddPodcastModal = ({ isOpen, onClose, onSuccess, editPodcastData }) => {
     if (isOpen) {
       setActiveTab("podcast-details");
     }
-  }, [isOpen, editPodcastData]);
+  }, [isOpen]);
 
   // Close modal on backdrop click
   const handleBackdropClick = useCallback(
@@ -23,6 +29,10 @@ const AddPodcastModal = ({ isOpen, onClose, onSuccess, editPodcastData }) => {
     [onClose]
   );
 
+  const handleDetailsSuccess = useCallback(() => {
+    setActiveTab("podcast-media");
+  }, []);
+
   if (!isOpen) return null;
 
   const tabs = [
@@ -32,7 +42,7 @@ const AddPodcastModal = ({ isOpen, onClose, onSuccess, editPodcastData }) => {
       icon: <Music size={18} />,
       component: (
         <AddPodcastDetails
-          onSuccess={onSuccess}
+          onNext={handleDetailsSuccess}
           editPodcastData={editPodcastData}
         />
       ),
@@ -44,6 +54,7 @@ const AddPodcastModal = ({ isOpen, onClose, onSuccess, editPodcastData }) => {
       component: (
         <AddPodcastMedia
           editPodcastData={editPodcastData}
+          setEditPodcastData={setEditPodcastData}
           onSuccess={onSuccess}
         />
       ),

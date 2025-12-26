@@ -235,7 +235,18 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       }
 
       setCoverImage(file);
-      setCoverPreview(URL.createObjectURL(file));
+
+      const fileReader = new FileReader();
+
+      fileReader.onload = () => {
+        setCoverPreview(fileReader.result);
+      };
+
+      fileReader.onerror = () => {
+        console.error("File reading failed");
+      };
+
+      fileReader.readAsDataURL(file);
     }
   }, []);
 

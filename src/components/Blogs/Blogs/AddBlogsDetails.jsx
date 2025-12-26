@@ -145,7 +145,17 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
     }
 
     setCoverImage(file);
-    setCoverPreview(URL.createObjectURL(file));
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCoverPreview(reader.result);
+    };
+
+    reader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    reader.readAsDataURL(file);
   }, []);
 
   const handleSubmit = async (e) => {

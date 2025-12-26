@@ -6,14 +6,17 @@ import {
   Edit2,
   Trash2,
   ScanEye,
+  Radio,
+  Clock,
+  Edit,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
 import BreadCrumb from "../../../components/BreadCrum";
 import AddRadioProgramModal from "./AddRadioProgramModal";
-import ViewRadioProgramModal from "./ViewRadioProgramModal";
 import { usePermission } from "../../../context/PermissionContext";
+import { useAuth } from "../../../context/AuthContext";
 
 const RadioPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -24,10 +27,9 @@ const RadioPrograms = () => {
   const [showModal, setShowModal] = useState(false);
   const [editProgramId, setEditProgramId] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
-  const [programId, setProgramId] = useState(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const { hasPermission } = usePermission();
+  const { user } = useAuth();
 
   const pageSize = 20;
 
@@ -104,11 +106,6 @@ const RadioPrograms = () => {
     }
   };
 
-  const handleViewProgram = (item) => {
-    setProgramId(item.id);
-    setIsViewModalOpen(true);
-  };
-
   const totalPages = Math.ceil(totalRecords / pageSize);
 
   return (
@@ -127,7 +124,7 @@ const RadioPrograms = () => {
             {hasPermission("Radio Programs", "create") && (
               <button
                 onClick={handleAddProgram}
-                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
                 <span>Add Program</span>
@@ -157,21 +154,14 @@ const RadioPrograms = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-4 border-b">SI</th>
+                    <th className="py-3 px-4 border-b">Banner</th>
                     <th className="py-3 px-4 border-b whitespace-nowrap">
                       Program Category
                     </th>
-                    <th className="py-3 px-4 border-b whitespace-nowrap">
-                      Station Name
-                    </th>
-                    <th className="py-3 px-4 border-b whitespace-nowrap">
-                      Start Time
-                    </th>
-                    <th className="py-3 px-4 border-b whitespace-nowrap">
-                      End Time
-                    </th>
+                    <th className="py-3 px-4 border-b text-center">Timmings</th>
                     <th className="py-3 px-4 border-b">Host</th>
                     <th className="py-3 px-4 border-b">Status</th>
                     <th className="py-3 px-4 border-b">Actions</th>
@@ -190,31 +180,62 @@ const RadioPrograms = () => {
                   ) : (
                     programs.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-3 px-4 border-b">
+                        <td className="py-4 px-4 border-b font-bold">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-3 px-4 border-b">
-                          {item.program_category?.category}
+                          <img
+                            src={item.program_category?.image_url}
+                            alt={item.program_category?.category}
+                            className="w-32 h-auto rounded"
+                          />
+                        </td>
+                        <td className="py-4 px-4 border-b">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <div className="p-2 bg-blue-100 rounded-lg">
+                                <Radio size={18} className="text-blue-600" />
+                              </div>
+
+                              <p className="text-blue-700 font-semibold">
+                                {item.radio_station?.station_name}
+                              </p>
+                            </div>
+                            <h4 className="text-base font-semibold text-gray-700">
+                              {item.program_category?.category}
+                            </h4>
+                          </div>
+                        </td>
+
+                        <td className="py-3 px-4 border-b">
+                          <div className="flex items-center justify-center gap-2">
+                            <div className="p-1.5 bg-green-100 rounded-lg">
+                              <Clock size={16} className="text-green-700" />
+                            </div>
+                            <p className="text-green-800 text-sm font-semibold">
+                              {item.program_category?.start_time} -{" "}
+                              {item.program_category?.end_time}
+                            </p>
+                          </div>
                         </td>
                         <td className="py-3 px-4 border-b">
-                          {item.radio_station?.station_name}
-                        </td>
-                        <td className="py-3 px-4 border-b">
-                          {item.program_category?.start_time}
-                        </td>
-                        <td className="py-3 px-4 border-b">
-                          {item.program_category?.end_time}
-                        </td>
-                        <td className="py-3 px-4 border-b">
-                          {item.system_users?.name}
+                          <p className="text-gray-800 font-semibold">
+                            {item.system_users?.name}
+                          </p>
                         </td>
                         <td className="py-3 px-4 border-b">
                           <span
-                            onClick={() => handleStatusToggle(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                            onClick={() => {
+                              if (user.role !== "admin") {
+                                toast.info("Only Admin can update status");
+                                return;
+                              }
+                              handleStatusToggle(item);
+                            }}
+                            className={`border cursor-pointer rounded-md px-2 py-1 text-xs font-semibold text-center w-auto ${
                               item.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
+                                ? "text-green-600 border-green-600 bg-green-50"
+                                : "text-red-600 border-red-600 bg-red-50"
                             }`}
                           >
                             {item.status}
@@ -222,26 +243,19 @@ const RadioPrograms = () => {
                         </td>
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewProgram(item)}
-                              className="text-green-600 hover:text-green-800"
-                              title="View"
-                            >
-                              <ScanEye size={16} />
-                            </button>
                             {hasPermission("Radio Programs", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 p-2 bg-blue-50 rounded-md"
                                 title="Edit"
                               >
-                                <Edit2 size={16} />
+                                <Edit size={16} />
                               </button>
                             )}
                             {hasPermission("Radio Programs", "delete") && (
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 p-2 bg-red-50 rounded-md"
                                 title="Delete"
                               >
                                 <Trash2 size={16} />
@@ -291,12 +305,6 @@ const RadioPrograms = () => {
             fetchPrograms();
             setShowModal(false);
           }}
-        />
-
-        <ViewRadioProgramModal
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          programId={programId}
         />
       </div>
     </div>

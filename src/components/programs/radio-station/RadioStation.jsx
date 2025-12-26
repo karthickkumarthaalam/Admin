@@ -6,6 +6,7 @@ import {
   Edit2,
   Trash2,
   ScanEye,
+  Edit,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
@@ -126,7 +127,7 @@ const RadioStation = () => {
             {hasPermission("Radio Station", "create") && (
               <button
                 onClick={handleAddStation}
-                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
                 <span>Add Station</span>
@@ -156,7 +157,7 @@ const RadioStation = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Logo</th>
@@ -225,26 +226,19 @@ const RadioStation = () => {
                         </td>
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewStation(item)}
-                              className="text-green-600 hover:text-green-800"
-                              title="View"
-                            >
-                              <ScanEye size={16} />
-                            </button>
                             {hasPermission("Radio Station", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-md"
                                 title="Edit"
                               >
-                                <Edit2 size={16} />
+                                <Edit size={16} />
                               </button>
                             )}
                             {hasPermission("Radio Station", "delete") && (
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 bg-red-50 p-2 rounded-md"
                                 title="Delete"
                               >
                                 <Trash2 size={16} />

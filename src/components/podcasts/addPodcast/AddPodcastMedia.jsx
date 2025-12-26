@@ -222,10 +222,123 @@ const MediaPreviewCard = ({
   );
 };
 
+const UnifiedMediaCard = ({
+  type,
+  localFile,
+  localUrl,
+  existingUrl,
+  onFileSelect,
+  onUpload,
+  onDelete,
+  uploading,
+  deleting,
+}) => {
+  const config = MEDIA_CONFIG[type];
+  const Icon = config.icon;
+
+  const hasLocal = localFile && localUrl;
+  const hasExisting = existingUrl && !localUrl;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 space-y-4">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="p-2 bg-gray-100 rounded-xl">
+          <Icon size={20} />
+        </div>
+        <h3 className="font-semibold text-gray-800">Podcast {config.label}</h3>
+      </div>
+
+      {/* Preview or Upload */}
+      {!hasLocal && !hasExisting && (
+        <label className="flex flex-col items-center justify-center gap-3 border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:bg-gray-50 transition">
+          <UploadCloud size={32} className="text-gray-400" />
+          <p className="text-sm text-gray-600">
+            Click to upload {config.label.toLowerCase()}
+          </p>
+          <p className="text-xs text-gray-400">
+            {type === "audio"
+              ? "MP3 / WAV / OGG — Max 100MB"
+              : "MP4 / MKV / WEBM — Max 100MB"}
+          </p>
+          <input
+            type="file"
+            accept={type === "audio" ? "audio/*" : "video/*"}
+            className="hidden"
+            onChange={onFileSelect}
+          />
+        </label>
+      )}
+
+      {(hasLocal || hasExisting) && (
+        <div className="space-y-4">
+          {/* Media Player */}
+          {type === "audio" ? (
+            <audio controls src={localUrl || existingUrl} className="w-full" />
+          ) : (
+            <video
+              controls
+              src={localUrl || existingUrl}
+              className="w-full rounded-xl"
+            />
+          )}
+
+          {/* File Info */}
+          <div className="flex justify-between items-center text-sm text-gray-600">
+            <span className="truncate">
+              {hasLocal ? localFile.name : existingUrl?.split("/").pop()}
+            </span>
+            {hasLocal && (
+              <span className="text-xs text-orange-500 font-medium">
+                Not saved
+              </span>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-3">
+            <label className="px-4 py-2 border rounded-lg text-sm cursor-pointer hover:bg-gray-50">
+              Replace
+              <input
+                type="file"
+                accept={type === "audio" ? "audio/*" : "video/*"}
+                className="hidden"
+                onChange={onFileSelect}
+              />
+            </label>
+
+            <button
+              onClick={onDelete}
+              disabled={deleting}
+              className="px-4 py-2 border rounded-lg text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+
+            {hasLocal && (
+              <button
+                onClick={onUpload}
+                disabled={uploading}
+                className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {uploading ? "Uploading…" : "Upload"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ------------------------------------------------------------- */
 /*   MAIN COMPONENT                                              */
 /* ------------------------------------------------------------- */
-const AddPodcastMedia = ({ editPodcastData, onSuccess }) => {
+const AddPodcastMedia = ({
+  editPodcastData,
+  setEditPodcastData,
+  onSuccess,
+}) => {
   const [media, setMedia] = useState({
     audio: {
       file: null,
@@ -333,7 +446,7 @@ const AddPodcastMedia = ({ editPodcastData, onSuccess }) => {
         const formData = new FormData();
         formData.append(type, item.file);
 
-        await apiCall(
+        const res = await apiCall(
           `/podcasts/${editPodcastData.id}/${type}`,
           "PUT",
           formData,
@@ -346,6 +459,7 @@ const AddPodcastMedia = ({ editPodcastData, onSuccess }) => {
 
         // Cleanup
         if (item.url) URL.revokeObjectURL(item.url);
+        setEditPodcastData(res.data);
 
         setMedia((prev) => ({
           ...prev,
@@ -420,39 +534,39 @@ const AddPodcastMedia = ({ editPodcastData, onSuccess }) => {
   return (
     <div className="space-y-8">
       {/* Audio Section */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <MediaUploadCard
-          type="audio"
-          onFileSelect={(e) => handleFileSelect("audio", e)}
-        />
-        <MediaPreviewCard
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <UnifiedMediaCard
           type="audio"
           localFile={media.audio.file}
           localUrl={media.audio.url}
           existingUrl={media.audio.existing}
-          onDelete={() => handleDelete("audio")}
-          onUpload={() => handleUpload("audio")}
           uploading={media.audio.uploading}
           deleting={media.audio.deleting}
+          onFileSelect={(e) => handleFileSelect("audio", e)}
+          onUpload={() => handleUpload("audio")}
+          onDelete={() => handleDelete("audio")}
         />
-      </div>
 
-      {/* Video Section */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <MediaUploadCard
-          type="video"
-          onFileSelect={(e) => handleFileSelect("video", e)}
-        />
-        <MediaPreviewCard
+        <UnifiedMediaCard
           type="video"
           localFile={media.video.file}
           localUrl={media.video.url}
           existingUrl={media.video.existing}
-          onDelete={() => handleDelete("video")}
-          onUpload={() => handleUpload("video")}
           uploading={media.video.uploading}
           deleting={media.video.deleting}
+          onFileSelect={(e) => handleFileSelect("video", e)}
+          onUpload={() => handleUpload("video")}
+          onDelete={() => handleDelete("video")}
         />
+      </div>
+
+      <div className="flex justify-end items-center">
+        <button
+          onClick={onSuccess}
+          className="bg-indigo-600 text-white px-8 py-3 rounded-xl shadow-md hover:bg-indigo-700 transition disabled:opacity-50"
+        >
+          Finish
+        </button>
       </div>
     </div>
   );

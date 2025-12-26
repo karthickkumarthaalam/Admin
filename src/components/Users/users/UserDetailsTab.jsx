@@ -120,7 +120,17 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
         return;
       }
       setForm((prev) => ({ ...prev, image: file }));
-      setImagePreview(URL.createObjectURL(file));
+      const fileReader = new FileReader();
+
+      fileReader.onload = () => {
+        setImagePreview(fileReader.result);
+      };
+
+      fileReader.onerror = () => {
+        console.error("File reading failed");
+      };
+
+      fileReader.readAsDataURL(file);
     }
   };
 

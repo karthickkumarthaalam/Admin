@@ -9,11 +9,12 @@ const AddPodcastCategory = ({
   onSuccess,
   editCategoryData,
 }) => {
-  const [formData, setFormData] = useState({
+  const initialState = {
     name: "",
     description: "",
     image_url: "",
-  });
+  };
+  const [formData, setFormData] = useState(initialState);
 
   const [image, setImage] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
@@ -43,7 +44,18 @@ const AddPodcastCategory = ({
     if (!file) return;
 
     setImage(file);
-    setPreviewImage(URL.createObjectURL(file));
+
+    const fileReader = new FileReader();
+
+    fileReader.onload = () => {
+      setPreviewImage(fileReader.result);
+    };
+
+    fileReader.onerror = () => {
+      console.error("File reading failed");
+    };
+
+    fileReader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e) => {
@@ -75,6 +87,7 @@ const AddPodcastCategory = ({
         toast.success("Podcast category added successfully");
       }
       onSuccess();
+      setFormData(initialState);
     } catch (error) {
       toast.error("Failed to save podcast category");
     } finally {

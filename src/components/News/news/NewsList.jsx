@@ -42,7 +42,7 @@ const NewsList = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/news?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
+        `/news/admin-list?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
           statusFilter !== "all" ? statusFilter : ""
         }&category=${categoryFilter !== "all" ? categoryFilter : ""}`
       );
@@ -195,9 +195,7 @@ const NewsList = () => {
           <th className="px-6 py-3 text-left font-semibold whitespace-nowrap">
             Publishing Info
           </th>
-          {user.role === "admin" && (
-            <th className="px-6 py-3 text-left font-semibold">Status</th>
-          )}
+          <th className="px-6 py-3 text-left font-semibold">Status</th>
           {hasActions && (
             <th className="px-6 py-3 text-left font-semibold">Actions</th>
           )}
@@ -217,7 +215,6 @@ const NewsList = () => {
         <td className="px-6 py-4 text-sm text-gray-600 font-bold">
           {(currentPage - 1) * pageSize + index + 1}
         </td>
-
         {/* News Details */}
         <td className="px-6 py-4">
           <div className="flex items-start space-x-4">
@@ -238,7 +235,6 @@ const NewsList = () => {
             </div>
           </div>
         </td>
-
         {/* Category & Location */}
         <td className="px-6 py-4">
           <div className="space-y-2">
@@ -263,7 +259,6 @@ const NewsList = () => {
             )}
           </div>
         </td>
-
         {/* Publishing Info */}
         <td className="px-6 py-4">
           <div className="space-y-2">
@@ -286,11 +281,10 @@ const NewsList = () => {
             )}
           </div>
         </td>
-
         {/* Status */}
-        {user.role === "admin" && (
-          <td className="px-6 py-4 border-b">
-            <div className="flex flex-col gap-2">
+        <td className="px-6 py-4 border-b">
+          <div className="flex flex-col gap-2">
+            {user.role === "admin" && (
               <select
                 value={item.status}
                 onChange={(e) => updateNewsStatus(item.id, e.target.value)}
@@ -306,58 +300,59 @@ const NewsList = () => {
                 <option value="published">Published</option>
                 <option value="archived">Archived</option>
               </select>
+            )}
 
-              {item.status === "published" && (
-                <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                  <p className="text-xs font-semibold text-green-700">
-                    Approved by{" "}
-                    <span className="text-green-900">
-                      {item.status_updated_by || "Admin"}
-                    </span>
+            {item.status === "draft" && (
+              <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
+                <p className="text-xs font-semibold text-blue-500">
+                  Status Update <span className="text-blue-900 ">Pending</span>
+                </p>
+              </div>
+            )}
+
+            {item.status === "published" && (
+              <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
+                <p className="text-xs font-semibold text-green-700">
+                  Approved by{" "}
+                  <span className="text-green-900">
+                    {item.status_updated_by || "Admin"}
+                  </span>
+                </p>
+                {item.status_updated_at && (
+                  <p className="text-[10px] text-green-900 font-medium mt-0.5">
+                    {new Date(item.status_updated_at).toLocaleString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "short",
+                    })}
                   </p>
-                  {item.status_updated_at && (
-                    <p className="text-[10px] text-green-900 font-medium mt-0.5">
-                      {new Date(item.status_updated_at).toLocaleString(
-                        "en-IN",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}
-                    </p>
-                  )}{" "}
-                </div>
-              )}
+                )}{" "}
+              </div>
+            )}
 
-              {item.status === "archived" && (
-                <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
-                  <p className="text-xs font-semibold text-red-700">
-                    Archived by{" "}
-                    <span className="text-green-900">
-                      {item.status_updated_by || "Admin"}
-                    </span>
+            {item.status === "archived" && (
+              <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
+                <p className="text-xs font-semibold text-red-700">
+                  Archived by{" "}
+                  <span className="text-green-900">
+                    {item.status_updated_by || "Admin"}
+                  </span>
+                </p>
+                {item.status_updated_at && (
+                  <p className="text-[10px] text-red-900 font-medium mt-0.5">
+                    {new Date(item.status_updated_at).toLocaleString("en-IN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      day: "2-digit",
+                      month: "short",
+                    })}
                   </p>
-                  {item.status_updated_at && (
-                    <p className="text-[10px] text-red-900 font-medium mt-0.5">
-                      {new Date(item.status_updated_at).toLocaleString(
-                        "en-IN",
-                        {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          day: "2-digit",
-                          month: "short",
-                        }
-                      )}
-                    </p>
-                  )}{" "}
-                </div>
-              )}
-            </div>
-          </td>
-        )}
-
+                )}{" "}
+              </div>
+            )}
+          </div>
+        </td>
         {/* Actions */}
         {(hasPermission("News", "update") ||
           hasPermission("News", "delete")) && (

@@ -15,11 +15,8 @@ import {
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
-const DocumentsTab = ({ userId }) => {
+const DocumentsTab = ({ userId, idType = "system_user" }) => {
   const [documents, setDocuments] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [form, setForm] = useState(initialFormState());
@@ -55,8 +52,9 @@ const DocumentsTab = ({ userId }) => {
 
   const fetchDocuments = async () => {
     try {
+      const params = idType === "user" ? "user_id" : "system_user_id";
       const res = await apiCall(
-        `/employee-documents?system_user_id=${userId}`,
+        `/employee-documents?${params}=${userId}`,
         "GET"
       );
       setDocuments(res.data || []);
@@ -123,7 +121,8 @@ const DocumentsTab = ({ userId }) => {
     try {
       const formData = new FormData();
       formData.append("file", form.file);
-      formData.append("system_user_id", userId);
+      const idField = idType === "user" ? "user_id" : "system_user_id";
+      formData.append(idField, userId);
       formData.append("doc_type", form.doc_type);
       if (form.notes) {
         formData.append("notes", form.notes);

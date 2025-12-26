@@ -6,6 +6,10 @@ import {
   Edit2,
   Trash2,
   ScanEye,
+  Projector,
+  Radio,
+  Clock1,
+  Edit,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
@@ -127,7 +131,7 @@ const ProgramCategory = () => {
             {hasPermission("Program Category", "create") && (
               <button
                 onClick={handleAddCategory}
-                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
                 <span>Add Category</span>
@@ -157,17 +161,11 @@ const ProgramCategory = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Category</th>
-                    <th className="py-3 px-4 border-b">Banner</th>
-                    <th className="py-3 px-4 border-b whitespace-nowrap">
-                      Start Time
-                    </th>
-                    <th className="py-3 px-4 border-b whitespace-nowrap">
-                      End Time
-                    </th>
+                    <th className="py-3 px-4 border-b text-center">Timmings</th>
                     <th className="py-3 px-4 border-b">Country</th>
                     <th className="py-3 px-4 border-b">Status</th>
                     <th className="py-3 px-4 border-b">Actions</th>
@@ -186,21 +184,30 @@ const ProgramCategory = () => {
                   ) : (
                     categories.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-3 px-4 border-b">
+                        <td className="py-3 px-4 border-b font-semibold">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-3 px-4 border-b">{item.category}</td>
-                        <td className="py-3 px-4 border-b">
-                          <img
-                            src={item.image_url}
-                            alt="website"
-                            className="w-32 h-auto rounded border"
-                          />
+                        <td className="py-3 px-4 border-b ">
+                          <div className="flex items-center gap-2">
+                            <Radio size={24} className="text-slate-400" />
+                            <p className="font-semibold text-slate-800 text-base">
+                              {" "}
+                              {item.category}
+                            </p>
+                          </div>
                         </td>
                         <td className="py-3 px-4 border-b">
-                          {item.start_time}
+                          <div className="flex items-center gap-1 justify-center">
+                            <div className="text-green-600 p-2 bg-green-50 rounded-md">
+                              <Clock1 size={18} />
+                            </div>
+
+                            <p className="text-green-800 font-semibold">
+                              {" "}
+                              {item.start_time} - {item.end_time}
+                            </p>
+                          </div>
                         </td>
-                        <td className="py-3 px-4 border-b">{item.end_time}</td>
                         <td className="py-3 px-4 border-b">{item.country}</td>
                         <td className="py-3 px-4 border-b">
                           <span
@@ -216,26 +223,19 @@ const ProgramCategory = () => {
                         </td>
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => handleViewCategory(item)}
-                              className="text-green-600 hover:text-green-800"
-                              title="View"
-                            >
-                              <ScanEye size={16} />
-                            </button>
                             {hasPermission("Program Category", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}
-                                className="text-blue-600 hover:text-blue-800"
+                                className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-md"
                                 title="Edit"
                               >
-                                <Edit2 size={16} />
+                                <Edit size={16} />
                               </button>
                             )}
                             {hasPermission("Program Category", "delete") && (
                               <button
                                 onClick={() => handleDelete(item.id)}
-                                className="text-red-600 hover:text-red-800"
+                                className="text-red-600 hover:text-red-800 bg-red-50 p-2 rounded-md"
                                 title="Delete"
                               >
                                 <Trash2 size={16} />
