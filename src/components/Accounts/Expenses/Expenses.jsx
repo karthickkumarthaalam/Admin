@@ -159,7 +159,7 @@ const Expenses = () => {
               onClick={() => {
                 setExportModalOpen(true);
               }}
-              className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300 "
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
             >
               <ClipboardPlus size={16} />
               <span>Generate Report</span>
@@ -170,7 +170,7 @@ const Expenses = () => {
                   setEditExpenseData(null);
                   setIsAddModalOpen(true);
                 }}
-                className="rounded-md bg-red-500 font-medium text-xs sm:text-sm text-white px-2 py-1.5 sm:px-3 sm:py-2 flex gap-2 items-center hover:bg-red-600 transition duration-300"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
                 <span>Add Expense</span>

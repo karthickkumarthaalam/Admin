@@ -127,9 +127,9 @@ const Podcasts = () => {
         />
 
         <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
-          <div className="flex flex-row justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
-            <p className="text-sm sm:text-lg font-semibold text-gray-800">
-              Podcast Report
+          <div className="flex flex-row justify-between md:justify-end items-center gap-3 border-b border-dashed border-gray-300 pb-3">
+            <p className=" md:hidden text-sm sm:text-lg font-semibold text-gray-800">
+              Podcast Management
             </p>
             {hasPermission("Podcast", "create") && (
               <button

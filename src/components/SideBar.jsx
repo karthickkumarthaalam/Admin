@@ -20,6 +20,8 @@ import {
   PartyPopper,
   Notebook,
   UserIcon,
+  User,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 import { useAuth } from "../context/AuthContext";
@@ -114,6 +116,12 @@ const Sidebar = () => {
       icon: Landmark,
       path: "/accounts",
       permission: ["Expenses", "Budget", "Currency", "Audit Bills"],
+    },
+    {
+      label: "HR Management",
+      icon: BriefcaseBusiness,
+      path: "/hr-management",
+      permission: ["PaySlip", "Experience Letter"],
     },
     {
       label: "Agreements",

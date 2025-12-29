@@ -20,11 +20,14 @@ const EnquiryPage = () => {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState("enquiries");
-
   const visibleTabs = tabs.filter(({ permission }) => {
+    if (Array.isArray(permission)) {
+      return permission.some((p) => hasPermission(p, "read"));
+    }
     return hasPermission(permission, "read");
   });
+
+  const [activeTab, setActiveTab] = useState(visibleTabs[0]?.id || null);
 
   return (
     <>

@@ -1,26 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { usePermission } from "../context/PermissionContext";
-import BudgetPage from "../components/Accounts/Budget/BudgetPage";
-import Currency from "../components/Currency";
-import ExpensePage from "../components/Accounts/Expenses/ExpensePage";
 import PayslipPage from "../components/Accounts/Payslip/PayslipPage";
 import ExperiencePage from "../components/Accounts/Experience/ExperiencePage";
 
-const AccountsPage = () => {
+const HrPage = () => {
   const { hasPermission } = usePermission();
 
   const tabs = [
     {
-      id: "expenses",
-      label: "Expenses",
-      permission: ["Expenses", "Audit Bills"],
+      id: "payslip",
+      label: "Pay-Slip",
+      permission: "PaySlip",
     },
     {
-      id: "budget",
-      label: "Budget",
-      permission: "Budget",
+      id: "experience",
+      label: "Experience Letter",
+      permission: "Experience Letter",
     },
-    { id: "currency", label: "Currency", permission: "Currency" },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -59,13 +55,12 @@ const AccountsPage = () => {
         </div>
 
         <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
-          {activeTab === "expenses" && <ExpensePage />}
-          {activeTab === "budget" && <BudgetPage />}
-          {activeTab === "currency" && <Currency />}
+          {activeTab === "payslip" && <PayslipPage />}
+          {activeTab === "experience" && <ExperiencePage />}
         </div>
       </div>
     </>
   );
 };
 
-export default AccountsPage;
+export default HrPage;

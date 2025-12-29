@@ -36,6 +36,7 @@ import NewsPage from "./pages/NewsPage";
 import EventPage from "./pages/EventPage";
 import BlogsPage from "./pages/BlogsPage";
 import ProfilePage from "./pages/ProfilePage";
+import HrPage from "./pages/HrPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -196,6 +197,17 @@ function AppRoutes() {
               hasPermission("Advertisement", "read") ||
               hasPermission("Enquiry", "read") ? (
                 <EnquiryPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/hr-management"
+            element={
+              hasPermission("Experience Letter", "read") ||
+              hasPermission("PaySlip", "read") ? (
+                <HrPage />
               ) : (
                 <Navigate to="/" />
               )
