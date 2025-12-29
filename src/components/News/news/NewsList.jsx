@@ -125,7 +125,7 @@ const NewsList = () => {
         try {
           await apiCall(`/news/${id}`, "DELETE");
           toast.success("News deleted successfully");
-          fetchNews();
+          setNews((prev) => prev.filter((n) => n.id !== id));
         } catch (error) {
           toast.error("Failed to delete news");
         } finally {
@@ -144,7 +144,20 @@ const NewsList = () => {
         try {
           await apiCall(`/news/status/${id}`, "PATCH", { status });
           toast.success("News Status updated successfully");
-          fetchNews();
+          // fetchNews();
+
+          setNews((prev) =>
+            prev.map((n) =>
+              n.id === id
+                ? {
+                    ...n,
+                    status,
+                    status_updated_at: new Date().toISOString(),
+                    status_updated_by: user.name,
+                  }
+                : n
+            )
+          );
         } catch (error) {
           toast.error("Failed to update status");
         }
@@ -239,7 +252,7 @@ const NewsList = () => {
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex flex-col items-start gap-2">
-              <span className="text-sm font-semibold text-gray-900 bg-purple-100 px-2 py-1 rounded-lg">
+              <span className=" whitespace-nowrap text-sm font-semibold text-gray-900 bg-purple-100 px-2 py-1 rounded-lg">
                 {item.category || "Uncategorized"}
                 {item.subcategory && (
                   <span className="text-blue-700"> - {item.subcategory}</span>
@@ -248,7 +261,7 @@ const NewsList = () => {
             </div>
 
             {(item.city || item.state || item.country) && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className=" whitespace-nowrap flex items-center gap-2 text-sm text-gray-600">
                 <MapPin size={14} />
                 <span>
                   {[item.city, item.state, item.country]
@@ -304,7 +317,7 @@ const NewsList = () => {
 
             {item.status === "draft" && (
               <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
-                <p className="text-xs font-semibold text-blue-500">
+                <p className="text-xs font-semibold text-blue-500 whitespace-nowrap">
                   Status Update <span className="text-blue-900 ">Pending</span>
                 </p>
               </div>
@@ -312,7 +325,7 @@ const NewsList = () => {
 
             {item.status === "published" && (
               <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                <p className="text-xs font-semibold text-green-700">
+                <p className="text-xs font-semibold text-green-700 whitespace-nowrap">
                   Approved by{" "}
                   <span className="text-green-900">
                     {item.status_updated_by || "Admin"}
@@ -333,7 +346,7 @@ const NewsList = () => {
 
             {item.status === "archived" && (
               <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
-                <p className="text-xs font-semibold text-red-700">
+                <p className="text-xs font-semibold text-red-700 whitespace-nowrap">
                   Archived by{" "}
                   <span className="text-green-900">
                     {item.status_updated_by || "Admin"}

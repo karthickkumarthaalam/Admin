@@ -76,20 +76,20 @@ const PodcastCategory = () => {
 
       <div className="mt-4 bg-white rounded shadow px-4 py-3 md:mx-4 flex-1 overflow-y-auto">
         {/* Top Bar */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b pb-2">
-          <h2 className="font-semibold text-lg">Category List</h2>
+        <div className="flex flex-row justify-between md:justify-end items-center gap-3 border-b border-dashed border-gray-300 pb-3">
+          <p className=" md:hidden text-sm sm:text-lg font-semibold text-gray-800">
+            Category List
+          </p>
 
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            {hasPermission("Podcast", "create") && (
-              <button
-                onClick={handleAdd}
-                className="flex items-center justify-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/25 font-medium w-full sm:w-auto"
-              >
-                <BadgePlus size={16} />
-                <span>Add Category</span>
-              </button>
-            )}
-          </div>
+          {hasPermission("Podcast", "create") && (
+            <button
+              onClick={handleAdd}
+              className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
+            >
+              <BadgePlus size={16} />
+              <span>Add Category</span>
+            </button>
+          )}
         </div>
 
         {/* Table */}

@@ -3,7 +3,7 @@ import { apiCall } from "../utils/apiCall";
 import { Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useAuth } from "../context/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -47,41 +47,16 @@ const LoginPage = () => {
 
       sessionStorage.setItem("permissions", JSON.stringify(cleanedPermissions));
 
-      const routeMap = {
-        Dashboard: "/dashboard",
-        User: "/users",
-        "Site Information": "/site-information",
-        Banner: "/banner",
-        "Radio Station": "/programs",
-        Podcast: "/podcasts",
-        News: "/news",
-        Blogs: "/blogs",
-        Events: "/events",
-        Package: "/packages",
-        Members: "/members",
-        Subscriber: "/members",
-        Transaction: "/members",
-        Expenses: "/accounts",
-        Budget: "/accounts",
-        Currency: "/accounts",
-        "Audit Bills": "/accounts",
-        Agreements: "/agreements",
-        Enquiry: "/enquiry",
-      };
-
-      const getFirstRouteFromPermissions = (perms) => {
-        for (const p of perms) {
-          if (p.access_type.includes("read") && routeMap[p.module_name]) {
-            return routeMap[p.module_name];
-          }
+      const getFirstRoute = (user) => {
+        if (user?.name === "Admin") {
+          return "/dashboard";
         }
-        return "/dashboard";
+        return "/profile-page";
       };
 
-      const firstRoute = getFirstRouteFromPermissions(cleanedPermissions);
-      navigate(firstRoute);
-
+      const firstRoute = getFirstRoute(data.user);
       toast.success("Login successful!");
+      navigate(firstRoute);
     } catch (err) {
       toast.error("Login failed. Please check your credentials!");
     } finally {
@@ -216,7 +191,6 @@ const LoginPage = () => {
           )}
         </button>
       </form>
-      <ToastContainer />
     </div>
   );
 };

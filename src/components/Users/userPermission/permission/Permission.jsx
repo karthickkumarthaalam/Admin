@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BadgePlus, Loader2, Trash2, ScanEye } from "lucide-react";
+import { BadgePlus, Loader2, Trash2, ScanEye, Edit2 } from "lucide-react";
 import { apiCall } from "../../../../utils/apiCall";
 import { toast } from "react-toastify";
 import BreadCrumb from "../../../../components/BreadCrum";
@@ -12,6 +12,7 @@ const Permission = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const [editPermission, setEditPermission] = useState(null);
 
   const fetchPermissions = async () => {
     setLoading(true);
@@ -109,19 +110,16 @@ const Permission = () => {
                         <div className="flex gap-2 items-center">
                           <button
                             onClick={() => {
-                              setSelectedUser({
-                                systemUser: item.systemUser,
-                                modules: item.modules,
-                              });
-                              setShowViewModal(true);
+                              setEditPermission(item);
+                              setShowAddModal(true);
                             }}
-                            className="text-green-600 hover:text-green-800"
+                            className="text-blue-500 hover:text-blur-600 bg-blue-50 p-2 rounded-md"
                           >
-                            <ScanEye size={16} />
+                            <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(item.system_user_id)}
-                            className="text-red-600 hover:text-red-800"
+                            className="text-red-600 hover:text-red-800 bg-red-50 p-2 rounded-md "
                           >
                             <Trash2 size={16} />
                           </button>
@@ -138,17 +136,12 @@ const Permission = () => {
 
       <AddPermissionModal
         isOpen={showAddModal}
+        editData={editPermission}
         onClose={() => setShowAddModal(false)}
         onSuccess={() => {
           fetchPermissions();
           setShowAddModal(false);
         }}
-      />
-
-      <ViewPermissionModal
-        isOpen={showViewModal}
-        onClose={() => setShowViewModal(false)}
-        permissionData={selectedUser}
       />
     </div>
   );

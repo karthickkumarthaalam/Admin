@@ -115,7 +115,7 @@ const BlogsList = () => {
         try {
           await apiCall(`/blogs/${id}`, "DELETE");
           toast.success("Blog Deleted successfully");
-          fetchBlogs();
+          setBlogs((prev) => prev.filter((b) => b.id !== id));
         } catch (error) {
           toast.error("Failed to delete blog");
         } finally {
@@ -134,7 +134,18 @@ const BlogsList = () => {
         try {
           await apiCall(`/blogs/status/${id}`, "PATCH", { status });
           toast.success("Status updated successfully");
-          fetchBlogs();
+          setBlogs((prev) =>
+            prev.map((b) =>
+              b.id === id
+                ? {
+                    ...b,
+                    status,
+                    status_updated_at: new Date().toISOString(),
+                    status_updated_by: user.name,
+                  }
+                : b
+            )
+          );
         } catch (error) {
           toast.error("Failed to update status");
         }
@@ -268,7 +279,7 @@ const BlogsList = () => {
         <td className="px-6 py-4">
           <div className="flex items-start space-x-4">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">
+              <h3 className="whitespace-nowrap font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">
                 {item.title?.length > 50
                   ? `${item.title.substring(0, 50)}...`
                   : item.title || "No Title"}
@@ -287,7 +298,7 @@ const BlogsList = () => {
         <td className="px-6 py-4">
           <div className="space-y-2">
             <div className="flex flex-col items-start gap-2">
-              <span className="text-sm font-semibold text-gray-900 bg-violet-100 px-2 py-1 rounded-lg">
+              <span className="whitespace-nowrap text-sm font-semibold text-gray-900 bg-violet-100 px-2 py-1 rounded-lg">
                 {item.category || "Uncategorized"}
                 {item.subcategory && (
                   <span className="text-blue-700"> - {item.subcategory}</span>
@@ -334,7 +345,7 @@ const BlogsList = () => {
 
             {item.status === "draft" && (
               <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
-                <p className="text-xs font-semibold text-blue-500">
+                <p className="text-xs font-semibold text-blue-500 whitespace-nowrap">
                   Status Update <span className="text-blue-900 ">Pending</span>
                 </p>
               </div>
@@ -342,7 +353,7 @@ const BlogsList = () => {
 
             {item.status === "published" && (
               <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                <p className="text-xs font-semibold text-green-700">
+                <p className="text-xs font-semibold text-green-700 whitespace-nowrap">
                   Approved by{" "}
                   <span className="text-green-900">
                     {item.status_updated_by || "Admin"}
@@ -363,7 +374,7 @@ const BlogsList = () => {
 
             {item.status === "archived" && (
               <div className="px-2 py-1.5 rounded-lg bg-red-50/50 border border-red-200">
-                <p className="text-xs font-semibold text-red-700">
+                <p className="text-xs font-semibold text-red-700 whitespace-nowrap">
                   Archived by{" "}
                   <span className="text-green-900">
                     {item.status_updated_by || "Admin"}

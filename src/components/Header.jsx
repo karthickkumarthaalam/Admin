@@ -14,6 +14,7 @@ import { apiCall } from "../utils/apiCall";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./Notification/NotificationBell";
 import AccountSettingsModal from "./settings/AccountSetting/AccountSettingsModal";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -35,6 +36,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
+      toast.dismiss();
       await apiCall("/auth/logout", "POST");
       logout();
       navigate("/");

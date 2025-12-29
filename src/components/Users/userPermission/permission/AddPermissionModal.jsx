@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const accessOptions = ["create", "read", "update", "delete"];
 
-const AddPermissionModal = ({ isOpen, onClose, onSuccess }) => {
+const AddPermissionModal = ({ isOpen, onClose, onSuccess, editData }) => {
   const [systemUsers, setSystemUsers] = useState([]);
   const [modules, setModules] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState("");
@@ -26,8 +26,22 @@ const AddPermissionModal = ({ isOpen, onClose, onSuccess }) => {
     if (isOpen) {
       fetchSystemUsers();
       fetchModules();
-      setSelectedUserId("");
-      setSelectedPermissions([]);
+
+      if (editData) {
+        setSelectedUserId(editData.system_user_id);
+
+        const formattedPermissions = editData.modules.map((m) => ({
+          module_id: m.id,
+          access_types:
+            typeof m.access_type === "string" ? m.access_type.split(",") : [],
+        }));
+
+        setSelectedPermissions(formattedPermissions);
+      } else {
+        setSelectedUserId("");
+        setSelectedPermissions([]);
+      }
+
       setOpenModules([]);
     }
   }, [isOpen]);
@@ -63,12 +77,14 @@ const AddPermissionModal = ({ isOpen, onClose, onSuccess }) => {
 
   const isChecked = (moduleId, type) => {
     const perm = selectedPermissions.find((p) => p.module_id === moduleId);
-    return perm ? perm.access_types.includes(type) : false;
+    return Array.isArray(perm?.access_types)
+      ? perm.access_types.includes(type)
+      : false;
   };
 
   const isModuleChecked = (moduleId) => {
     const perm = selectedPermissions.find((p) => p.module_id === moduleId);
-    return perm && perm.access_types.length > 0;
+    return Array.isArray(perm?.access_types) && perm.access_types.length > 0;
   };
 
   const toggleModuleAll = (e, moduleId) => {

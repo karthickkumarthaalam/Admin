@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { apiCall } from "../utils/apiCall";
 import { Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
@@ -187,7 +187,6 @@ const SignupPage = () => {
           </Link>
         </p>
       </form>
-      <ToastContainer />
     </div>
   );
 };

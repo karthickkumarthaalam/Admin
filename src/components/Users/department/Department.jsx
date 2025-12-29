@@ -168,14 +168,14 @@ const Department = () => {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleEdit(dept.id)}
-                              className="text-blue-600 hover:text-blue-800"
+                              className="text-blue-600 hover:text-blue-800 p-2 bg-blue-50 rounded-md"
                               title="Edit"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button
                               onClick={() => handleDelete(dept.id)}
-                              className="text-red-600 hover:text-red-800"
+                              className="text-red-600 hover:text-red-800 p-2 bg-red-50 rounded-md"
                               title="Delete"
                             >
                               <Trash2 size={16} />

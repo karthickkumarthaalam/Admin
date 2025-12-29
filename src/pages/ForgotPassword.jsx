@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { apiCall } from "../utils/apiCall";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const ForgotPassword = () => {
@@ -255,8 +255,6 @@ const ForgotPassword = () => {
           </button>
         )}
       </form>
-
-      <ToastContainer />
     </div>
   );
 };

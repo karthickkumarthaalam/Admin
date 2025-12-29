@@ -173,10 +173,12 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!blog.title.trim() || !blog.content.trim()) {
-      toast.error("Title and content are required");
-      return;
-    }
+    if (!blog.title.trim()) return toast.error("Blog title required");
+    if (!blog.category) return toast.error("Blog category required");
+    if (!blog.published_by) return toast.error("Blog publisher required");
+    if (!coverImage) return toast.error("Blog image required");
+    if (!blog.published_date) return toast.error("Publishing date required");
+    if (!blog.content) return toast.error("Blog content required");
 
     setLoading(true);
 

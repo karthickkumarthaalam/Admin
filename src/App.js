@@ -35,6 +35,7 @@ import EnquiryPage from "./pages/EnquiryPage";
 import NewsPage from "./pages/NewsPage";
 import EventPage from "./pages/EventPage";
 import BlogsPage from "./pages/BlogsPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -51,158 +52,172 @@ function AppRoutes() {
   const { user, loading } = useAuth();
   const { hasPermission, permissionsLoaded } = usePermission();
 
-  if (loading || (user && !permissionsLoaded)) {
-    return <LoadingComponent />;
-  }
+  const isLoading = loading || (user && !permissionsLoaded);
 
   return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+    <>
+      {isLoading && <LoadingComponent />}
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      <Route element={user ? <AuthenticatedLayout /> : <Navigate to="/" />}>
-        <Route
-          path="/dashboard"
-          element={hasPermission("Dashboard", "read") && <Dashboard />}
-        />
-        <Route
-          path="/users"
-          element={
-            hasPermission("User", "read") ? <UsersPage /> : <Navigate to="/" />
-          }
-        />
-        <Route
-          path="/site-information"
-          element={
-            hasPermission("Site Information", "read") ? (
-              <SiteInformationPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/members"
-          element={
-            hasPermission("Members", "read") ||
-            hasPermission("Subscriber", "read") ||
-            hasPermission("Transaction", "read") ||
-            hasPermission("Enquiry", "read") ? (
-              <MembersPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/coupons"
-          element={
-            hasPermission("Coupon", "read") ? <Coupons /> : <Navigate to="/" />
-          }
-        />
-        <Route
-          path="/packages"
-          element={
-            hasPermission("Package", "read") ? (
-              <Packages />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/banner"
-          element={
-            hasPermission("Banner", "read") ? (
-              <BannerPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/podcasts"
-          element={
-            hasPermission("Podcast", "read") ? (
-              <PodcastPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/news"
-          element={
-            hasPermission("News", "read") ? <NewsPage /> : <Navigate to="/" />
-          }
-        />
-        <Route
-          path="/blogs"
-          element={
-            hasPermission("Blogs", "read") ? <BlogsPage /> : <Navigate to="/" />
-          }
-        />
-        <Route
-          path="/events"
-          element={
-            hasPermission("Events", "read") ? (
-              <EventPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/agreements"
-          element={
-            hasPermission("Agreements", "read") ? (
-              <AgreementPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/programs"
-          element={
-            hasPermission("Program Category", "read") ||
-            hasPermission("Radio Programs", "read") ||
-            hasPermission("Radio Station", "read") ? (
-              <ProgramsPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="/enquiry"
-          element={
-            hasPermission("Career", "read") ||
-            hasPermission("Advertisement", "read") ||
-            hasPermission("Enquiry", "read") ? (
-              <EnquiryPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route
-          path="accounts"
-          element={
-            hasPermission("Expenses", "read") ||
-            hasPermission("Audit Bills", "read") ||
-            hasPermission("Budget", "read") ||
-            hasPermission("Currency", "read") ? (
-              <AccountsPage />
-            ) : (
-              <Navigate to="/" />
-            )
-          }
-        />
-        <Route path="/settings" element={<SettingsPage />} />
-      </Route>
-    </Routes>
+        <Route element={user ? <AuthenticatedLayout /> : <Navigate to="/" />}>
+          <Route path="/profile-page" element={<ProfilePage />} />
+          <Route
+            path="/dashboard"
+            element={hasPermission("Dashboard", "read") && <Dashboard />}
+          />
+          <Route
+            path="/users"
+            element={
+              hasPermission("User", "read") ? (
+                <UsersPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/site-information"
+            element={
+              hasPermission("Site Information", "read") ? (
+                <SiteInformationPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/members"
+            element={
+              hasPermission("Members", "read") ||
+              hasPermission("Subscriber", "read") ||
+              hasPermission("Transaction", "read") ||
+              hasPermission("Enquiry", "read") ? (
+                <MembersPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/coupons"
+            element={
+              hasPermission("Coupon", "read") ? (
+                <Coupons />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/packages"
+            element={
+              hasPermission("Package", "read") ? (
+                <Packages />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/banner"
+            element={
+              hasPermission("Banner", "read") ? (
+                <BannerPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/podcasts"
+            element={
+              hasPermission("Podcast", "read") ? (
+                <PodcastPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/news"
+            element={
+              hasPermission("News", "read") ? <NewsPage /> : <Navigate to="/" />
+            }
+          />
+          <Route
+            path="/blogs"
+            element={
+              hasPermission("Blogs", "read") ? (
+                <BlogsPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              hasPermission("Events", "read") ? (
+                <EventPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/agreements"
+            element={
+              hasPermission("Agreements", "read") ? (
+                <AgreementPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/programs"
+            element={
+              hasPermission("Program Category", "read") ||
+              hasPermission("Radio Programs", "read") ||
+              hasPermission("Radio Station", "read") ? (
+                <ProgramsPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/enquiry"
+            element={
+              hasPermission("Career", "read") ||
+              hasPermission("Advertisement", "read") ||
+              hasPermission("Enquiry", "read") ? (
+                <EnquiryPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="accounts"
+            element={
+              hasPermission("Expenses", "read") ||
+              hasPermission("Audit Bills", "read") ||
+              hasPermission("Budget", "read") ||
+              hasPermission("Currency", "read") ? (
+                <AccountsPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route path="/settings" element={<SettingsPage />} />
+        </Route>
+      </Routes>
+    </>
   );
 }
 

@@ -19,8 +19,10 @@ import {
   Newspaper,
   PartyPopper,
   Notebook,
+  UserIcon,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
+import { useAuth } from "../context/AuthContext";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // Mobile toggle
@@ -28,6 +30,7 @@ const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   const { hasPermission, permissionsLoaded } = usePermission();
+  const { user } = useAuth();
 
   // Update mobile state on resize
   useEffect(() => {
@@ -38,6 +41,13 @@ const Sidebar = () => {
   }, []);
 
   const menus = [
+    {
+      label: "Profile",
+      icon: UserIcon,
+      path: "/profile-page",
+      permission: null,
+      hideForAdmin: true,
+    },
     {
       label: "Dashboard",
       icon: LayoutDashboard,
@@ -115,14 +125,15 @@ const Sidebar = () => {
       label: "Enquiry",
       icon: MessageCircleMore,
       path: "/enquiry",
-      permission: "Enquiry",
+      permission: ["Enquiry", "Advertisement", "Career"],
     },
     { label: "Settings", icon: Settings, path: "/settings", permission: null },
   ];
 
   const allowedMenus = useMemo(() => {
     if (!permissionsLoaded) return [];
-    return menus.filter(({ permission }) => {
+    return menus.filter(({ permission, hideForAdmin }) => {
+      if (hideForAdmin && user?.name === "Admin") return false;
       if (!permission) return true;
       if (Array.isArray(permission))
         return permission.some((p) => hasPermission(p, "read"));

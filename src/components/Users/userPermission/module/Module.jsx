@@ -105,14 +105,14 @@ const Module = () => {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => handleEdit(mod)}
-                            className="text-blue-600 hover:text-blue-800"
+                            className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-md"
                             title="Edit"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => handleDelete(mod.id)}
-                            className="text-red-600 hover:text-red-800"
+                            className="text-red-600 hover:text-red-800 bg-red-50 p-2 rounded-md"
                             title="Delete"
                           >
                             <Trash2 size={16} />

@@ -215,10 +215,10 @@ const RadioStation = () => {
                         <td className="py-3 px-4 border-b">
                           <span
                             onClick={() => handleStatusToggle(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold border ${
                               item.status === "active"
-                                ? "bg-green-500 text-white"
-                                : "bg-red-500 text-white"
+                                ? "text-green-500 border-green-500 bg-green-50"
+                                : "text-red-500  border-red-500 bg-red-50"
                             }`}
                           >
                             {item.status}

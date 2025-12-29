@@ -262,10 +262,12 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
     e.preventDefault();
 
     // Basic validation
-    if (!news.title.trim() || !news.content.trim()) {
-      toast.error("Title and content are required");
-      return;
-    }
+    if (!news.title.trim()) return toast.error("News title required");
+    if (!news.published_by) return toast.error("Publisher name required");
+    if (!news.published_date) return toast.error("Publishing date required");
+    if (!news.content) return toast.error("News content required");
+    if (!coverImage) return toast.error("Cover Image required");
+    if (!news.category) return toast.error("News Category required");
 
     setLoading(true);
     try {
@@ -348,6 +350,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             }))}
             icon={<User size={16} />}
             disabled={!!user?.system_user_id}
+            required
           />
           <TextInput
             label="Content Creator"
@@ -369,6 +372,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             name="published_date"
             value={news.published_date}
             onChange={handleChange}
+            required
           />
         </div>
       </SectionCard>
@@ -389,6 +393,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
               value: c,
               label: c,
             }))}
+            required
           />
           <SelectInput
             label="Subcategory"
@@ -418,6 +423,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             onChange={handleChange}
             options={countries.map((c) => c.country)}
             icon={<Globe size={16} />}
+            required
           />
           <SelectInput
             label="State"
@@ -426,6 +432,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             onChange={handleChange}
             options={states.map((s) => s.name)}
             disabled={!news.country}
+            required
           />
           <SelectInput
             label="City"
@@ -434,6 +441,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             onChange={handleChange}
             options={cities}
             disabled={!news.state}
+            required
           />
         </div>
       </SectionCard>
@@ -449,6 +457,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             label="Cover Image"
             onChange={handleFileChange}
             preview={coverPreview}
+            required
           />
           <div className="space-y-6">
             <TextInput
@@ -478,7 +487,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
         description="Write or paste the news content below"
       >
         <RichTextEditor
-          label="Content *"
+          label="Content"
           value={news.content}
           onChange={handleContentChange}
           placeholder="Write your news content here..."
@@ -583,9 +592,12 @@ const SelectInput = ({
   options,
   disabled,
   icon,
+  required,
 }) => (
   <div className="flex flex-col">
-    <label className="font-semibold text-sm text-gray-800 mb-3">{label}</label>
+    <label className="font-semibold text-sm text-gray-800 mb-3">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <div className="relative">
       {icon && (
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -623,9 +635,11 @@ const SelectInput = ({
   </div>
 );
 
-const DateInput = ({ label, name, value, onChange }) => (
+const DateInput = ({ label, name, value, onChange, required }) => (
   <div className="flex flex-col">
-    <label className="font-semibold text-sm text-gray-800 mb-3">{label}</label>
+    <label className="font-semibold text-sm text-gray-800 mb-3">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <div className="relative">
       <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
         <Calendar size={16} />
@@ -641,9 +655,11 @@ const DateInput = ({ label, name, value, onChange }) => (
   </div>
 );
 
-const FileInput = ({ label, onChange, preview }) => (
+const FileInput = ({ label, onChange, preview, required }) => (
   <div className="flex flex-col">
-    <label className="font-semibold text-sm text-gray-800 mb-3">{label}</label>
+    <label className="font-semibold text-sm text-gray-800 mb-3">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
     <div className="flex flex-col lg:flex-row gap-6">
       <label className="flex-1 flex flex-col items-center justify-center gap-4 border-2 border-dashed border-gray-300 rounded-2xl p-8 cursor-pointer hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-200 bg-gray-50/50">
         <Upload size={32} className="text-gray-400" />
@@ -695,7 +711,7 @@ const RichTextEditor = ({ label, value, onChange, placeholder }) => {
   return (
     <div className="flex flex-col">
       <label className="font-semibold text-sm text-gray-800 mb-3">
-        {label}
+        {label} <span className="text-red-500">*</span>
       </label>
       <div className="border border-gray-300 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent transition-all duration-200">
         <ReactQuill

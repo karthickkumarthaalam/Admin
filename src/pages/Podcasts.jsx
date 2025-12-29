@@ -71,8 +71,7 @@ const Podcasts = () => {
     setLoading(true);
     try {
       await apiCall(`/podcasts/delete/${id}`, "DELETE");
-      fetchPodcasts();
-      setCurrentPage(1);
+      setPodcasts((prev) => prev.filter((p) => p.id !== id));
       toast.success("Podcast deleted successfully");
     } catch (error) {
       toast.error("Failed to delete podcast");
@@ -92,7 +91,18 @@ const Podcasts = () => {
     try {
       await apiCall(`/podcasts/status/${id}`, "PATCH", { status });
       toast.success("Status updated successfully");
-      fetchPodcasts();
+      setPodcasts((prev) =>
+        prev.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                status,
+                status_updated_by: user.name,
+                status_updated_at: new Date(),
+              }
+            : p
+        )
+      );
     } catch (error) {
       toast.error("Failed to update status");
     } finally {
@@ -293,7 +303,7 @@ const Podcasts = () => {
                             )}
                             {item.status === "pending" && (
                               <div className="px-2 py-1.5 rounded-lg bg-blue-50/50 border border-blue-200">
-                                <p className="text-xs font-semibold text-blue-500">
+                                <p className="text-xs font-semibold text-blue-500 whitespace-nowrap">
                                   Status Update{" "}
                                   <span className="text-blue-900 ">
                                     Pending
@@ -305,7 +315,7 @@ const Podcasts = () => {
                             {/* ✅ Reviewer Label */}
                             {item.status === "reviewing" && (
                               <div className="px-2 py-1.5 rounded-lg bg-yellow-50/50 border border-yellow-200">
-                                <p className="text-xs font-semibold text-yellow-700">
+                                <p className="text-xs font-semibold text-yellow-700 whitespace-nowrap">
                                   In Review by{" "}
                                   <span className="text-yellow-900">
                                     {item.status_updated_by || "Admin"}
@@ -329,7 +339,7 @@ const Podcasts = () => {
                             {/* ✅ Approved Label */}
                             {item.status === "approved" && (
                               <div className="px-2 py-1.5 rounded-lg bg-green-50/50 border border-green-200">
-                                <p className="text-xs font-semibold text-green-700">
+                                <p className="text-xs font-semibold text-green-700 whitespace-nowrap">
                                   Approved by{" "}
                                   <span className="text-green-900">
                                     {item.status_updated_by || "Admin"}
