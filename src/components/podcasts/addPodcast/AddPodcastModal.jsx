@@ -29,9 +29,13 @@ const AddPodcastModal = ({
     [onClose]
   );
 
-  const handleDetailsSuccess = useCallback(() => {
-    setActiveTab("podcast-media");
-  }, []);
+  const handleDetailsSuccess = useCallback(
+    (podcastData) => {
+      setActiveTab("podcast-media");
+      setEditPodcastData(podcastData);
+    },
+    [setEditPodcastData]
+  );
 
   if (!isOpen) return null;
 

@@ -58,7 +58,9 @@ const LoginPage = () => {
       toast.success("Login successful!");
       navigate(firstRoute);
     } catch (err) {
-      toast.error("Login failed. Please check your credentials!");
+      toast.error(
+        err.message || "Login failed. Please check your credentials!"
+      );
     } finally {
       setIsLoading(false);
     }

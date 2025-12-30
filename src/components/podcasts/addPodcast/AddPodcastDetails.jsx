@@ -180,19 +180,20 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
     setLoading(true);
 
     try {
+      let response;
       if (editPodcastData) {
-        await apiCall(
+        response = await apiCall(
           `/podcasts/update/${editPodcastData.id}`,
           "PUT",
           formData
         );
         toast.success("Podcast updated!");
       } else {
-        await apiCall("/podcasts/create", "POST", formData);
+        response = await apiCall("/podcasts/create", "POST", formData);
         toast.success("Podcast created!");
       }
 
-      onNext?.();
+      onNext?.(response.data);
     } catch {
       toast.error("Failed to save podcast");
     } finally {
