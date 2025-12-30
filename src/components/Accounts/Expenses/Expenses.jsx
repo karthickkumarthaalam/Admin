@@ -324,7 +324,7 @@ const Expenses = () => {
 
         <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
           <table className="w-full text-sm ">
-            <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+            <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
               <tr>
                 <th className="border-b px-3 py-3 w-[20px] whitespace-nowrap text-left">
                   SI

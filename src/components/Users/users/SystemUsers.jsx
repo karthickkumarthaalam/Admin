@@ -15,6 +15,7 @@ const SystemUsers = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [status, setStatus] = useState("all");
 
   const pageSize = 20;
 
@@ -22,7 +23,9 @@ const SystemUsers = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/system-user?page=${currentPage}&limit=20&search=${searchQuery}`,
+        `/system-user?page=${currentPage}&limit=20&search=${searchQuery}&status=${
+          status !== "all" ? status : ""
+        }`,
         "GET"
       );
       setSystemUsers(response.data);
@@ -36,7 +39,7 @@ const SystemUsers = () => {
 
   useEffect(() => {
     fetchSystemUsers();
-  }, [currentPage, searchQuery]);
+  }, [currentPage, searchQuery, status]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -115,7 +118,17 @@ const SystemUsers = () => {
             </button>
           </div>
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 gap-2">
+            <div className="w-36">
+              <select
+                onChange={(e) => setStatus(e.target.value)}
+                className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">In-Active</option>
+              </select>
+            </div>
             <div className="relative w-64">
               <Search
                 size={16}

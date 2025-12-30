@@ -166,7 +166,7 @@ const ExpenseBills = () => {
 
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="border-b px-5 py-3">SI</th>
                     <th className="border-b px-5 py-3 whitespace-nowrap">
@@ -277,7 +277,7 @@ const ExpenseBills = () => {
             ) : (
               <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
                 <table className="w-full  text-sm">
-                  <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                  <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                     <tr className="text-left">
                       <th className="border-b px-5 py-3">SI</th>
                       <th className="border-b px-5 py-3">Type</th>
@@ -370,7 +370,7 @@ const ExpenseBills = () => {
 
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full  text-sm">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="border-b px-5 py-3">SI</th>
                     <th className="border-b px-5 py-3">Merchant</th>
@@ -471,7 +471,7 @@ const ExpenseBills = () => {
 
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full  text-sm">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="border-b px-5 py-3">SI</th>
                     <th className="border-b px-5 py-3">Merchant</th>
