@@ -3,7 +3,7 @@ import { apiCall } from "../../../../utils/apiCall";
 import { X, ChevronDown } from "lucide-react";
 import { toast } from "react-toastify";
 
-const accessOptions = ["create", "read", "update", "delete"];
+const accessOptions = ["create", "read", "update", "status-update", "delete"];
 
 const AddPermissionModal = ({ isOpen, onClose, onSuccess, editData }) => {
   const [systemUsers, setSystemUsers] = useState([]);

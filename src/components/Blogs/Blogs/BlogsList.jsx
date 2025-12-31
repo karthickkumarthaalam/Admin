@@ -325,7 +325,7 @@ const BlogsList = () => {
         </td>
         <td className="px-6 py-4 border-b">
           <div className="flex flex-col gap-2">
-            {user.role === "admin" && (
+            {hasPermission("Blogs", "status-update") && (
               <select
                 value={item.status}
                 onChange={(e) => updateBlogsStatus(item.id, e.target.value)}

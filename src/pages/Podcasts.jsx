@@ -282,7 +282,7 @@ const Podcasts = () => {
                         <td className="py-3 px-4 border-b">
                           <div className="flex flex-col gap-2">
                             {/* ✅ Status Pill Dropdown */}
-                            {user.role === "admin" && (
+                            {hasPermission("Podcast", "status-update") && (
                               <select
                                 value={item.status}
                                 onChange={(e) =>

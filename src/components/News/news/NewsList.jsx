@@ -297,7 +297,7 @@ const NewsList = () => {
         {/* Status */}
         <td className="px-6 py-4 border-b">
           <div className="flex flex-col gap-2">
-            {user.role === "admin" && (
+            {hasPermission("News", "status-update") && (
               <select
                 value={item.status}
                 onChange={(e) => updateNewsStatus(item.id, e.target.value)}
