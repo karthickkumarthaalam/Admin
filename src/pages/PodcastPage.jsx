@@ -4,6 +4,7 @@ import PodcastComments from "../components/podcasts/PodcastComments";
 // import PodcastReactionStats from "../components/podcasts/PodcastReactions";
 import { usePermission } from "../context/PermissionContext";
 import PodcastCategory from "../components/podcasts/category/PodcastCategory";
+import PodcastCreators from "../components/podcasts/podcastCreator/PodcastCreators";
 
 const PodcastPage = () => {
   const [activeTab, setActiveTab] = useState("podcast");
@@ -17,6 +18,11 @@ const PodcastPage = () => {
       permission: "Podcast",
     },
     { id: "comment", label: "Comments", permission: "Podcast Comment" },
+    {
+      id: "podcast-creator",
+      label: "Podcast Creators",
+      permission: "Podcast Creators",
+    },
     // { id: "reaction", label: "Reactions", permission: "Podcast Reactions" },
   ];
 
@@ -54,6 +60,7 @@ const PodcastPage = () => {
           {activeTab === "podcast" && <Podcasts />}
           {activeTab === "podcast-category" && <PodcastCategory />}
           {activeTab === "comment" && <PodcastComments />}
+          {activeTab === "podcast-creator" && <PodcastCreators />}
           {/* {activeTab === "reaction" && <PodcastReactionStats />} */}
         </div>
       </div>
