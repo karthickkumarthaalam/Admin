@@ -84,7 +84,7 @@ const AddRadioProgramModal = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-3 px-6 py-4 font-semibold text-sm transition-all duration-300 relative group ${
+              className={`flex items-center gap-3 px-6 py-4 font-semibold text-sm transition-all duration-300 whitespace-nowrap relative group ${
                 activeTab === tab.id
                   ? "text-blue-600"
                   : "text-gray-500 hover:text-blue-500"

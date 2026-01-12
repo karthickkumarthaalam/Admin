@@ -73,7 +73,7 @@ export const exportBudgetPDF = async ({
             const isLast = rowIndex === rows.length - 1;
 
             const cellStyle = `
-            padding: 6px;
+            padding: 3px; padding-bottom:15px;
             border-left: 1px solid #ddd;
             border-right: 1px solid #ddd;
             border-top: ${isFirst ? "1px solid #ddd" : "1px solid #eee"};
@@ -212,17 +212,17 @@ export const exportBudgetPDF = async ({
                 <table style="width: 100%; font-size: 11px;">
                   <thead>
                     <tr style="background-color: #333; color: white;">
-                      <th style="padding: 6px; text-align: left;">ID</th>
-                      <th style="padding: 6px; text-align: left;">Category</th>
-                      <th style="padding: 6px; text-align: left;">Sub-category</th>
-                      <th style="padding: 6px; text-align: left;">Particulars</th>
-                      <th style="padding: 6px; text-align: left;">Quantity</th>
+                      <th style="padding: 3px; padding-left:6px;  padding-bottom:15px; text-align: left;">ID</th>
+                      <th style="padding: 3px; padding-bottom:15px; text-align: left;">Category</th>
+                      <th style="padding: 3px; padding-bottom:15px; text-align: left;">Sub-category</th>
+                      <th style="padding: 3px; padding-bottom:15px; text-align: left;">Particulars</th>
+                      <th style="padding: 3px; padding-bottom:15px; text-align: left;">Quantity</th>
                       ${
                         !actualBudgetMode
                           ? `
-                                <th style="padding: 6px; text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
-                              <th style="padding: 6px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
-                          : `<th style="padding: 6px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
+                                <th style="padding: 3px; padding-bottom:15px;  text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
+                              <th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
+                          : `<th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
                       }
                     </tr>
                   </thead>
@@ -245,17 +245,17 @@ export const exportBudgetPDF = async ({
         <table style="width: 100%; font-size: 11px;">
           <thead>
             <tr style="background-color: #333; color: white;">
-              <th style="padding: 6px; text-align: left;">ID</th>
-              <th style="padding: 6px; text-align: left;">Category</th>
-              <th style="padding: 6px; text-align: left;">Sub-category</th>
-              <th style="padding: 6px; text-align: left;">Particulars</th>
-              <th style="padding: 6px; text-align: left;">Quantity</th>
+              <th style="padding: 3px; padding-left:6px; padding-bottom:15px; text-align: left;">ID</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Category</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Sub-category</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Particulars</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Quantity</th>
              ${
                !actualBudgetMode
                  ? `
-                <th style="padding: 6px; text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
-              <th style="padding: 6px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
-                 : `<th style="padding: 6px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
+                <th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
+                 : `<th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
              }
             </tr>
           </thead>
@@ -281,9 +281,9 @@ export const exportBudgetPDF = async ({
             ? `<table style="width: 100%; font-size: 11px;">
               <thead>
                 <tr style="background-color: #333; color: white;">
-                  <th style="padding: 6px; text-align: left;">Tax</th>
-                  <th style="padding: 6px; text-align: left;">Rate (%)</th>
-                  <th style="padding: 6px; text-align: right;">Amount</th>
+                  <th style="padding: 3px; padding-left:6px; padding-bottom:15px; text-align: left;">Tax</th>
+                  <th style="padding: 3px; padding-bottom:15px; text-align: left;">Rate (%)</th>
+                  <th style="padding: 3px; padding-bottom:15px; text-align: right;">Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -291,13 +291,13 @@ export const exportBudgetPDF = async ({
                   .map(
                     (tax) => `
                     <tr>
-                      <td style="padding: 6px; border: 1px solid #ddd;">${
+                      <td style="padding: 3px; padding-bottom:15px; border: 1px solid #ddd;">${
                         tax.tax_name
                       }</td>
-                      <td style="padding: 6px; border: 1px solid #ddd;">${
+                      <td style="padding: 3px; padding-bottom:15px; border: 1px solid #ddd;">${
                         tax.percentage
                       }</td>
-                      <td style="padding: 6px; border: 1px solid #ddd; text-align: right">${currencySymbol} ${formatCurrency(
+                      <td style="padding: 3px; padding-bottom:15px; border: 1px solid #ddd; text-align: right">${currencySymbol} ${formatCurrency(
                       tax.amount
                     )}</td>
                     </tr>`
@@ -322,17 +322,17 @@ export const exportBudgetPDF = async ({
         <table style="width: 100%; font-size: 11px;">
           <thead>
             <tr style="background-color: #333; color: white;">
-              <th style="padding: 6px; text-align: left;">ID</th>
-              <th style="padding: 6px; text-align: left;">Category</th>
-              <th style="padding: 6px; text-align: left;">Sub-category</th>
-              <th style="padding: 6px; text-align: left;">Particulars</th>
-              <th style="padding: 6px; text-align: left;">Quantity</th>
+              <th style="padding: 3px; padding-left:6px; padding-bottom:15px; text-align: left;">ID</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Category</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Sub-category</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Particulars</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: left;">Quantity</th>
             ${
               !actualBudgetMode
                 ? `
-              <th style="padding: 6px; text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
-              <th style="padding: 6px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
-                : `<th style="padding: 6px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
+              <th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Amount (${currencySymbol})</th>
+              <th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Total Amount (${currencySymbol})</th>`
+                : `<th style="padding: 3px; padding-bottom:15px; text-align: right; white-space:nowrap;">Actual Amount (${currencySymbol})</th>`
             }
             </tr>
           </thead>
@@ -351,14 +351,14 @@ export const exportBudgetPDF = async ({
       expenseItems.length > 0 && incomeItems.length > 0
         ? `
          <div style="page-break-inside: avoid; break-inside: avoid; margin-top: 30px;">
-        <h3 style="margin-bottom: 5px; font-size: 14px;">BUDGET SUMMARY</h3>
+        <h3 style="margin-bottom: 10px; font-size: 14px;">BUDGET SUMMARY</h3>
         <table style="width: 100%; font-size: 11px;">
           <thead style="background-color: #333; color: white;">
             <tr>
-              <th style="padding: 6px;  text-align: left;">Total Income</th>
-              <th style="padding: 6px;  text-align: left;">Total Expense</th>
-              <th style="padding: 6px;  text-align: left;">Total Taxes</th>
-              <th style="padding: 6px;  text-align: left;">Profit / Loss</th>
+              <th style="padding: 3px; padding-left:6px; padding-bottom:15px;  text-align: left;">Total Income</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Expense</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Taxes</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Profit / Loss</th>
             </tr>
           </thead>
           <tbody>
