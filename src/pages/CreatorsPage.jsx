@@ -1,24 +1,23 @@
 import React, { useState } from "react";
-import Podcasts from "./Podcasts";
-import PodcastComments from "../components/podcasts/PodcastComments";
-// import PodcastReactionStats from "../components/podcasts/PodcastReactions";
 import { usePermission } from "../context/PermissionContext";
-import PodcastCategory from "../components/podcasts/category/PodcastCategory";
+import PodcastCreators from "../components/podcasts/podcastCreator/PodcastCreators";
+import Podcasts from "./Podcasts";
 
-const PodcastPage = () => {
-  const [activeTab, setActiveTab] = useState("podcast");
+const CreatorsPage = () => {
+  const [activeTab, setActiveTab] = useState("creators");
   const { hasPermission } = usePermission();
 
   const tabs = [
-    { id: "podcast", label: "Podcasts", permission: "Podcast" },
     {
-      id: "podcast-category",
-      label: "Podcasts Category",
-      permission: "Podcast",
+      id: "creators",
+      label: "Creators",
+      permission: "Creators",
     },
-    // { id: "comment", label: "Comments", permission: "Podcast Comment" },
-
-    // { id: "reaction", label: "Reactions", permission: "Podcast Reactions" },
+    {
+      id: "podcasts",
+      label: "Podcasts",
+      permission: "Creators",
+    },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -52,14 +51,12 @@ const PodcastPage = () => {
         </div>
 
         <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
-          {activeTab === "podcast" && <Podcasts />}
-          {activeTab === "podcast-category" && <PodcastCategory />}
-          {/* {activeTab === "comment" && <PodcastComments />} */}
-          {/* {activeTab === "reaction" && <PodcastReactionStats />} */}
+          {activeTab === "creators" && <PodcastCreators />}
+          {activeTab === "podcasts" && <Podcasts viewType={"creator"} />}
         </div>
       </div>
     </>
   );
 };
 
-export default PodcastPage;
+export default CreatorsPage;

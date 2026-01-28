@@ -37,6 +37,7 @@ import EventPage from "./pages/EventPage";
 import BlogsPage from "./pages/BlogsPage";
 import ProfilePage from "./pages/ProfilePage";
 import HrPage from "./pages/HrPage";
+import CreatorsPage from "./pages/CreatorsPage";
 
 const AuthenticatedLayout = () => (
   <div className="flex h-screen overflow-hidden">
@@ -159,6 +160,16 @@ function AppRoutes() {
             }
           />
           <Route
+            path="/creators"
+            element={
+              hasPermission("Creators", "read") ? (
+                <CreatorsPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
             path="/events"
             element={
               hasPermission("Events", "read") ? (
@@ -234,6 +245,20 @@ function AppRoutes() {
 }
 
 function App() {
+  React.useEffect(() => {
+    const handleOnline = () => {
+      if (!navigator.online) return;
+      console.log("Back online! Reloading...");
+      window.location.reload();
+    };
+
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter basename="/A8J3K9Z5QW">

@@ -16,8 +16,6 @@ const PodcastCreators = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCreator, setSelectedCreator] = useState(null);
 
-  const { hasPermission } = usePermission();
-
   const pageSize = 20;
 
   useEffect(() => {
@@ -43,7 +41,7 @@ const PodcastCreators = () => {
     <div className="flex flex-col flex-1 overflow-hidden">
       <BreadCrumb
         title={"Podcasts Creators Management"}
-        paths={["Podcast", "Podcast Creators"]}
+        paths={["Creators", "Podcast Creators"]}
       />
       <div className="mt-4 bg-white rounded shadow px-4 py-3 md:mx-4 flex-1 overflow-y-auto">
         <div className="overflow-x-auto max-w-full border border-gray-200 rounded-lg shadow-sm ">
@@ -156,8 +154,8 @@ const PodcastCreators = () => {
                             creator.status === "approved"
                               ? "bg-green-100 text-green-700"
                               : creator.status === "rejected"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                           }`}
                       >
                         {creator.status}

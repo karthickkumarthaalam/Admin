@@ -8,8 +8,7 @@ import {
   Edit,
   Calendar,
   Clock,
-  User2,
-  UserCircle,
+  NotepadText,
 } from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
@@ -17,8 +16,9 @@ import { toast } from "react-toastify";
 import AddPodcastModal from "../components/podcasts/addPodcast/AddPodcastModal";
 import { usePermission } from "../context/PermissionContext";
 import { useAuth } from "../context/AuthContext";
+import PodcastDetailsModal from "../components/podcasts/PodcastDetailsModal";
 
-const Podcasts = () => {
+const Podcasts = ({ viewType = "system" }) => {
   const [showModal, setShowModal] = useState(false);
   const [editPodcastId, setEditPodcastId] = useState(null);
   const [selectedPodcast, setSelectedPodcast] = useState(null);
@@ -28,6 +28,7 @@ const Podcasts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [languageFilter, setLanguageFilter] = useState("");
+  const [detailsModal, setDetailsModal] = useState(null);
 
   const { hasPermission } = usePermission();
   const { user } = useAuth();
@@ -37,10 +38,21 @@ const Podcasts = () => {
   const fetchPodcasts = async () => {
     setLoading(true);
     try {
-      const response = await apiCall(
-        `/podcasts/admin?page=${currentPage}&search=${searchQuery}&language=${languageFilter}&limit=${pageSize}`,
-        "GET"
-      );
+      const params = new URLSearchParams({
+        page: currentPage,
+        search: searchQuery,
+        language: languageFilter,
+        limit: pageSize,
+        type: user.role === "admin" ? "admin" : "system",
+        view: viewType,
+      });
+
+      if (user.role !== "admin") {
+        params.append("user_id", user.system_user_id);
+      }
+
+      const response = await apiCall(`/podcasts/admin?${params.toString()}`);
+
       setPodcasts(response.data?.data);
       setTotalRecords(response.data?.pagination.totalRecords);
     } catch (error) {
@@ -83,7 +95,7 @@ const Podcasts = () => {
   const updateStatus = async (id, status) => {
     if (
       !window.confirm(
-        "Are you sure you want to update status of this podcasts?"
+        "Are you sure you want to update status of this podcasts?",
       )
     )
       return;
@@ -100,8 +112,8 @@ const Podcasts = () => {
                 status_updated_by: user.name,
                 status_updated_at: new Date(),
               }
-            : p
-        )
+            : p,
+        ),
       );
     } catch (error) {
       toast.error("Failed to update status");
@@ -123,7 +135,10 @@ const Podcasts = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
           title={"Podcast Management"}
-          paths={["Podcasts", "Podcast Management"]}
+          paths={[
+            viewType === "system" ? "Podcast" : "Creators",
+            "Podcast Management",
+          ]}
         />
 
         <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
@@ -131,7 +146,7 @@ const Podcasts = () => {
             <p className=" md:hidden text-sm sm:text-lg font-semibold text-gray-800">
               Podcast Management
             </p>
-            {hasPermission("Podcast", "create") && (
+            {hasPermission("Podcast", "create") && viewType === "system" && (
               <button
                 onClick={handleAddPodcast}
                 className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
@@ -237,19 +252,19 @@ const Podcasts = () => {
                         <td className="py-3 px-3 sm:px-4 text-gray-600">
                           <div className="space-y-1.5 text-xs sm:text-sm">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-gray-500">
+                              <span className="text-gray-500 whitespace-nowrap">
                                 Published By:
                               </span>
-                              <span className="text-indigo-600 font-bold">
+                              <span className="text-indigo-600 font-bold whitespace-nowrap">
                                 {item.rjname}
                               </span>
                             </div>
 
                             <div className="flex items-center gap-1.5">
-                              <span className="text-gray-500">
+                              <span className="text-gray-500 whitespace-nowrap">
                                 Content Creator:
                               </span>
-                              <span className="text-indigo-600 font-bold">
+                              <span className="text-indigo-600 font-bold whitespace-nowrap">
                                 {item.content}
                               </span>
                             </div>
@@ -267,7 +282,7 @@ const Podcasts = () => {
                                     day: "2-digit",
                                     month: "short",
                                     year: "numeric",
-                                  }
+                                  },
                                 )}
                               </span>
                             </div>
@@ -282,7 +297,10 @@ const Podcasts = () => {
                         <td className="py-3 px-4 border-b">
                           <div className="flex flex-col gap-2">
                             {/* ✅ Status Pill Dropdown */}
-                            {hasPermission("Podcast", "status-update") && (
+                            {hasPermission(
+                              viewType === "system" ? "Podcast" : "Creators",
+                              "status-update",
+                            ) && (
                               <select
                                 value={item.status}
                                 onChange={(e) =>
@@ -292,8 +310,8 @@ const Podcasts = () => {
                                   item.status === "approved"
                                     ? "bg-green-100 text-green-800 border-green-200 focus:ring-green-300"
                                     : item.status === "reviewing"
-                                    ? "bg-yellow-100 text-yellow-800 border-yellow-200 focus:ring-yellow-300"
-                                    : "bg-blue-100 text-blue-800 border-blue-200 focus:ring-blue-300"
+                                      ? "bg-yellow-100 text-yellow-800 border-yellow-200 focus:ring-yellow-300"
+                                      : "bg-blue-100 text-blue-800 border-blue-200 focus:ring-blue-300"
                                 }`}
                               >
                                 <option value="pending">Pending</option>
@@ -324,7 +342,7 @@ const Podcasts = () => {
                                 {item.status_updated_at && (
                                   <p className="text-[10px] text-yellow-900 font-medium mt-0.5">
                                     {new Date(
-                                      item.status_updated_at
+                                      item.status_updated_at,
                                     ).toLocaleString("en-IN", {
                                       hour: "2-digit",
                                       minute: "2-digit",
@@ -348,7 +366,7 @@ const Podcasts = () => {
                                 {item.status_updated_at && (
                                   <p className="text-[10px] text-green-900 font-medium mt-0.5">
                                     {new Date(
-                                      item.status_updated_at
+                                      item.status_updated_at,
                                     ).toLocaleString("en-IN", {
                                       hour: "2-digit",
                                       minute: "2-digit",
@@ -364,6 +382,14 @@ const Podcasts = () => {
 
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => setDetailsModal(item)}
+                              className="text-gray-800 hover:text-gray-900 p-2 bg-gray-50 hover:bg-gray-100 rounded-md shover:scale-105"
+                              title="Details"
+                            >
+                              <NotepadText size={16} />
+                            </button>
+
                             {hasPermission("Podcast", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}
@@ -428,6 +454,12 @@ const Podcasts = () => {
             fetchPodcasts();
             setShowModal(false);
           }}
+        />
+
+        <PodcastDetailsModal
+          isOpen={detailsModal}
+          onClose={() => setDetailsModal(null)}
+          podcast={detailsModal}
         />
       </div>
     </div>

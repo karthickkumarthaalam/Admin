@@ -16,6 +16,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     completedDate: "",
     vendorType: "vendor",
     users: [],
+    creators: [],
     currencies: [],
     merchants: [],
     categoryNames: [],
@@ -55,6 +56,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
     completedDate,
     vendorType,
     users,
+    creators,
     currencies,
     merchants,
     categoryNames,
@@ -104,6 +106,10 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
         if (editExpenseData.vendor_type === "user") {
           fetchUsers();
         }
+        if (editExpenseData.vendor_type === "creator") {
+          fetchCreators();
+        }
+
         if (editExpenseData.status === "completed") {
           fetchPaymentModes();
           fetchPaidThrough();
@@ -121,6 +127,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
           completedDate: "",
           vendorType: "vendor",
           users: [],
+          creators: [],
           currencies: [],
           categories: [
             {
@@ -153,7 +160,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 
   useEffect(() => {
     const currencySet = new Set(
-      categories.map((cat) => cat.currency_name).filter(Boolean)
+      categories.map((cat) => cat.currency_name).filter(Boolean),
     );
     const multi = currencySet.size > 1;
     const sum = categories.reduce((acc, cat) => {
@@ -209,6 +216,15 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       setState((prev) => ({ ...prev, merchants: res.data }));
     } catch (error) {
       toast.error("Failed to fetch Merchants");
+    }
+  };
+
+  const fetchCreators = async () => {
+    try {
+      const res = await apiCall("/creator/list-creators", "GET");
+      setState((prev) => ({ ...prev, creators: res.data }));
+    } catch (error) {
+      toast.error("Failed to fetch creators");
     }
   };
 
@@ -376,7 +392,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
       onSuccess?.();
     } catch (error) {
       toast.error(
-        error.message || `Failed to ${isEditing ? "update" : "create"} expense`
+        error.message || `Failed to ${isEditing ? "update" : "create"} expense`,
       );
     }
   };
@@ -425,10 +441,12 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                       const val = e.target.value;
                       setState((prev) => ({ ...prev, vendorType: val }));
                       if (val === "user") fetchUsers();
+                      if (val === "creator") fetchCreators();
                     }}
                   >
                     <option value="vendor">Vendor</option>
                     <option value="user">User</option>
+                    <option value="creator">Podcast Creator</option>
                   </select>
                 </div>
                 {vendorType === "vendor" ? (
@@ -456,7 +474,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                       ))}
                     </select>
                   </div>
-                ) : (
+                ) : vendorType === "user" ? (
                   <div>
                     <label className="block text-sm font-semibold mb-1">
                       Select User
@@ -475,6 +493,29 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                       {users.map((user) => (
                         <option key={user.id} value={user.name}>
                           {user.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-semibold mb-1">
+                      Select Podcast Creator
+                    </label>
+                    <select
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 focus:outline-none"
+                      value={state.merchantName}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          merchantName: e.target.value,
+                        }))
+                      }
+                    >
+                      <option value="">Select Creator</option>
+                      {creators.map((creator) => (
+                        <option key={creator.id} value={creator.name}>
+                          {creator.name}
                         </option>
                       ))}
                     </select>
@@ -699,7 +740,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "category_name",
-                                  e.target.value
+                                  e.target.value,
                                 );
                               }}
                               className="w-full border rounded px-2 py-1"
@@ -759,7 +800,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "currency_name",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full border rounded px-2 py-1"
@@ -781,7 +822,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "description",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full border rounded px-2 py-1"
@@ -796,7 +837,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "amount",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full border rounded px-2 py-1"
@@ -811,7 +852,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "actual_amount",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className={`w-full border rounded px-2 py-1 ${
@@ -835,7 +876,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
                                 handleCategoryChange(
                                   index,
                                   "paid_date",
-                                  e.target.value || ""
+                                  e.target.value || "",
                                 );
                               }}
                               className="w-full border rounded px-2 py-1"

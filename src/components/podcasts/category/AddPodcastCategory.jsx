@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
 import { X, UploadCloud, Trash2 } from "lucide-react";
+import { useAuth } from "../../../context/AuthContext";
 
 const AddPodcastCategory = ({
   isOpen,
@@ -19,6 +20,8 @@ const AddPodcastCategory = ({
   const [image, setImage] = useState(null);
   const [previewImage, setPreviewImage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     if (editCategoryData) {
@@ -65,6 +68,11 @@ const AddPodcastCategory = ({
     const payload = new FormData();
     payload.append("name", formData.name);
     payload.append("description", formData.description);
+    payload.append("created_by_type", "system");
+
+    if (user.system_user_id) {
+      payload.append("system_user_id", user.system_user_id);
+    }
     if (image) payload.append("image", image);
     if (!image && formData.image_url === "") {
       payload.append("image_url", "");

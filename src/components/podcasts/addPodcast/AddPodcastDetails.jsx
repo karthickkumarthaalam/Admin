@@ -177,6 +177,12 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
     );
     if (coverImage) formData.append("image", coverImage);
 
+    formData.append("created_by_type", "system");
+
+    if (user.system_user_id) {
+      formData.append("system_user_id", user?.system_user_id);
+    }
+
     setLoading(true);
 
     try {

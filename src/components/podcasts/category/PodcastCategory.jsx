@@ -16,6 +16,7 @@ const PodcastCategory = () => {
   const [totalRecords, setTotalRecords] = useState(0);
 
   const { hasPermission } = usePermission();
+  const { user } = useAuth();
 
   const pageSize = 20;
 
@@ -23,7 +24,10 @@ const PodcastCategory = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/podcast-category?page=${currentPage}&limit=${pageSize}`,
+        `/podcast-category?page=${currentPage}&limit=${pageSize}&user_id=${
+          user.system_user_id
+        }
+        &type=${user.role === "admin" ? "admin" : "system"}`,
         "GET"
       );
       setCategories(response?.data || []);

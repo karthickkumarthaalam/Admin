@@ -22,6 +22,7 @@ import {
   UserIcon,
   User,
   BriefcaseBusiness,
+  MicVocalIcon,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 import { useAuth } from "../context/AuthContext";
@@ -92,6 +93,12 @@ const Sidebar = () => {
       icon: Notebook,
       path: "/blogs",
       permission: "Blogs",
+    },
+    {
+      label: "Creators",
+      icon: MicVocalIcon,
+      path: "/creators",
+      permission: "Creators",
     },
     {
       label: "Events",
