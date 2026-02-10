@@ -39,7 +39,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       audio_url: "",
       published_date: "",
     }),
-    []
+    [],
   );
 
   const [news, setNews] = useState(initialState);
@@ -79,6 +79,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       // Set cover preview if exists
       if (editNewsData.cover_image) {
         setCoverPreview(editNewsData.cover_image);
+        setCoverImage(editNewsData.cover_image);
       }
 
       // Fetch subcategories if category exists
@@ -167,7 +168,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ country }),
-        }
+        },
       );
       const data = await res.json();
       setStates(data.data?.states || []);
@@ -184,7 +185,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ country, state }),
-        }
+        },
       );
       const data = await res.json();
       setCities(data.data || []);
@@ -222,7 +223,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
         return updated;
       });
     },
-    [fetchSubCategories, fetchStates, fetchCities, users]
+    [fetchSubCategories, fetchStates, fetchCities, users],
   );
 
   const handleContentChange = useCallback((value) => {
@@ -266,6 +267,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
     if (!news.published_by) return toast.error("Publisher name required");
     if (!news.published_date) return toast.error("Publishing date required");
     if (!news.content) return toast.error("News content required");
+    console.log(coverImage);
     if (!coverImage) return toast.error("Cover Image required");
     if (!news.category) return toast.error("News Category required");
 
@@ -273,7 +275,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
     try {
       const formData = new FormData();
       Object.entries(news).forEach(([key, val]) =>
-        formData.append(key, val || "")
+        formData.append(key, val || ""),
       );
       if (coverImage) formData.append("cover_image", coverImage);
 
@@ -297,7 +299,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
       onSuccess?.();
     } catch {
       toast.error(
-        editNewsData ? "Failed to update news" : "Failed to add news"
+        editNewsData ? "Failed to update news" : "Failed to add news",
       );
     } finally {
       setLoading(false);
@@ -459,7 +461,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             preview={coverPreview}
             required
           />
-          <div className="space-y-6">
+          {/* <div className="space-y-6">
             <TextInput
               label="Video URL"
               name="video_url"
@@ -476,7 +478,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
               placeholder="https://example.com/audio"
               icon={<Link size={16} />}
             />
-          </div>
+          </div> */}
         </div>
       </SectionCard>
 
@@ -623,7 +625,7 @@ const SelectInput = ({
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
-          )
+          ),
         )}
       </select>
       <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -705,7 +707,7 @@ const RichTextEditor = ({ label, value, onChange, placeholder }) => {
         ["clean"],
       ],
     }),
-    []
+    [],
   );
 
   return (

@@ -48,7 +48,7 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
     try {
       const res = await apiCall(
         `/program-question/program/${radioProgramId}`,
-        "GET"
+        "GET",
       );
       setQuestions(res.data);
       setExpandedQuestion(null);
@@ -68,10 +68,10 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
         status: newStatus,
       });
       toast.success(
-        `Poll ${newStatus === "active" ? "activated" : "deactivated"}`
+        `Poll ${newStatus === "active" ? "activated" : "deactivated"}`,
       );
       setQuestions((prev) =>
-        prev.map((q) => (q.id === id ? { ...q, status: newStatus } : q))
+        prev.map((q) => (q.id === id ? { ...q, status: newStatus } : q)),
       );
     } catch (error) {
       toast.error("Failed to update status");
@@ -186,8 +186,8 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
     if (!countryCode) return "🌐";
     return String.fromCodePoint(
       ...Array.from(countryCode.toUpperCase()).map(
-        (c) => 0x1f1a5 + c.charCodeAt(0)
-      )
+        (c) => 0x1f1a5 + c.charCodeAt(0),
+      ),
     );
   };
 
@@ -450,7 +450,7 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
             const statusBadge = getStatusBadge(
               question.status,
               question.start_date,
-              question.end_date
+              question.end_date,
             );
             const isExpanded = expandedQuestion === question.id;
             const allCountries = getAllCountries(question);
@@ -638,7 +638,7 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
                               <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                                 <div
                                   className={`h-2 rounded-full transition-all duration-500 ${getPercentageColor(
-                                    percentage
+                                    percentage,
                                   )}`}
                                   style={{
                                     width: `${Math.max(percentage, 5)}%`,

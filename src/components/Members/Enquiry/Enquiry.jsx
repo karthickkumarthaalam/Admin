@@ -23,7 +23,7 @@ const Enquiry = () => {
     try {
       const response = await apiCall(
         `/enquiry?page=${currentPage}&search=${searchQuery}&status=${status}`,
-        "GET"
+        "GET",
       );
       setEnquiries(response.data);
       setTotalRecords(response.pagination.totalRecords);
@@ -51,7 +51,7 @@ const Enquiry = () => {
   const handleStatusUpdate = async (id, currentStatus) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this enquiry?"
+        "Are you sure you want to change the status of this enquiry?",
       )
     ) {
       return;
@@ -163,8 +163,8 @@ const Enquiry = () => {
                                     enquiry.status === "pending"
                                       ? "bg-yellow-100 text-yellow-800"
                                       : enquiry.status === "resolved"
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-gray-200 text-gray-700"
+                                        ? "bg-green-100 text-green-800"
+                                        : "bg-gray-200 text-gray-700"
                                   }`}
                             >
                               {enquiry.status}

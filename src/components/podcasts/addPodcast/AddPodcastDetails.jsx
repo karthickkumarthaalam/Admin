@@ -36,7 +36,7 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
       language: [],
       tags: [],
     }),
-    []
+    [],
   );
 
   const [podcast, setPodcast] = useState(initialState);
@@ -173,7 +173,7 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
     Object.entries(podcast).forEach(([key, val]) =>
       Array.isArray(val)
         ? formData.append(key, JSON.stringify(val))
-        : formData.append(key, val || "")
+        : formData.append(key, val || ""),
     );
     if (coverImage) formData.append("image", coverImage);
 
@@ -191,7 +191,7 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
         response = await apiCall(
           `/podcasts/update/${editPodcastData.id}`,
           "PUT",
-          formData
+          formData,
         );
         toast.success("Podcast updated!");
       } else {
@@ -367,8 +367,8 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
           {loading
             ? "Saving..."
             : editPodcastData
-            ? "Update and Next"
-            : "Save and Next"}
+              ? "Update and Next"
+              : "Save and Next"}
         </button>
       </div>
     </form>

@@ -3,10 +3,16 @@ import { usePermission } from "../context/PermissionContext";
 import Enquiry from "../components/Members/Enquiry/Enquiry";
 import Advertisement from "../components/Members/Advertisement/Advertisement";
 import CareersPage from "./CareersPage";
+import SummerFestivalRefund from "../components/Members/Enquiry/SummerFestivalRefund";
 
 const EnquiryPage = () => {
   const { hasPermission } = usePermission();
   const tabs = [
+    {
+      id: "summer-festival",
+      label: "Summer Festival",
+      permission: "Enquiry",
+    },
     { id: "enquiries", label: "Enquiries", permission: "Enquiry" },
     {
       id: "advertisement",
@@ -56,6 +62,7 @@ const EnquiryPage = () => {
         </div>
 
         <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
+          {activeTab === "summer-festival" && <SummerFestivalRefund />}
           {activeTab === "enquiries" && <Enquiry />}
           {activeTab === "advertisement" && <Advertisement />}
           {activeTab === "career" && <CareersPage />}

@@ -244,7 +244,11 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
                   {/* Podcast Cover Image */}
                   <div className="relative rounded-xl overflow-hidden shadow-lg aspect-video ">
                     <img
-                      src={podcast.image_url}
+                      src={
+                        podcast.image_url
+                          ? podcast.image_url
+                          : `${window.location.origin}/A8J3K9Z5QW/podcast-banner.jpg`
+                      }
                       alt={podcast.title}
                       className="w-full h-auto object-cover rounded-xl"
                     />

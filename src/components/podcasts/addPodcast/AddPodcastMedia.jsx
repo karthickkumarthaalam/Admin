@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { UploadCloud, Music, Video } from "lucide-react";
+import { UploadCloud, Music, Video, Trash2, UploadIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
 
@@ -111,18 +111,48 @@ const UnifiedMediaCard = ({
             <button
               onClick={onDelete}
               disabled={deleting}
-              className="px-4 py-2 border rounded-lg text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+              className="relative w-10 h-10
+             flex items-center justify-center
+             border border-red-200
+             rounded-lg
+             text-red-600
+             hover:bg-red-50
+             transition
+             disabled:opacity-50"
             >
-              {deleting ? "Deleting…" : "Delete"}
+              {deleting ? (
+                <span
+                  className="w-4 h-4
+                     border-2 border-red-300 border-t-red-600
+                     rounded-full animate-spin"
+                />
+              ) : (
+                <Trash2 size={18} />
+              )}
             </button>
 
             {hasLocal && (
               <button
                 onClick={onUpload}
                 disabled={uploading}
-                className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50"
+                className="relative w-10 h-10
+                           flex items-center justify-center
+                           bg-indigo-600
+                           text-white
+                           rounded-lg
+                           hover:bg-indigo-700
+                           transition
+                           disabled:opacity-50"
               >
-                {uploading ? "Uploading…" : "Upload"}
+                {uploading ? (
+                  <span
+                    className="w-4 h-4
+                                   border-2 border-white/40 border-t-white
+                                   rounded-full animate-spin"
+                  />
+                ) : (
+                  <UploadIcon size={18} />
+                )}
               </button>
             )}
           </div>
@@ -200,15 +230,15 @@ const AddPodcastMedia = ({
     if (!config.acceptedTypes.includes(ext)) {
       toast.error(
         `Unsupported ${type} format. Supported: ${config.acceptedTypes.join(
-          ", "
-        )}`
+          ", ",
+        )}`,
       );
       return;
     }
 
     if (file.size > config.maxSize) {
       toast.error(
-        `${config.label} too large! Max ${config.maxSize / (1024 * 1024)}MB.`
+        `${config.label} too large! Max ${config.maxSize / (1024 * 1024)}MB.`,
       );
       return;
     }
@@ -253,7 +283,7 @@ const AddPodcastMedia = ({
           formData,
           {
             "Content-Type": "multipart/form-data",
-          }
+          },
         );
 
         toast.success(`${MEDIA_CONFIG[type].label} uploaded successfully!`);
@@ -283,7 +313,7 @@ const AddPodcastMedia = ({
         }));
       }
     },
-    [media, editPodcastData?.id]
+    [media, editPodcastData?.id],
   );
 
   /* ------------------------------------------------------------- */
@@ -330,7 +360,7 @@ const AddPodcastMedia = ({
         }));
       }
     },
-    [media, editPodcastData?.id]
+    [media, editPodcastData?.id],
   );
 
   const handleFinish = useCallback(() => {
