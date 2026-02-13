@@ -114,7 +114,7 @@ const EventCrewTab = ({ eventId }) => {
       formData.append("description", form.description);
       formData.append("status", form.status);
       form.social_links.forEach((link) =>
-        formData.append("social_links", link)
+        formData.append("social_links", link),
       );
       if (imageFile) formData.append("image", imageFile);
 
@@ -172,11 +172,13 @@ const EventCrewTab = ({ eventId }) => {
 
   /* ---------------- Toggle Status ---------------- */
   const toggleStatus = async (crew) => {
+    if (!window.confirm("Are you sure you want to update status?")) return;
+
     const newStatus = crew.status === "active" ? "inactive" : "active";
     try {
       await apiCall(`/event-crew/${crew.id}`, "PUT", { status: newStatus });
       setCrewList((prev) =>
-        prev.map((c) => (c.id === crew.id ? { ...c, status: newStatus } : c))
+        prev.map((c) => (c.id === crew.id ? { ...c, status: newStatus } : c)),
       );
       toast.success(`Status changed to ${newStatus}`);
     } catch {
@@ -389,19 +391,99 @@ const EventCrewTab = ({ eventId }) => {
       )}
 
       {/* Crew Cards Row */}
+      {/* Crew Table */}
       {crewList.length > 0 && (
-        <div className="flex flex-col gap-6 ">
-          {crewList.map((crew) => (
-            <div key={crew.id}>
-              <CrewCard
-                crew={crew}
-                onEdit={() => handleEdit(crew)}
-                onDelete={() => handleDelete(crew.id)}
-                onToggle={() => toggleStatus(crew)}
-                deleting={deletingId === crew.id}
-              />
-            </div>
-          ))}
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              {/* Table Head */}
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Crew
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+
+              {/* Table Body */}
+              <tbody className="bg-white divide-y divide-gray-100">
+                {crewList.map((crew) => (
+                  <tr key={crew.id} className="hover:bg-gray-50 transition">
+                    {/* Crew Info */}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={
+                            crew.image ||
+                            "https://via.placeholder.com/150?text=No+Image"
+                          }
+                          alt={crew.name}
+                          className="w-12 h-12 rounded-xl object-cover border"
+                        />
+                        <div>
+                          <div className="text-sm font-semibold text-gray-900">
+                            {crew.name}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Role */}
+                    <td className="px-6 py-4 text-sm text-blue-600 font-medium">
+                      {crew.role}
+                    </td>
+
+                    {/* Status */}
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => toggleStatus(crew)}
+                        className={`px-3 py-1 text-xs font-semibold rounded-md ${
+                          crew.status === "active"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {crew.status}
+                      </button>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleEdit(crew)}
+                          className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition"
+                        >
+                          <Edit2 size={16} />
+                        </button>
+
+                        <button
+                          onClick={() => handleDelete(crew.id)}
+                          disabled={deletingId === crew.id}
+                          className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                        >
+                          {deletingId === crew.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
@@ -419,29 +501,18 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
       />
 
       {/* Action Buttons (desktop view only) */}
-      <div className="absolute top-3 right-3 hidden md:flex flex-col gap-2">
+      <div className="absolute bottom-5 right-3 hidden md:flex  gap-2">
         <button
           onClick={onEdit}
-          className="p-2 bg-blue-50/70 text-blue-600 rounded-lg shadow-sm hover:bg-blue-100 transition"
+          className="p-2 bg-blue-600 text-blue-100 rounded-lg shadow-sm  hover:bg-blue-700 transition"
           title="Edit"
         >
           <Edit2 size={16} />
         </button>
         <button
-          onClick={onToggle}
-          className={`p-2 rounded-lg shadow-sm transition ${
-            crew.status === "active"
-              ? "bg-green-50/80 text-green-600 hover:bg-green-100"
-              : "bg-gray-100/80 text-gray-600 hover:bg-gray-200"
-          }`}
-          title={crew.status === "active" ? "Deactivate" : "Activate"}
-        >
-          <CheckCircle size={16} />
-        </button>
-        <button
           onClick={onDelete}
           disabled={deleting}
-          className="p-2 bg-red-50/70 text-red-600 rounded-lg shadow-sm hover:bg-red-100 transition"
+          className="p-2 bg-red-600 text-red-50 rounded-lg shadow-sm hover:bg-red-700 transition"
           title="Delete"
         >
           {deleting ? (
@@ -464,7 +535,8 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
           </p>
         </div>
 
-        <span
+        <button
+          onClick={onToggle}
           className={`text-xs font-semibold px-3 py-1 rounded-md shadow-sm w-fit sm:hidden md:block ${
             crew.status === "active"
               ? "bg-green-100 text-green-700"
@@ -472,13 +544,13 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
           }`}
         >
           {crew.status}
-        </span>
+        </button>
       </div>
 
       {/* Description */}
       {crew.description && (
         <div>
-          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line max-h-52 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
             {crew.description}
           </p>
         </div>
@@ -500,7 +572,7 @@ const CrewCard = ({ crew, onEdit, onDelete, onToggle, deleting }) => (
                   <Link2 size={14} />
                   {new URL(link).hostname.replace("www.", "")}
                 </a>
-              )
+              ),
           )}
         </div>
       )}

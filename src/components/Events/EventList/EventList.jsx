@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import AddEventModal from "../EventModal/AddEventModal";
+import EventEnquiryModal from "../EventEnquiry/EventEnquiryModal";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -27,6 +28,8 @@ const EventList = () => {
   const [editEventData, setEditEventData] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [deletingId, setDeletingId] = useState(null);
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const { hasPermission } = usePermission();
   const pageSize = 10;
@@ -45,7 +48,7 @@ const EventList = () => {
         `/event?page=${currentPage}&limit=${pageSize}&search=${debouncedSearch}&status=${
           statusFilter !== "all" ? statusFilter : ""
         }`,
-        "GET"
+        "GET",
       );
       setEvents(res.data || []);
       setTotalRecords(res.pagination?.totalRecords || 0);
@@ -111,7 +114,7 @@ const EventList = () => {
         }
       }
     },
-    [fetchEvents]
+    [fetchEvents],
   );
 
   const handleEdit = useCallback((item) => {
@@ -129,10 +132,20 @@ const EventList = () => {
     handleModalClose();
   }, [fetchEvents, handleModalClose]);
 
+  const handleOpenEnquiryModal = useCallback((item) => {
+    setSelectedEvent(item);
+    setShowEnquiryModal(true);
+  }, []);
+
+  const handleCloseEnquiryModal = useCallback(() => {
+    setShowEnquiryModal(false);
+    setSelectedEvent(null);
+  }, []);
+
   /* ----------------------------- Pagination ----------------------------- */
   const totalPages = useMemo(
     () => Math.ceil(totalRecords / pageSize),
-    [totalRecords]
+    [totalRecords],
   );
 
   /* ----------------------------- UI States ----------------------------- */
@@ -236,16 +249,16 @@ const EventList = () => {
                     Event
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold">
-                    Venue
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold">
                     Location
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold">
-                    Dates
+                    Date
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold">
                     Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">
+                    Enquiry
                   </th>
                   <th className="px-6 py-3 text-left text-sm font-semibold">
                     Actions
@@ -285,16 +298,12 @@ const EventList = () => {
                       </div>
                     </td>
 
-                    {/* Venue */}
-                    <td className="px-6 py-4 text-sm text-gray-700 ">
-                      <div className="flex items-center gap-2 whitespace-nowrap">
+                    {/* Location */}
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      <div className="flex items-center gap-2 whitespace-nowrap mb-2">
                         <MapPin size={14} className="text-gray-400" />
                         <span>{item.venue || "N/A"}</span>
                       </div>
-                    </td>
-
-                    {/* Location */}
-                    <td className="px-6 py-4 text-sm text-gray-700">
                       <div className="flex items-center gap-2 whitespace-nowrap">
                         <Globe size={14} className="text-gray-400" />
                         <span>
@@ -318,6 +327,16 @@ const EventList = () => {
 
                     {/* Status */}
                     <td className="px-6 py-4">{getStatusBadge(item.status)}</td>
+
+                    <td className="px-6 py-4">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEnquiryModal(item)}
+                        className="text-blue-600 hover:underline text-sm font-semibold whitespace-nowrap"
+                      >
+                        View Enquiries
+                      </button>
+                    </td>
 
                     {/* Actions */}
                     <td className="px-6 py-4 flex gap-2">
@@ -389,6 +408,11 @@ const EventList = () => {
         onClose={handleModalClose}
         onSuccess={handleModalSuccess}
         editEventData={editEventData}
+      />
+      <EventEnquiryModal
+        isOpen={showEnquiryModal}
+        onClose={handleCloseEnquiryModal}
+        event={selectedEvent}
       />
     </div>
   );

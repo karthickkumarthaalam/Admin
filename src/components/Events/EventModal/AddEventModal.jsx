@@ -1,9 +1,17 @@
-import { CalendarDays, CarIcon, ImageIcon, User2, X } from "lucide-react";
+import {
+  CalendarDays,
+  CarIcon,
+  Contact2,
+  ImageIcon,
+  User2,
+  X,
+} from "lucide-react";
 import { useState, useCallback, useEffect } from "react";
 import AddEventDetails from "./AddEventDetails";
 import AddEventBanner from "./AddEventBanner";
 import AddEventCrew from "./AddEventCrew";
 import AddEventAmenity from "./AddEventAmenity";
+import AddEventContactDetails from "./AddEventContactDetails";
 
 const AddEventModal = ({ isOpen, onClose, onSuccess, editEventData }) => {
   const [activeTab, setActiveTab] = useState("event-details");
@@ -22,7 +30,7 @@ const AddEventModal = ({ isOpen, onClose, onSuccess, editEventData }) => {
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   if (!isOpen) return null;
@@ -54,7 +62,21 @@ const AddEventModal = ({ isOpen, onClose, onSuccess, editEventData }) => {
       icon: <CarIcon size={18} />,
       component: <AddEventAmenity eventId={editEventData?.id} />,
     },
+    {
+      id: "contact-details",
+      label: "Contact Details",
+      icon: <Contact2 size={18} />,
+      component: <AddEventContactDetails eventId={editEventData?.id} />,
+    },
   ];
+
+  const bottomText = {
+    "event-details": "Fill in all required event details marked with *",
+    "event-banner": "Upload and manage event banners or images",
+    "event-crew": "Add and manage crew members associated with this event",
+    "event-amenity": "Add and manage amenities available at the event",
+    "event-contact": "Provide contact details for event inquiries",
+  };
 
   return (
     <div
@@ -138,11 +160,7 @@ const AddEventModal = ({ isOpen, onClose, onSuccess, editEventData }) => {
         {/* Footer */}
         <div className="border-t border-gray-200 bg-white px-8 py-4">
           <div className="flex justify-between items-center text-xs md:text-sm text-gray-500">
-            <span>
-              {activeTab === "event-details"
-                ? "Fill in all required event details marked with *"
-                : "Upload and manage event banners or images"}
-            </span>
+            <span>{bottomText[activeTab]}</span>
             <span className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               {editEventData ? "Editing Mode" : "Creation Mode"}
