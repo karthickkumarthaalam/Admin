@@ -125,7 +125,7 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await apiCall("/system-user", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setUsers(res.data || []);
     } catch {
       toast.error("Failed to fetch users");
@@ -267,7 +267,6 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
     if (!news.published_by) return toast.error("Publisher name required");
     if (!news.published_date) return toast.error("Publishing date required");
     if (!news.content) return toast.error("News content required");
-    console.log(coverImage);
     if (!coverImage) return toast.error("Cover Image required");
     if (!news.category) return toast.error("News Category required");
 

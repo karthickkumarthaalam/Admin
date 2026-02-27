@@ -199,8 +199,8 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
         {/* Header */}
         <div className="sticky top-0 z-30 flex justify-between items-center border-b border-gray-200 bg-white/90 backdrop-blur px-4 md:px-6 py-3 md:py-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-xl">
-              <Podcast className="text-indigo-600" size={20} />
+            <div className="p-2 bg-blue-100 rounded-xl">
+              <Podcast className="text-blue-600" size={20} />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
               PODCAST DETAILS
@@ -222,15 +222,6 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
         <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden scrollbar-hide">
           {/* Left Side - Podcast Details */}
           <div className="w-full lg:w-2/5 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col ">
-            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Podcast Information
-              </h3>
-              <p className="text-sm text-gray-600 mt-1">
-                Complete details about this podcast episode
-              </p>
-            </div>
-
             <div
               ref={detailsContainerRef}
               className="flex-1 overflow-visible lg:overflow-y-auto overscroll-contain scrollbar-hide p-6"
@@ -250,7 +241,7 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
                           : `${window.location.origin}/A8J3K9Z5QW/podcast-banner.jpg`
                       }
                       alt={podcast.title}
-                      className="w-full h-auto object-cover rounded-xl"
+                      className="w-full h-auto object-cover rounded-xl "
                     />
                   </div>
 
@@ -414,7 +405,7 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
                       Comments
                     </h3>
                     <p className="text-sm text-gray-600">
-                      {totalComments} total comments • Auto-loads on scroll
+                      {totalComments} total comments
                     </p>
                   </div>
                 </div>
@@ -545,7 +536,7 @@ const PodcastDetailsModal = ({ isOpen, onClose, podcast }) => {
                       </div>
 
                       <div className="ml-13">
-                        <p className="text-gray-700 whitespace-pre-wrap">
+                        <p className="text-gray-700 whitespace-pre-wrap pl-12">
                           {comment.comment}
                         </p>
                         {comment.guest_email && (

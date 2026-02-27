@@ -25,7 +25,7 @@ const BudgetTaxes = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/budget-tax?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`
+        `/budget-tax?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`,
       );
       setTaxes(response?.data || []);
       setTotalRecords(response?.pagination?.totalRecords || 0);
@@ -87,7 +87,7 @@ const BudgetTaxes = () => {
         </div>
         <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
           <table className="w-full  text-sm">
-            <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white text-left">
+            <thead className="bg-gray-700 text-white text-left">
               <tr>
                 <th className="border-b px-3 py-3 text-left">SI</th>
                 <th className="border-b px-3 py-3 text-left">Tax Name</th>

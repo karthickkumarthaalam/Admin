@@ -36,7 +36,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
     try {
       const [currencyRes, userRes, categoriesRes] = await Promise.all([
         apiCall("/currency", "GET"),
-        apiCall("/system-user", "GET"),
+        apiCall("/system-user?status=active", "GET"),
         apiCall("/payslip-category", "GET"),
       ]);
 
@@ -65,7 +65,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
           net_salary: Number(editPayslipData.net_salary || 0),
           items: editPayslipData.items || [],
           converted_net_salary: Number(
-            editPayslipData.converted_net_salary || 0
+            editPayslipData.converted_net_salary || 0,
           ),
           conversion_currency_id: editPayslipData.conversion_currency_id,
         });
@@ -160,7 +160,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
       toast.success(
         editPayslipData
           ? "Payslip updated successfully"
-          : "Payslip created successfully"
+          : "Payslip created successfully",
       );
 
       onSuccess?.();
@@ -355,7 +355,7 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                                 handleItemChange(
                                   idx,
                                   "component_id",
-                                  e.target.value
+                                  e.target.value,
                                 )
                               }
                               className="w-full border rounded p-1 focus:ring-2 focus:ring-red-500 focus:outline-none"
@@ -373,8 +373,8 @@ export const AddPayslip = ({ isOpen, onClose, onSuccess, editPayslipData }) => {
                               item.type === "earning"
                                 ? "text-green-500"
                                 : item.type === "deduction"
-                                ? "text-red-500"
-                                : "text-gray-500"
+                                  ? "text-red-500"
+                                  : "text-gray-500"
                             }`}
                           >
                             {item.type || "-"}

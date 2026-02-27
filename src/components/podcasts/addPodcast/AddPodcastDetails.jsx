@@ -57,7 +57,7 @@ const AddPodcastDetails = ({ onNext, editPodcastData }) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await apiCall("/system-user?limit=200", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setSystemUsers(res.data || []);
     } catch {
       toast.error("Failed to load RJs");

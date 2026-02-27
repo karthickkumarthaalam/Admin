@@ -25,7 +25,7 @@ const Currency = () => {
     try {
       const response = await apiCall(
         `/currency?page=${currentPage}&search=${searchQuery}`,
-        "GET"
+        "GET",
       );
       setCurrencies(response.data);
       setTotalRecords(response.pagination.totalRecords);
@@ -121,7 +121,7 @@ const Currency = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full  text-sm">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white text-left">
+                <thead className="bg-gray-700 text-white text-left">
                   <tr>
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Country</th>

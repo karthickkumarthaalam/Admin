@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
+import ViewNewsDetails from "./ViewNewsDetails";
 
 const NewsList = () => {
   const [news, setNews] = useState([]);
@@ -30,6 +31,8 @@ const NewsList = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [deletingId, setDeletingId] = useState(null);
+  const [openNewsDetails, setOpenNewsDetails] = useState(false);
+  const [selectedNews, setSelectedNews] = useState(null);
 
   const { hasPermission } = usePermission();
 
@@ -44,7 +47,7 @@ const NewsList = () => {
       const response = await apiCall(
         `/news/admin-list?page=${currentPage}&limit=${pageSize}&search=${debouncedSearchQuery}&status=${
           statusFilter !== "all" ? statusFilter : ""
-        }&category=${categoryFilter !== "all" ? categoryFilter : ""}`
+        }&category=${categoryFilter !== "all" ? categoryFilter : ""}`,
       );
       setNews(response.data || []);
       setTotalRecords(response.pagination?.totalRecords || 0);
@@ -102,7 +105,7 @@ const NewsList = () => {
   // Memoized computed values
   const totalPages = useMemo(
     () => Math.ceil(totalRecords / pageSize),
-    [totalRecords, pageSize]
+    [totalRecords, pageSize],
   );
 
   const formatDate = useCallback((dateString) => {
@@ -133,7 +136,7 @@ const NewsList = () => {
         }
       }
     },
-    [fetchNews]
+    [fetchNews],
   );
 
   const updateNewsStatus = useCallback(
@@ -155,15 +158,15 @@ const NewsList = () => {
                     status_updated_at: new Date().toISOString(),
                     status_updated_by: user.name,
                   }
-                : n
-            )
+                : n,
+            ),
           );
         } catch (error) {
           toast.error("Failed to update status");
         }
       }
     },
-    [fetchNews]
+    [fetchNews],
   );
 
   const handleEdit = useCallback((item) => {
@@ -232,7 +235,13 @@ const NewsList = () => {
         <td className="px-6 py-4">
           <div className="flex items-start space-x-4">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200">
+              <h3
+                onClick={() => {
+                  setSelectedNews(item);
+                  setOpenNewsDetails(true);
+                }}
+                className="font-semibold text-gray-900 group-hover:text-blue-700 transition-colors duration-200 cursor-pointer"
+              >
                 {item.title?.length > 50
                   ? `${item.title.substring(0, 50)}...`
                   : item.title || "No Title"}
@@ -305,8 +314,8 @@ const NewsList = () => {
                   item.status === "published"
                     ? "bg-green-100 text-green-800 border-green-200 focus:ring-green-300"
                     : item.status === "archived"
-                    ? "bg-red-100 text-red-800 border-red-200 focus:ring-red-300"
-                    : "bg-blue-100 text-blue-800 border-blue-200 focus:ring-blue-300"
+                      ? "bg-red-100 text-red-800 border-red-200 focus:ring-red-300"
+                      : "bg-blue-100 text-blue-800 border-blue-200 focus:ring-blue-300"
                 }`}
               >
                 <option value="draft">Draft</option>
@@ -431,7 +440,7 @@ const NewsList = () => {
         </td>
       </tr>
     ),
-    [hasPermission]
+    [hasPermission],
   );
 
   // Memoized empty state
@@ -472,7 +481,7 @@ const NewsList = () => {
         </td>
       </tr>
     ),
-    [hasPermission, searchQuery, statusFilter, categoryFilter]
+    [hasPermission, searchQuery, statusFilter, categoryFilter],
   );
 
   return (
@@ -560,8 +569,8 @@ const NewsList = () => {
               {loading
                 ? loadingState
                 : news.length === 0
-                ? emptyState
-                : newsRows}
+                  ? emptyState
+                  : newsRows}
             </tbody>
           </table>
         </div>
@@ -600,6 +609,11 @@ const NewsList = () => {
         onClose={handleModalClose}
         onSuccess={handleModalSuccess}
         editNewsData={editNewsData}
+      />
+      <ViewNewsDetails
+        isOpen={openNewsDetails}
+        onClose={() => setOpenNewsDetails(false)}
+        news={selectedNews}
       />
     </div>
   );

@@ -34,7 +34,7 @@ export const AddExperience = ({
   // Fetch employees
   const fetchEmployees = async () => {
     try {
-      const res = await apiCall("/system-user", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setEmployeesList(res.data);
     } catch (error) {
       toast.error("Failed to fetch employees");
@@ -92,7 +92,7 @@ export const AddExperience = ({
       !form.employment_type
     ) {
       toast.error(
-        "Employee, Joining Date, Relieving Date, and Employment Type are required"
+        "Employee, Joining Date, Relieving Date, and Employment Type are required",
       );
       return;
     }
@@ -108,7 +108,7 @@ export const AddExperience = ({
       toast.success(
         editExperienceData
           ? "Experience updated successfully"
-          : "Experience added successfully"
+          : "Experience added successfully",
       );
       onSuccess?.();
       onClose();

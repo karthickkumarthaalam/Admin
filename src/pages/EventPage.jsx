@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { usePermission } from "../context/PermissionContext";
 import EventList from "../components/Events/EventList/EventList";
+import CrewManagement from "../components/CrewManagement/CrewManagement";
 
 const EventPage = () => {
-  const [activeTab, setActiveTab] = useState("events");
   const { hasPermission } = usePermission();
 
   const tabs = [
@@ -12,11 +12,18 @@ const EventPage = () => {
       label: "Events",
       permission: "Events",
     },
+    {
+      id: "crew",
+      label: "Crew Management",
+      permission: "Crew Management",
+    },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
     return hasPermission(permission, "read");
   });
+
+  const [activeTab, setActiveTab] = useState(visibleTabs[0].id);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -44,6 +51,7 @@ const EventPage = () => {
 
       <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
         {activeTab === "events" && <EventList />}
+        {activeTab === "crew" && <CrewManagement />}
       </div>
     </div>
   );

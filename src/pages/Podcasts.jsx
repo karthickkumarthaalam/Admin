@@ -141,7 +141,7 @@ const Podcasts = ({ viewType = "system" }) => {
           ]}
         />
 
-        <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+        <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-hide">
           <div className="flex flex-row justify-between md:justify-end items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className=" md:hidden text-sm sm:text-lg font-semibold text-gray-800">
               Podcast Management
@@ -240,7 +240,10 @@ const Podcasts = ({ viewType = "system" }) => {
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         {/* TITLE + OPTIONAL CATEGORY */}
-                        <td className="py-3 px-3 sm:px-4 font-bold text-slate-700">
+                        <td
+                          onClick={() => setDetailsModal(item)}
+                          className="py-3 px-3 sm:px-4 font-bold text-slate-700 cursor-pointer"
+                        >
                           {item.title}
                           {item.category?.name && (
                             <p className="text-xs text-gray-500 mt-0.5 font-medium">
@@ -382,14 +385,6 @@ const Podcasts = ({ viewType = "system" }) => {
 
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => setDetailsModal(item)}
-                              className="text-gray-800 hover:text-gray-900 p-2 bg-gray-50 hover:bg-gray-100 rounded-md shover:scale-105"
-                              title="Details"
-                            >
-                              <NotepadText size={16} />
-                            </button>
-
                             {hasPermission("Podcast", "update") && (
                               <button
                                 onClick={() => handleEdit(item.id)}

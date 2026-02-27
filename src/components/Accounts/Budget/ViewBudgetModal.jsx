@@ -11,6 +11,8 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
   const [appliedTaxes, setAppliedTaxes] = useState([]);
   const [isActualBudget, setIsActualBudget] = useState(false);
   const [originalTaxes, setOriginalTaxes] = useState([]);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfOrientation, setPdfOrientation] = useState("portrait");
 
   useEffect(() => {
     if (isOpen && budget?.budget_id) {
@@ -25,7 +27,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         apiCall(`/budget/budget-items/${budget.budget_id}?budget_type=income`),
         apiCall(`/budget/budget-items/${budget.budget_id}?budget_type=expense`),
         apiCall(
-          `/budget/budget-items/${budget.budget_id}?budget_type=sponsers`
+          `/budget/budget-items/${budget.budget_id}?budget_type=sponsers`,
         ),
         apiCall(`/budget/budget-tax/${budget.id}`),
       ]);
@@ -50,7 +52,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       (sum, i) =>
         sum +
         (parseFloat(isActualBudget ? i.actual_amount : i.total_amount) || 0),
-      0
+      0,
     );
 
     const updatedTaxes = originalTaxes.map((t) => ({
@@ -67,11 +69,13 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }
+      },
     )}`;
   };
 
   const handleExport = async () => {
+    setShowPdfModal(false);
+
     await exportBudgetPDF({
       budgetInfo: {
         title: budget.title,
@@ -90,6 +94,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
       sponsersItems,
       appliedTaxes,
       actualBudgetMode: isActualBudget,
+      orientation: pdfOrientation,
     });
   };
 
@@ -99,7 +104,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         sum +
         (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
           0),
-      0
+      0,
     );
   }, [incomeItems, isActualBudget]);
 
@@ -109,7 +114,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         sum +
         (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
           0),
-      0
+      0,
     );
   }, [sponsersItems, isActualBudget]);
 
@@ -119,14 +124,14 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         sum +
         (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
           0),
-      0
+      0,
     );
   }, [expenseItems, isActualBudget]);
 
   const totalTax = useMemo(() => {
     return appliedTaxes.reduce(
       (sum, tax) => sum + (parseFloat(tax.amount) || 0),
-      0
+      0,
     );
   }, [appliedTaxes]);
 
@@ -156,7 +161,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
         sum +
         (parseFloat(isActualBudget ? item.actual_amount : item.total_amount) ||
           0),
-      0
+      0,
     );
     return (
       <div className="mb-7">
@@ -237,7 +242,7 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                       ]
                     )}
                   </tr>
-                ))
+                )),
               )}
             </tbody>
           </table>
@@ -298,9 +303,9 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
               {budget.date
                 ? new Date(budget.date).toLocaleDateString()
                 : `${new Date(
-                    budget.from_date
+                    budget.from_date,
                   ).toLocaleDateString()} - ${new Date(
-                    budget.to_date
+                    budget.to_date,
                   ).toLocaleDateString()}`}
             </div>
             <div>
@@ -348,8 +353,8 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
                     {formatCurrency(
                       appliedTaxes.reduce(
                         (sum, tax) => sum + (parseFloat(tax.amount) || 0),
-                        0
-                      )
+                        0,
+                      ),
                     )}{" "}
                   </span>
                 </p>
@@ -412,13 +417,40 @@ const ViewBudgetModal = ({ isOpen, onClose, budget }) => {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6 bg-slate-100">
-          <button
-            onClick={handleExport}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm shadow"
-          >
-            Export to PDF
-          </button>
+        <div className="flex justify-end gap-3 mt-6 bg-slate-100 relative">
+          <div className="relative">
+            <button
+              onClick={() => setShowPdfModal(!showPdfModal)}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm shadow flex items-center gap-2"
+            >
+              Export PDF ▾
+            </button>
+
+            {showPdfModal && (
+              <div className="absolute right-0 bottom-10 mt-2 w-32 bg-blue-600 border rounded-lg shadow-lg z-50 overflow-hidden">
+                <button
+                  onClick={() => {
+                    setPdfOrientation("portrait");
+                    handleExport();
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-blue-500 text-white border-b border-blue-800"
+                >
+                  Portrait
+                </button>
+
+                <button
+                  onClick={() => {
+                    setPdfOrientation("landscape");
+                    handleExport();
+                  }}
+                  className="w-full text-left px-4 py-2 text-sm hover:bg-blue-500 text-white"
+                >
+                  Landscape
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={onClose}
             className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-md text-sm shadow"

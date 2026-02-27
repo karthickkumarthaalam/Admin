@@ -104,7 +104,7 @@ const Sidebar = () => {
       label: "Events",
       icon: PartyPopper,
       path: "/events",
-      permission: "Events",
+      permission: ["Events", "Crew Management"],
     },
     {
       label: "Packages",

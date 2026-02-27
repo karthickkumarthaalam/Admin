@@ -96,7 +96,7 @@ const EventEnquiryModal = ({ isOpen, onClose, event }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
       <div className="w-full h-full rounded-xl bg-white shadow-xl flex flex-col">
-        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 bg-slate-100">
+        <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 bg-slate-100 rounded-xl">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               Event Enquiries

@@ -1,0 +1,374 @@
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { apiCall } from "../../../utils/apiCall";
+
+const AddCrewMembers = ({
+  isOpen,
+  onClose,
+  editCrewMember,
+  onSuccess,
+  crewManagement,
+}) => {
+  const isEdit = !!editCrewMember;
+
+  const initialState = {
+    given_name: "",
+    sur_name: "",
+    contact_number: "",
+    email_id: "",
+    date_of_birth: "",
+    gender: "",
+    nationality: "",
+    designation: "",
+    passport_number: "",
+    date_of_issue: "",
+    date_of_expiry: "",
+    visa_type: "",
+    visa_number: "",
+    visa_issue: "",
+    visa_expiry: "",
+    food_preference: "",
+    flight_class: "",
+    room_preference: "",
+    remarks: "",
+  };
+
+  const [form, setForm] = useState(initialState);
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editCrewMember) {
+        setForm({ ...initialState, ...editCrewMember });
+      } else {
+        setForm(initialState);
+      }
+    }
+  }, [isOpen, editCrewMember]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    const payload = {
+      ...form,
+      crew_management_id: crewManagement?.id,
+    };
+
+    try {
+      setLoading(true);
+
+      if (isEdit) {
+        await apiCall(`/crew-member/${editCrewMember.id}`, "PUT", payload);
+        toast.success("Crew member updated successfully");
+      } else {
+        await apiCall(`/crew-member`, "POST", payload);
+        toast.success("Crew member added successfully");
+      }
+
+      onSuccess?.();
+      onClose();
+    } catch (error) {
+      toast.error("Failed to save crew member");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-2 md:p-6">
+      <div
+        onClick={onClose}
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+      />
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full h-full bg-white rounded-2xl shadow-xl flex flex-col"
+      >
+        {/* Header */}
+        <div className="px-8 py-6 border-b bg-slate-100 flex justify-between rounded-t-2xl">
+          <div>
+            <h2 className="text-xl font-semibold text-blue-700">
+              {isEdit ? "Edit Crew Member" : "Add Crew Member"}
+            </h2>
+            <p className="text-sm text-gray-900">
+              Manage crew passport & visa details
+            </p>
+          </div>
+          <button onClick={onClose}>✕</button>
+        </div>
+
+        {/* Body */}
+        <div className="p-6 overflow-y-auto flex-1 space-y-8 scrollbar-thin">
+          {/* 👤 BASIC INFO */}
+          <Section title="Basic Information">
+            <FormInput
+              label="Given Name *"
+              name="given_name"
+              value={form.given_name}
+              onChange={handleChange}
+              error={errors.given_name}
+            />
+            <FormInput
+              label="Surname *"
+              name="sur_name"
+              value={form.sur_name}
+              onChange={handleChange}
+              error={errors.sur_name}
+            />
+            <FormInput
+              label="Designation"
+              name="designation"
+              value={form.designation}
+              onChange={handleChange}
+            />
+            <FormSelect
+              label="Gender"
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
+            >
+              <option value="">Select</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </FormSelect>
+            <FormInput
+              type="date"
+              label="Date of Birth"
+              name="date_of_birth"
+              value={form.date_of_birth}
+              onChange={handleChange}
+            />
+            <FormInput
+              label="Nationality"
+              name="nationality"
+              value={form.nationality}
+              onChange={handleChange}
+            />
+            <FormInput
+              label="Contact Number"
+              name="contact_number"
+              value={form.contact_number}
+              onChange={handleChange}
+            />
+            <FormInput
+              label="Email"
+              name="email_id"
+              value={form.email_id}
+              onChange={handleChange}
+            />
+          </Section>
+
+          {/* ✈️ TRAVEL */}
+          <Section title="Travel & Stay">
+            <FormSelect
+              label="Food Preference"
+              name="food_preference"
+              value={form.food_preference}
+              onChange={handleChange}
+            >
+              <option value="">Select</option>
+              <option value="veg">Veg</option>
+              <option value="non_veg">Non Veg</option>
+              <option value="vegan">Vegan</option>
+              <option value="jain">Jain</option>
+              <option value="halal">Halal</option>
+              <option value="eggitarian">Eggitarian</option>
+            </FormSelect>
+
+            <FormSelect
+              label="Flight Class *"
+              name="flight_class"
+              value={form.flight_class}
+              onChange={handleChange}
+              error={errors.flight_class}
+            >
+              <option value="">Select</option>
+              <option value="economy">Economy</option>
+              <option value="business">Business</option>
+              <option value="first">First</option>
+            </FormSelect>
+
+            <FormSelect
+              label="Room Sharing"
+              name="room_preference"
+              value={form.room_preference}
+              onChange={handleChange}
+            >
+              <option value="">Select</option>
+              <option value="single">Single</option>
+              <option value="double">Double</option>
+              <option value="triple">Triple</option>
+              <option value="quad">Quad</option>
+              <option value="six">6 Sharing</option>
+              <option value="eight">8 Sharing</option>
+            </FormSelect>
+          </Section>
+
+          {/* 🛂 PASSPORT */}
+          <Section title="Passport Details">
+            <FormInput
+              label="Passport Number *"
+              name="passport_number"
+              value={form.passport_number}
+              onChange={handleChange}
+              error={errors.passport_number}
+            />
+            <FormInput
+              type="date"
+              label="Passport Issue"
+              name="date_of_issue"
+              value={form.date_of_issue}
+              onChange={handleChange}
+            />
+            <FormInput
+              type="date"
+              label="Passport Expiry"
+              name="date_of_expiry"
+              value={form.date_of_expiry}
+              onChange={handleChange}
+            />
+          </Section>
+
+          {/* 🌍 VISA */}
+          <Section title="Visa Details">
+            <FormInput
+              label="Visa Type"
+              name="visa_type"
+              value={form.visa_type}
+              onChange={handleChange}
+            />
+            <FormInput
+              label="Visa Number"
+              name="visa_number"
+              value={form.visa_number}
+              onChange={handleChange}
+            />
+            <FormInput
+              type="date"
+              label="Visa Issue"
+              name="visa_issue"
+              value={form.visa_issue}
+              onChange={handleChange}
+            />
+            <FormInput
+              type="date"
+              label="Visa Expiry"
+              name="visa_expiry"
+              value={form.visa_expiry}
+              onChange={handleChange}
+            />
+          </Section>
+
+          {/* 📝 REMARKS */}
+          <Section title="Remarks">
+            <textarea
+              name="remarks"
+              value={form.remarks}
+              onChange={handleChange}
+              className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-none focus:outline-none"
+              rows={3}
+            />
+          </Section>
+        </div>
+
+        {/* Footer */}
+        <div className="px-8 py-5 border-t bg-slate-50 flex justify-end gap-4 rounded-2xl">
+          <button onClick={onClose} className="px-6 py-2 border rounded-xl">
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-md"
+          >
+            {loading ? "Saving..." : isEdit ? "Update Crew" : "Add Crew"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* SECTION WRAPPER */
+const Section = ({ title, children }) => (
+  <div className="bg-gray-50/60 border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+    {/* Section Header */}
+    <div className="flex items-center justify-between mb-5">
+      <h3 className="text-base md:text-lg font-semibold text-gray-800 tracking-wide">
+        {title}
+      </h3>
+
+      {/* optional divider line */}
+      <div className="flex-1 ml-4 h-[1px] bg-gray-200"></div>
+    </div>
+
+    {/* Section Content */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      {children}
+    </div>
+  </div>
+);
+
+/* reusable */
+const blockCopyEvents = {
+  onCopy: (e) => e.preventDefault(),
+  onPaste: (e) => e.preventDefault(),
+  onCut: (e) => e.preventDefault(),
+  onContextMenu: (e) => e.preventDefault(),
+  onDragStart: (e) => e.preventDefault(),
+};
+
+const FormInput = ({ label, error, type = "text", ...props }) => (
+  <div>
+    <label className="block text-sm mb-2 font-medium">{label}</label>
+
+    <input
+      type={type}
+      {...props}
+      {...blockCopyEvents}
+      autoComplete="off"
+      className={`w-full border rounded-xl px-4 py-2 bg-white
+      focus:ring-2 focus:ring-blue-500 focus:outline-none
+      ${error ? "border-red-400" : "border-gray-300"}`}
+    />
+
+    {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+  </div>
+);
+
+const FormSelect = ({ label, error, children, ...props }) => (
+  <div>
+    <label className="block text-sm mb-2 font-medium">{label}</label>
+
+    <select
+      {...props}
+      onCopy={(e) => e.preventDefault()}
+      onPaste={(e) => e.preventDefault()}
+      onContextMenu={(e) => e.preventDefault()}
+      className={`w-full border rounded-xl px-4 py-2 bg-white
+      focus:ring-2 focus:ring-blue-500 focus:outline-none
+      ${error ? "border-red-400" : "border-gray-300"}`}
+    >
+      {children}
+    </select>
+
+    {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+  </div>
+);
+export default AddCrewMembers;

@@ -17,6 +17,7 @@ export const exportBudgetPDF = async ({
   sponsersItems,
   appliedTaxes,
   actualBudgetMode = false,
+  orientation = "portrait",
 }) => {
   const {
     title,
@@ -37,7 +38,7 @@ export const exportBudgetPDF = async ({
   let sponsersGroupedHTML = "";
 
   const logoSrc = await getBase64Logo(
-    `${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`
+    `${window.location.origin}/A8J3K9Z5QW/thalam-logo.png`,
   );
 
   const formatDate = (date) =>
@@ -49,7 +50,7 @@ export const exportBudgetPDF = async ({
       {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
-      }
+      },
     )}`;
   };
 
@@ -66,8 +67,18 @@ export const exportBudgetPDF = async ({
 
   const renderGroupedRows = (groupedItems) => {
     return groupedItems
-      .map(([category, rows], groupIndex) =>
-        rows
+      .map(([category, rows], groupIndex) => {
+        let categoryTotal = 0;
+
+        rows.forEach((r) => {
+          if (actualBudgetMode) {
+            categoryTotal += Number(r.actual_amount || 0);
+          } else {
+            categoryTotal += Number(r.total_amount || 0);
+          }
+        });
+
+        const rowHtml = rows
           .map((row, rowIndex) => {
             const isFirst = rowIndex === 0;
             const isLast = rowIndex === rows.length - 1;
@@ -85,31 +96,46 @@ export const exportBudgetPDF = async ({
           <tr style="page-break-inside: avoid;">
             <td style="${cellStyle}">${isFirst ? groupIndex + 1 : ""}</td>
             <td style="${cellStyle}">${isFirst ? category : ""}</td>
-            <td style="${cellStyle}">${row.sub_category}</td>
-            <td style="${cellStyle}">${row.description}</td>
-            <td style="${cellStyle}">${row.quantity} ${
-              row.units ? "- " + row.units : ""
-            }</td>
+            <td style="${cellStyle}">${row.sub_category || ""}</td>
+            <td style="${cellStyle}">${row.description || ""}</td>
+            <td style="${cellStyle} white-space:nowrap">
+              ${row.quantity || ""} ${row.units ? "- " + row.units : ""}
+            </td>
+
             ${
               !actualBudgetMode
                 ? `
-              <td style="${cellStyle} text-align:right;">${formatCurrency(
-                    row.amount
-                  )}</td>
-              <td style="${cellStyle} text-align:right;">${formatCurrency(
-                    row.total_amount
-                  )}</td>
+              <td style="${cellStyle} text-align:right;">
+                ${formatCurrency(row.amount)}
+              </td>
+              <td style="${cellStyle} text-align:right;">
+                ${formatCurrency(row.total_amount)}
+              </td>
             `
                 : `
-              <td colspan="2" style="${cellStyle} text-align:right;">${formatCurrency(
-                    row.actual_amount
-                  )}</td>
+              <td colspan="2" style="${cellStyle} text-align:right;">
+                ${formatCurrency(row.actual_amount)}
+              </td>
             `
             }
           </tr>`;
           })
-          .join("")
-      )
+          .join("");
+
+        const totalRow = `
+        <tr>
+          <td colspan="${actualBudgetMode ? 5 : 6}" 
+              style="padding:6px; border:1px solid #ddd; text-align:right; font-weight:bold;">
+              ${category} Total
+          </td>
+          <td style="padding:6px; border:1px solid #ddd; text-align:right; font-weight:bold;">
+              ${formatCurrency(categoryTotal)}
+          </td>
+        </tr>
+      `;
+
+        return rowHtml + totalRow;
+      })
       .join("");
   };
 
@@ -118,9 +144,9 @@ export const exportBudgetPDF = async ({
       (sum, item) =>
         sum +
         (parseFloat(
-          actualBudgetMode ? item.actual_amount : item.total_amount
+          actualBudgetMode ? item.actual_amount : item.total_amount,
         ) || 0),
-      0
+      0,
     );
     expenseGroupedHTML = renderGroupedRows(groupItemsByCategory(expenseItems));
   }
@@ -130,9 +156,9 @@ export const exportBudgetPDF = async ({
       (sum, item) =>
         sum +
         (parseFloat(
-          actualBudgetMode ? item.actual_amount : item.total_amount
+          actualBudgetMode ? item.actual_amount : item.total_amount,
         ) || 0),
-      0
+      0,
     );
     incomeGroupedHTML = renderGroupedRows(groupItemsByCategory(incomeItems));
   }
@@ -142,12 +168,12 @@ export const exportBudgetPDF = async ({
       (sum, item) =>
         sum +
         (parseFloat(
-          actualBudgetMode ? item.actual_amount : item.total_amount
+          actualBudgetMode ? item.actual_amount : item.total_amount,
         ) || 0),
-      0
+      0,
     );
     sponsersGroupedHTML = renderGroupedRows(
-      groupItemsByCategory(sponsersItems)
+      groupItemsByCategory(sponsersItems),
     );
   }
 
@@ -198,12 +224,56 @@ export const exportBudgetPDF = async ({
               ? `<p><strong>From:</strong> ${formatDate(from_date)}</p>
                  <p><strong>To:</strong> ${formatDate(to_date)}</p>`
               : date
-              ? `<p><strong>Date:</strong> ${formatDate(date)}</p>`
-              : ""
+                ? `<p><strong>Date:</strong> ${formatDate(date)}</p>`
+                : ""
           }
         </div>
       </div>
       </div>
+
+        ${
+          expenseItems.length > 0 && incomeItems.length > 0
+            ? `
+         <div style="page-break-inside: avoid; break-inside: avoid; margin-top: 30px;">
+        <h3 style="margin-bottom: 10px; font-size: 14px;">BUDGET SUMMARY</h3>
+        <table style="width: 100%; font-size: 11px;">
+          <thead style="background-color: #333; color: white;">
+            <tr>
+              <th style="padding: 3px; padding-left:6px; padding-bottom:15px;  text-align: left;">Total Income</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Expense</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Taxes</th>
+              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Profit / Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd; color: green;">
+                ${currencySymbol} ${formatCurrency(incomeTotal + sponsersTotal)}
+              </td>
+              <td style="padding: 8px; border: 1px solid #ddd; color: red;">
+                ${currencySymbol} ${formatCurrency(expenseTotal)}
+              </td>
+                 <td style="padding: 8px; border: 1px solid #ddd; color: red;">
+                ${currencySymbol} ${formatCurrency(taxTotal)}
+              </td>
+              <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">
+                ${
+                  profit >= 0
+                    ? `<span style="color: green;">🔺 ${currencySymbol} ${formatCurrency(
+                        profit,
+                      )} (Profit)</span>`
+                    : `<span style="color: red;">🔻 ${currencySymbol} ${formatCurrency(
+                        Math.abs(profit),
+                      )} (Loss)</span>`
+                }
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      `
+            : ""
+        }
 
       ${
         expenseItems.length > 0
@@ -231,8 +301,8 @@ export const exportBudgetPDF = async ({
                   </tbody>
                 </table>
                 <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: red;"><span style="color: black">Total Expense:</span> <strong>${currencySymbol} ${formatCurrency(
-              expenseTotal
-            )}</strong></p>
+                  expenseTotal,
+                )}</strong></p>
               </div>`
           : ""
       }
@@ -264,8 +334,8 @@ export const exportBudgetPDF = async ({
           </tbody>
         </table>
         <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: green;"><span style="color: black">Total Income:</span> <strong>${currencySymbol} ${formatCurrency(
-              incomeTotal
-            )}</strong></p>
+          incomeTotal,
+        )}</strong></p>
       </div>
 `
           : ""
@@ -298,16 +368,16 @@ export const exportBudgetPDF = async ({
                         tax.percentage
                       }</td>
                       <td style="padding: 3px; padding-bottom:15px; border: 1px solid #ddd; text-align: right">${currencySymbol} ${formatCurrency(
-                      tax.amount
-                    )}</td>
-                    </tr>`
+                        tax.amount,
+                      )}</td>
+                    </tr>`,
                   )
                   .join("")}
               </tbody>
             </table>
                     <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: red;"><span style="color: black">Total Tax:</span> <strong>${currencySymbol} ${formatCurrency(
-                taxTotal
-              )}</strong></p>`
+                      taxTotal,
+                    )}</strong></p>`
             : `<p style="font-size: 12px; color: gray;">No taxes applied.</p>`
         }
       </div>`
@@ -341,55 +411,11 @@ export const exportBudgetPDF = async ({
           </tbody>
         </table>
         <p style="text-align:right; font-size:12px; margin-bottom: 30px; color: green;"><span style="color: black">Total Sponsers Income:</span> <strong>${currencySymbol} ${formatCurrency(
-              sponsersTotal
-            )}</strong></p>
+          sponsersTotal,
+        )}</strong></p>
       </div>`
           : ""
       }
-
-    ${
-      expenseItems.length > 0 && incomeItems.length > 0
-        ? `
-         <div style="page-break-inside: avoid; break-inside: avoid; margin-top: 30px;">
-        <h3 style="margin-bottom: 10px; font-size: 14px;">BUDGET SUMMARY</h3>
-        <table style="width: 100%; font-size: 11px;">
-          <thead style="background-color: #333; color: white;">
-            <tr>
-              <th style="padding: 3px; padding-left:6px; padding-bottom:15px;  text-align: left;">Total Income</th>
-              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Expense</th>
-              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Total Taxes</th>
-              <th style="padding: 3px; padding-bottom:15px;  text-align: left;">Profit / Loss</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ddd; color: green;">
-                ${currencySymbol} ${formatCurrency(incomeTotal + sponsersTotal)}
-              </td>
-              <td style="padding: 8px; border: 1px solid #ddd; color: red;">
-                ${currencySymbol} ${formatCurrency(expenseTotal)}
-              </td>
-                 <td style="padding: 8px; border: 1px solid #ddd; color: red;">
-                ${currencySymbol} ${formatCurrency(taxTotal)}
-              </td>
-              <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">
-                ${
-                  profit >= 0
-                    ? `<span style="color: green;">🔺 ${currencySymbol} ${formatCurrency(
-                        profit
-                      )} (Profit)</span>`
-                    : `<span style="color: red;">🔻 ${currencySymbol} ${formatCurrency(
-                        Math.abs(profit)
-                      )} (Loss)</span>`
-                }
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      `
-        : ""
-    }
     </div>
   `;
 
@@ -405,12 +431,12 @@ export const exportBudgetPDF = async ({
         useCORS: true,
         allowTaint: true,
         scrollY: 0,
-        windowWidth: element.scrollWidth, // helps fix width clipping
+        windowWidth: element.scrollWidth,
       },
       jsPDF: {
         unit: "in",
         format: "a4",
-        orientation: "portrait",
+        orientation: orientation,
         hotfixes: ["px_scaling"],
       },
     })

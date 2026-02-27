@@ -95,7 +95,7 @@ const AddEventContactDetails = ({ eventId }) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to fetch contact details");
     } finally {
       setLoading(false);
     }

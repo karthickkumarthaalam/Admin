@@ -203,7 +203,7 @@ const AddExpenseModal = ({ isOpen, onClose, onSuccess, editExpenseData }) => {
 
   const fetchUsers = async () => {
     try {
-      const res = await apiCall("/system-user", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setState((prev) => ({ ...prev, users: res.data }));
     } catch (err) {
       toast.error("Failed to fetch users");

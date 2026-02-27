@@ -7,12 +7,12 @@ import {
   BadgePlus,
   Search,
   MapPin,
-  CalendarDays,
-  Edit,
   Trash2,
   Loader2,
   Globe,
   Image as ImageIcon,
+  ExternalLink,
+  Edit2,
 } from "lucide-react";
 import AddEventModal from "../EventModal/AddEventModal";
 import EventEnquiryModal from "../EventEnquiry/EventEnquiryModal";
@@ -346,7 +346,7 @@ const EventList = () => {
                           className="p-2 bg-white border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-blue-600 transition-all duration-200"
                           title="Edit Event"
                         >
-                          <Edit size={16} />
+                          <Edit2 size={16} />
                         </button>
                       )}
                       {hasPermission("Events", "delete") && (
@@ -365,6 +365,21 @@ const EventList = () => {
                           )}
                         </button>
                       )}
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://thaalam.ch/event-details?slug=${item.slug}`,
+                            "_blank",
+                          )
+                        }
+                        className="p-2 bg-white border border-indigo-200 rounded-lg 
+             hover:bg-indigo-50 hover:border-indigo-400 
+             text-indigo-600 hover:text-indigo-700
+             transition-all duration-200 shadow-sm"
+                        title="Preview Page"
+                      >
+                        <ExternalLink size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}

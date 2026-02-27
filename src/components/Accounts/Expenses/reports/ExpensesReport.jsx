@@ -56,7 +56,7 @@ const ExpensesReport = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await apiCall("/system-user", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setUsers(res.data || []);
     } catch {
       toast.error("Failed to fetch users");
@@ -114,7 +114,7 @@ const ExpensesReport = () => {
                     {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </span>
               </div>
@@ -130,7 +130,7 @@ const ExpensesReport = () => {
                     {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
-                    }
+                    },
                   )}
                 </span>
               </div>
@@ -260,7 +260,7 @@ const ExpensesReport = () => {
               ? Math.round(
                   ((currencyData.year_total - currencyData.pending_total) /
                     currencyData.year_total) *
-                    100
+                    100,
                 )
               : 0;
 
@@ -348,7 +348,7 @@ const ExpensesReport = () => {
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -367,7 +367,7 @@ const ExpensesReport = () => {
                           {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
-                          }
+                          },
                         )}
                       </p>
                     </div>

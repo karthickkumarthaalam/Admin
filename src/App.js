@@ -172,7 +172,8 @@ function AppRoutes() {
           <Route
             path="/events"
             element={
-              hasPermission("Events", "read") ? (
+              hasPermission("Events", "read") ||
+              hasPermission("Crew Management", "read") ? (
                 <EventPage />
               ) : (
                 <Navigate to="/" />

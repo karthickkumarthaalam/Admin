@@ -25,7 +25,7 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
       content: "",
       published_date: "",
     }),
-    []
+    [],
   );
 
   const [blog, setBlog] = useState(initialState);
@@ -88,7 +88,7 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await apiCall("/system-user", "GET");
+      const res = await apiCall("/system-user?status=active", "GET");
       setUsers(res.data || []);
     } catch {
       toast.error("Failed to fetch users");
@@ -134,7 +134,7 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
         return updated;
       });
     },
-    [fetchSubCategories, users]
+    [fetchSubCategories, users],
   );
 
   const handleContentChange = useCallback((value) => {
@@ -206,7 +206,7 @@ const AddBlogsDetails = ({ onSuccess, editBlogsData }) => {
       onSuccess?.();
     } catch {
       toast.error(
-        editBlogsData ? "Failed to update blog" : "Failed to create blog"
+        editBlogsData ? "Failed to update blog" : "Failed to create blog",
       );
     } finally {
       setLoading(false);
@@ -497,7 +497,7 @@ const RichTextEditor = ({ label, value, onChange, placeholder }) => {
         ["clean"],
       ],
     }),
-    []
+    [],
   );
 
   return (

@@ -19,11 +19,6 @@ const NewsPage = () => {
       label: "News Category",
       permission: "News",
     },
-    {
-      id: "news-comments",
-      label: "News Comments",
-      permission: "News",
-    },
   ];
 
   const visibleTabs = tabs.filter(({ permission }) => {
@@ -57,7 +52,6 @@ const NewsPage = () => {
       <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
         {activeTab === "news-page" && <NewsList />}
         {activeTab === "news-category" && <NewsCategory />}
-        {activeTab === "news-comments" && <NewsComments />}
       </div>
     </div>
   );

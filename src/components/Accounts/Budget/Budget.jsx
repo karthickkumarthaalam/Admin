@@ -41,7 +41,7 @@ const Budget = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/budget?page=${currentPage}&limit=${pageSize}&search=${searchQuery}&show_deleted=${viewDeleted}`
+        `/budget?page=${currentPage}&limit=${pageSize}&search=${searchQuery}&show_deleted=${viewDeleted}`,
       );
       setBudgets(response?.data);
       setTotalRecords(response?.pagination?.totalRecords);
@@ -170,7 +170,7 @@ const Budget = () => {
 
         <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
           <table className="w-full  text-sm">
-            <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white text-left">
+            <thead className="bg-gray-700 text-white text-left">
               <tr>
                 <th className="border-b px-4 py-3 whitespace-nowrap text-left align-top">
                   SI
@@ -259,13 +259,13 @@ const Budget = () => {
                           <div>
                             <span className="font-semibold">From:</span>{" "}
                             {new Date(budget?.from_date).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )}
                           </div>
                           <div>
                             <span className="font-semibold">To:</span>{" "}
                             {new Date(budget?.to_date).toLocaleDateString(
-                              "en-GB"
+                              "en-GB",
                             )}
                           </div>
                         </div>

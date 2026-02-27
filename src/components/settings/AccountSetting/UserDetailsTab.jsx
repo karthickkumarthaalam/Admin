@@ -145,7 +145,7 @@ const UserDetailsTab = ({ onSuccess, userId }) => {
       setImagePreview(
         data.image_url
           ? `${BASE_URL}/${data.image_url.replace(/\\/g, "/")}`
-          : null
+          : null,
       );
     } catch (error) {
       toast.error("Failed to fetch user details");
@@ -336,7 +336,7 @@ const UserDetailsTab = ({ onSuccess, userId }) => {
             <button
               onClick={() => {
                 const currentIndex = sections.findIndex(
-                  (s) => s.id === activeSection
+                  (s) => s.id === activeSection,
                 );
                 const prevIndex =
                   currentIndex > 0 ? currentIndex - 1 : sections.length - 1;
@@ -355,7 +355,7 @@ const UserDetailsTab = ({ onSuccess, userId }) => {
             <button
               onClick={() => {
                 const currentIndex = sections.findIndex(
-                  (s) => s.id === activeSection
+                  (s) => s.id === activeSection,
                 );
                 const nextIndex =
                   currentIndex < sections.length - 1 ? currentIndex + 1 : 0;
@@ -756,10 +756,10 @@ const SectionCard = ({
                     badge === "Auto-filled"
                       ? "bg-blue-100 text-blue-800"
                       : badge === "Editable"
-                      ? "bg-green-100 text-green-800"
-                      : badge === "Sensitive"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-purple-100 text-purple-800"
+                        ? "bg-green-100 text-green-800"
+                        : badge === "Sensitive"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-purple-100 text-purple-800"
                   }`}
                 >
                   {badge}

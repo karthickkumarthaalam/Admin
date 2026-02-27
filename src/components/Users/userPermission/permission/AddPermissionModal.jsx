@@ -13,7 +13,7 @@ const AddPermissionModal = ({ isOpen, onClose, onSuccess, editData }) => {
   const [openModules, setOpenModules] = useState([]);
 
   const fetchSystemUsers = async () => {
-    const res = await apiCall("/system-user?limit=1000", "GET");
+    const res = await apiCall("/system-user?status=active", "GET");
     setSystemUsers(res.data);
   };
 
@@ -56,7 +56,7 @@ const AddPermissionModal = ({ isOpen, onClose, onSuccess, editData }) => {
 
         if (existing.access_types.includes(type)) {
           existing.access_types = existing.access_types.filter(
-            (a) => a !== type
+            (a) => a !== type,
           );
         } else {
           existing.access_types = [...existing.access_types, type];
@@ -93,7 +93,7 @@ const AddPermissionModal = ({ isOpen, onClose, onSuccess, editData }) => {
     setSelectedPermissions((prev) =>
       exists
         ? prev.filter((p) => p.module_id !== moduleId)
-        : [...prev, { module_id: moduleId, access_types: [...accessOptions] }]
+        : [...prev, { module_id: moduleId, access_types: [...accessOptions] }],
     );
   };
 
