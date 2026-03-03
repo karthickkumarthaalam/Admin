@@ -156,7 +156,9 @@ const CrewManagementPage = () => {
                   <th className="py-3 px-3 sm:px-4">#</th>
                   <th className="py-3 px-3 sm:px-4">Crew ID</th>
                   <th className="py-3 px-3 sm:px-4">Title</th>
-                  <th className="py-3 px-3 sm:px-4">Crew Admin Email</th>
+                  <th className="py-3 px-3 sm:px-4 whitespace-nowrap">
+                    Crew Admin Email
+                  </th>
                   <th className="py-3 px-3 sm:px-4 text-center whitespace-nowrap">
                     Crew Members
                   </th>
@@ -255,7 +257,7 @@ const CrewManagementPage = () => {
                             <span className="text-xs text-gray-400 italic">
                               No Access Assigned
                             </span>
-                            <span className="text-[11px] text-gray-300">
+                            <span className="text-[11px] text-gray-300 whitespace-nowrap">
                               Add email to enable login
                             </span>
                           </div>

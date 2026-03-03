@@ -290,12 +290,14 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
               </div>
 
               {/* FILE + BUTTON */}
-              <div className="flex justify-between items-center gap-4 mt-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
                 {/* FILE */}
-                <label className="flex items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                <label className="flex w-full max-w-md items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                   <Upload className="h-4 w-4 text-gray-500" />
                   <span className="text-sm text-gray-600">
-                    {form.newVisaFile ? form.newVisaFile.name : "Upload Visa"}
+                    {form.newVisaFile
+                      ? form.newVisaFile.name
+                      : "Upload Visa Document"}
                   </span>
                   <input
                     type="file"

@@ -23,7 +23,7 @@ const documentTypes = [
   },
   {
     key: "income_revenue",
-    label: "Income Revenue",
+    label: "ITR Document",
   },
   {
     key: "bank_statement",
@@ -31,11 +31,12 @@ const documentTypes = [
   },
 ];
 
-const CrewDocumentsModal = ({ isOpen, onClose, crewMember }) => {
+const CrewDocumentsModal = ({ isOpen, onClose, crewMember, selectedType }) => {
   const [documents, setDocuments] = useState([]);
   const [loadingType, setLoadingType] = useState(null);
   const [dragType, setDragType] = useState(null);
   const fileRefs = useRef({});
+  const sectionRefs = useRef({});
 
   const fetchDocs = async () => {
     if (!crewMember) return;
@@ -46,6 +47,15 @@ const CrewDocumentsModal = ({ isOpen, onClose, crewMember }) => {
       toast.error("Failed to load documents");
     }
   };
+
+  useEffect(() => {
+    if (isOpen && selectedType && sectionRefs.current[selectedType]) {
+      sectionRefs.current[selectedType].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [isOpen, selectedType]);
 
   useEffect(() => {
     if (isOpen) fetchDocs();
@@ -129,8 +139,14 @@ const CrewDocumentsModal = ({ isOpen, onClose, crewMember }) => {
             {documentTypes.map((type) => (
               <div
                 key={type.key}
-                className="relative bg-white/90 backdrop-blur border border-gray-200 
-  rounded-3xl p-6 shadow-sm hover:shadow-2xl transition-all duration-300 group"
+                ref={(el) => (sectionRefs.current[type.key] = el)}
+                className={`relative bg-white/90 backdrop-blur border rounded-3xl p-6 
+    shadow-sm transition-all duration-300 group
+    ${
+      selectedType === type.key
+        ? "ring-2 ring-indigo-500 border-indigo-400 shadow-xl scale-[1.02]"
+        : "border-gray-200 hover:shadow-2xl"
+    }`}
               >
                 {/* TITLE */}
                 <div className="flex items-center justify-between mb-4">

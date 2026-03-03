@@ -4,7 +4,6 @@ import { apiCall } from "../../../utils/apiCall";
 import {
   AlertCircle,
   Building2,
-  BuildingIcon,
   Check,
   CheckCircle,
   ChevronDown,
@@ -20,7 +19,6 @@ import {
   ShieldCheck,
   Trash2,
   Upload,
-  UploadCloud,
   X,
   XCircle,
 } from "lucide-react";
@@ -49,6 +47,9 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
   const [expandedRow, setExpandedRow] = useState(null);
 
   const [documentModal, setDocumentModal] = useState(false);
+
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState(null);
 
   const [moduleAccess, setModuleAccess] = useState({
     can_manage_flight: false,
@@ -87,18 +88,22 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
       setLoading(false);
     }
   };
+  const handleClose = () => {
+    onClose();
+    setSelectedCrew(null);
+    setSelectedRows([]);
+  };
 
   const handleBackdropClick = useCallback(
     (e) => {
       if (e.target === e.currentTarget) {
-        onClose();
+        handleClose();
       }
     },
     [onClose],
   );
 
   const handleUpdateStatus = async (id, status) => {
-    if (!window.confirm("Are you sure you want to update status")) return;
     try {
       await apiCall(`/crew-member/status/${id}`, "PATCH", { status });
       toast.success("Status Updated successfully");
@@ -176,19 +181,36 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
       className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-[100] overflow-auto md:p-4"
     >
       <div className="bg-slate-50 rounded-xl w-full  p-6 relative overflow-auto h-full scrollbar-hide">
-        <div className="border-b border-dashed border-gray-600 pb-3 mb-6 flex items-start md:items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold  text-blue-600 ">
-              Crew Members
-            </h2>
-            <h4 className="text-gray-900 font-semibold text-xl">
-              {crewManagement.title}
-            </h4>
+        <div className="border-b border-dashed border-gray-600 pb-4 mb-6">
+          {/* Top Row */}
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xs font-semibold text-blue-600 uppercase tracking-wide">
+                Crew Members
+              </h2>
+              <h4 className="text-gray-900 font-bold text-lg md:text-xl">
+                {crewManagement.title}
+              </h4>
+            </div>
+
+            <button
+              onClick={handleClose}
+              className="p-1 rounded-md hover:bg-red-50 transition"
+            >
+              <X size={22} className="text-gray-600 hover:text-red-600" />
+            </button>
           </div>
 
-          <div className="flex flex-col-reverse md:flex-row items-end md:items-center justify-end gap-5 md:gap-3">
-            <label className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-br from-emerald-600 to-emerald-700  text-white rounded-md  hover:from-emerald-700 hover:to-emerald-800 shadow-sm cursor-pointer">
-              <Upload size={16} /> Upload Excel
+          {/* Action Buttons */}
+          <div className="mt-4 flex flex-row justify-end gap-3">
+            {/* Upload Button */}
+            <label
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium 
+      bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-lg 
+      hover:from-emerald-700 hover:to-emerald-800 shadow-sm cursor-pointer transition"
+            >
+              <Upload size={16} />
+              Upload Excel
               <input
                 type="file"
                 accept=".xlsx,.xls"
@@ -196,26 +218,24 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                 onChange={handleExcelUpload}
               />
             </label>
+
+            {/* Add Crew Button */}
             <button
               onClick={() => {
                 setOpenAddModal(true);
                 setSelectedCrewMember(null);
               }}
-              className="whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-lg shadow-md bg-gradient-to-r  from-blue-600 hover:from-blue-700 to-blue-700 hover:to-blue-800 text-white text-sm "
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 
+        rounded-lg shadow-sm bg-gradient-to-r from-blue-600 to-blue-700 
+        hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium transition"
             >
               <PlusCircleIcon size={16} />
               Add Crew Member
             </button>
-            <X
-              size={24}
-              className="font-semibold text-gray-900 hover:text-red-600"
-              onClick={onClose}
-            />
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
           <div className="flex items-center gap-4">
-            {/* TOTAL CREW */}
             <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-2xl shadow-sm">
               <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
                 {crewMembers.length}
@@ -226,7 +246,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
               </div>
             </div>
 
-            {/* ACTIVE CREW */}
             <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-2xl shadow-sm">
               <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600 font-bold text-sm">
                 {crewMembers.filter((m) => m.status === "active").length}
@@ -236,95 +255,89 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                 <p className="text-sm font-semibold text-gray-800">Members</p>
               </div>
             </div>
-          </div>
-          <div className="mb-5 flex flex-col md:flex-row md:items-center md:justify-end gap-3">
-            <div className="relative w-full md:w-96 group">
-              <Search
-                size={18}
-                className="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-blue-600 transition"
-              />
 
-              <input
-                type="text"
-                placeholder="Search name, email, phone, passport, designation..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="
-        w-full pl-10 pr-10 py-2.5 rounded-2xl 
-        bg-white
-        border-2 border-gray-300
-        text-sm text-gray-700
-        shadow-sm
-        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
-        outline-none transition-all
-      "
-              />
-
-              {/* clear search */}
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm("")}
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-red-500 transition"
-                >
-                  <XCircle size={18} />
-                </button>
-              )}
-            </div>
-
-            {/* 🟢 STATUS FILTER */}
-            <div className="relative flex items-center">
-              <Filter size={16} className="absolute left-3 text-gray-400" />
-
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="
-        appearance-none
-        pl-9 pr-8 py-2.5 rounded-2xl
-        bg-white
-        border-2 border-gray-300
-        text-sm font-medium text-gray-700
-        shadow-sm
-        focus:ring-2 focus:ring-blue-500 outline-none
-        cursor-pointer
-      "
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="in-active">Inactive</option>
-              </select>
-            </div>
-
-            {(searchTerm || statusFilter !== "all") && (
+            <div className="flex justify-end lg:hidden">
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setStatusFilter("all");
-                }}
-                className="
-        flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
-        bg-gradient-to-r from-gray-100 to-gray-200
-        hover:from-red-50 hover:to-red-100
-        text-gray-700 hover:text-red-600
-        border border-gray-200
-        transition shadow-sm
-      "
+                onClick={() => setShowFilters(!showFilters)}
+                className="p-2 rounded-xl border border-gray-300 bg-white shadow-sm hover:bg-gray-50 transition"
               >
-                <XCircle size={16} />
-                Clear
+                <Filter size={18} className="text-gray-600" />
               </button>
-            )}
+            </div>
+          </div>
+
+          <div className="w-full lg:w-auto">
+            <div
+              className={`
+        ${showFilters ? "max-h-[500px] opacity-100 mt-3" : "max-h-0 opacity-0 lg:max-h-full lg:opacity-100"}
+        overflow-hidden transition-all duration-300 ease-in-out
+      `}
+            >
+              <div className="flex flex-row gap-3 mt-3 lg:mt-0">
+                <div className="relative w-full md:w-80 group">
+                  <Search
+                    size={18}
+                    className="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-blue-600 transition"
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Search crew..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-white border-2 border-gray-300 text-sm shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  />
+
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm("")}
+                      className="absolute right-3 top-3.5 text-gray-400 hover:text-red-500 transition"
+                    >
+                      <XCircle size={18} />
+                    </button>
+                  )}
+                </div>
+
+                {/* STATUS FILTER */}
+                <div className="relative flex items-center">
+                  <Filter size={16} className="absolute left-3 text-gray-400" />
+
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="appearance-none pl-9 pr-8 py-2.5 rounded-2xl bg-white border-2 border-gray-300 text-sm font-medium text-gray-700 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="in-active">Inactive</option>
+                  </select>
+                </div>
+
+                {/* CLEAR BUTTON */}
+                {(searchTerm || statusFilter !== "all") && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setStatusFilter("all");
+                    }}
+                    className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium bg-gray-100 hover:bg-red-50 text-gray-700 hover:text-red-600 border border-gray-200 transition shadow-sm"
+                  >
+                    <XCircle size={16} />
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         {selectedRows.length > 0 && (
-          <div className="mb-5 sticky top-0 z-20">
+          <div className="my-5 sticky top-0 z-20">
             <div
-              className="flex items-center justify-between 
+              className="flex flex-col md:flex-row gap-2 items-start md:items-center justify-between 
     backdrop-blur-md bg-white/50 border border-gray-200 
     shadow-lg rounded-xl px-5 py-3 transition-all"
             >
-              {/* LEFT */}
               <div className="flex items-center gap-3">
                 <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-500 text-sm font-semibold shadow-sm">
                   {selectedRows.length}
@@ -335,9 +348,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                 </span>
               </div>
 
-              {/* RIGHT ACTIONS */}
               <div className="flex items-center gap-2 flex-wrap">
-                {/* DOCUMENT UPLOAD */}
                 <button
                   disabled={selectedRows.length !== 1}
                   onClick={() => {
@@ -361,7 +372,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                   Documents
                 </button>
 
-                {/* EDIT */}
                 <button
                   disabled={selectedRows.length !== 1}
                   onClick={() => {
@@ -385,7 +395,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                   Edit
                 </button>
 
-                {/* DELETE */}
                 <button
                   disabled={selectedRows.length === 0}
                   onClick={async () => {
@@ -430,7 +439,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
           <>
             <div className="overflow-x-auto mt-4 max-w-full border border-gray-200 bg-white rounded-xl shadow-md">
               <table className="w-full text-sm">
-                <thead className="bg-gray-700 text-white">
+                <thead className="bg-gray-800 text-white">
                   <tr className="text-left">
                     <th className="px-3 py-3 sm:px-4 text-center">#</th>
                     <th className="px-3 py-3 sm:px-4">Details</th>
@@ -495,11 +504,13 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                 checked={selectedRows.some(
                                   (m) => m.id === member.id,
                                 )}
-                                onChange={() => toggleSelect(member)}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  toggleSelect(member);
+                                }}
                                 className="hidden"
                               />
 
-                              {/* box */}
                               <div
                                 className={`
                               w-5 h-5 rounded-lg border flex items-center justify-center
@@ -569,7 +580,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                 )}
                               </div>
 
-                              {/* Flight Class */}
                               <div className="flex items-center  gap-3">
                                 <span className="text-gray-500 text-xs whitespace-nowrap">
                                   Flight Class
@@ -607,43 +617,81 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                             {!member.passport_number ? (
                               <div className="flex items-center gap-2 text-sm text-gray-400">
                                 <span className="italic">
-                                  No passport Provided
+                                  No passport provided
                                 </span>
                               </div>
                             ) : (
-                              <div className="flex  flex-col text-sm">
+                              <div className="flex flex-col text-sm">
                                 <span className="font-semibold text-gray-900 tracking-wide">
                                   {member.passport_number}
                                 </span>
 
-                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                                  <span>
-                                    Issue:{" "}
-                                    {member.date_of_issue
-                                      ? new Date(
-                                          member.date_of_issue,
-                                        ).toLocaleDateString("en-GB")
-                                      : "-"}
-                                  </span>
+                                {(() => {
+                                  const issueDate = member.date_of_issue
+                                    ? new Date(member.date_of_issue)
+                                    : null;
+                                  const expiryDate = member.date_of_expiry
+                                    ? new Date(member.date_of_expiry)
+                                    : null;
 
-                                  <span className="text-gray-300">•</span>
+                                  const currentYear = new Date().getFullYear();
 
-                                  <span>
-                                    Exp:{" "}
-                                    {member.date_of_expiry
-                                      ? new Date(
-                                          member.date_of_expiry,
-                                        ).toLocaleDateString("en-GB")
-                                      : "-"}
-                                  </span>
-                                </div>
+                                  const isInvalidIssue =
+                                    issueDate &&
+                                    expiryDate &&
+                                    issueDate > expiryDate;
+
+                                  const isExpiryThisYear =
+                                    expiryDate &&
+                                    expiryDate.getFullYear() === currentYear;
+
+                                  return (
+                                    <>
+                                      <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                        <span className="whitespace-nowrap">
+                                          Issue:{" "}
+                                          {issueDate
+                                            ? issueDate.toLocaleDateString(
+                                                "en-GB",
+                                              )
+                                            : "-"}
+                                        </span>
+
+                                        <span className="text-gray-300">•</span>
+
+                                        <span className="whitespace-nowrap">
+                                          Exp:{" "}
+                                          {expiryDate
+                                            ? expiryDate.toLocaleDateString(
+                                                "en-GB",
+                                              )
+                                            : "-"}
+                                        </span>
+                                      </div>
+
+                                      {isInvalidIssue && (
+                                        <div className="mt-1 text-xs text-red-600 font-medium">
+                                          ⚠ Invalid passport dates (Issue date
+                                          is after expiry date)
+                                        </div>
+                                      )}
+
+                                      {isExpiryThisYear && (
+                                        <div className="mt-1 text-xs text-orange-600 font-medium">
+                                          ⚠ Passport expiring this year
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             )}
                           </td>
                           {(isAdmin || moduleAccess.can_manage_flight) && (
                             <td className="px-4 py-4">
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setSelectedCrew(member);
                                   setFlightModal(true);
                                 }}
@@ -671,7 +719,8 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                           {(isAdmin || moduleAccess.can_manage_rooms) && (
                             <td className="px-4 py-4">
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setSelectedCrew(member);
                                   setRoomModal(true);
                                 }}
@@ -695,7 +744,8 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                           {(isAdmin || moduleAccess.can_manage_visa) && (
                             <td className="px-4 py-4">
                               <button
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setSelectedCrew(member);
                                   setVisaModal(true);
                                 }}
@@ -720,14 +770,15 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                           <td className="px-4 py-4">
                             <div className="flex flex-col items-center justify-center gap-1">
                               <button
-                                onClick={() =>
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleUpdateStatus(
                                     member.id,
                                     member.status === "active"
                                       ? "in-active"
                                       : "active",
-                                  )
-                                }
+                                  );
+                                }}
                                 className={`
       relative inline-flex items-center h-6 w-11 rounded-full transition-all duration-300 focus:outline-none
       ${member.status === "active" ? "bg-green-500" : "bg-gray-300"}
@@ -758,9 +809,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                         {expandedRow === member.id && (
                           <tr className="bg-purple-50">
                             <td colSpan="100%" className="px-8 py-7">
-                              {/* MAIN WRAPPER */}
                               <div className="space-y-6">
-                                {/* HEADER */}
                                 <div className="flex items-center justify-between border-b pb-4">
                                   <div>
                                     <h2 className="text-lg font-bold text-gray-800">
@@ -772,9 +821,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                   </div>
                                 </div>
 
-                                {/* GRID */}
-                                <div className="grid lg:grid-cols-3 gap-6">
-                                  {/* 👤 CREW CARD */}
+                                <div className="grid grid-cols-3 gap-6">
                                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                                     <h3 className="font-semibold text-gray-800 mb-4">
                                       👤 Crew Info
@@ -786,11 +833,24 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                     />
                                     <Info
                                       label="DOB"
-                                      value={member.date_of_birth}
+                                      value={
+                                        member?.date_of_birth
+                                          ? new Date(
+                                              member.date_of_birth,
+                                            ).toLocaleDateString("en-GB")
+                                          : ""
+                                      }
                                     />
+
                                     <Info
                                       label="Expiry"
-                                      value={member.date_of_expiry}
+                                      value={
+                                        member?.date_of_expiry
+                                          ? new Date(
+                                              member.date_of_expiry,
+                                            ).toLocaleDateString("en-GB")
+                                          : ""
+                                      }
                                     />
                                     <Info
                                       label="Boarding"
@@ -824,6 +884,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                         onClick={() => {
                                           setDocumentModal(true);
                                           setSelectedCrew(member);
+                                          setSelectedDocType(null);
                                         }}
                                         className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition"
                                       >
@@ -838,36 +899,70 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                         type="photo"
                                         title="Photo"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("photo");
+                                          setDocumentModal(true);
+                                        }}
                                       />
+
                                       <DocumentRow
                                         type="passport"
                                         title="Passport"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("passport");
+                                          setDocumentModal(true);
+                                        }}
                                       />
+
                                       <DocumentRow
                                         type="aadhar_card"
                                         title="Aadhar Card"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("aadhar_card");
+                                          setDocumentModal(true);
+                                        }}
                                       />
+
                                       <DocumentRow
                                         type="bank_statement"
                                         title="Bank Statement"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("bank_statement");
+                                          setDocumentModal(true);
+                                        }}
                                       />
+
                                       <DocumentRow
                                         type="previous_visa"
                                         title="Previous Visa"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("previous_visa");
+                                          setDocumentModal(true);
+                                        }}
                                       />
+
                                       <DocumentRow
                                         type="income_revenue"
-                                        title="Income Revenue"
+                                        title="ITR Document"
                                         docs={member.documents}
+                                        onOpenModal={() => {
+                                          setSelectedCrew(member);
+                                          setSelectedDocType("income_revenue");
+                                          setDocumentModal(true);
+                                        }}
                                       />
                                     </div>
                                   </div>
 
-                                  {/* ✈ FLIGHTS */}
                                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                                     <SectionHeader
                                       title="Flights"
@@ -887,7 +982,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                     )}
                                   </div>
 
-                                  {/* 🏨 ROOMS */}
                                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                                     <SectionHeader
                                       title="Rooms"
@@ -904,7 +998,6 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                     )}
                                   </div>
 
-                                  {/* 🛂 VISA */}
                                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                                     <SectionHeader
                                       title="Visa"
@@ -964,8 +1057,10 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
         onClose={() => {
           setSelectedCrew(null);
           setDocumentModal(false);
+          setSelectedDocType(null);
         }}
         crewMember={selectedCrew}
+        selectedType={selectedDocType}
       />
     </div>
   );
@@ -974,7 +1069,9 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
 const Info = ({ label, value }) => (
   <div className="flex justify-between text-sm py-1 border-b last:border-none">
     <span className="text-gray-500">{label}</span>
-    <span className="font-semibold text-gray-800">{value || "-"}</span>
+    <span className="font-semibold text-gray-800">
+      {value ? value.toUpperCase() : "-"}
+    </span>
   </div>
 );
 
@@ -982,31 +1079,27 @@ const Empty = ({ text }) => (
   <p className="text-gray-400 text-sm italic">{text}</p>
 );
 
-const StatusBadge = ({ label, ok }) => (
-  <div
-    className={`px-3 py-1 rounded-full text-xs font-semibold
-  ${ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
-  >
-    {label}: {ok ? "Done" : "Missing"}
-  </div>
-);
-
-const DocumentRow = ({ type, title, docs }) => {
+const DocumentRow = ({ type, title, docs, onOpenModal }) => {
   const [open, setOpen] = useState(false);
 
   const filtered = docs?.filter((d) => d.document_type === type) || [];
   const exists = filtered.length > 0;
 
+  const handleClick = () => {
+    if (exists) {
+      setOpen(!open);
+    } else {
+      onOpenModal();
+    }
+  };
   return (
     <div className="border rounded-xl overflow-hidden bg-gray-50">
-      {/* HEADER */}
       <div
-        onClick={() => exists && setOpen(!open)}
+        onClick={handleClick}
         className={`flex items-center justify-between px-4 py-3 cursor-pointer transition
-        ${exists ? "hover:bg-blue-50" : "opacity-70 cursor-not-allowed"}`}
+        ${exists ? "hover:bg-blue-50" : "opacity-70 "}`}
       >
         <div className="flex items-center gap-3">
-          {/* STATUS ICON */}
           <div
             className={`w-6 h-6 flex items-center justify-center rounded-full
             ${exists ? "bg-green-100 text-green-600" : "bg-red-100 text-red-500"}`}
@@ -1022,7 +1115,6 @@ const DocumentRow = ({ type, title, docs }) => {
         </div>
       </div>
 
-      {/* FILES LIST */}
       {open && exists && (
         <div className="bg-white border-t px-4 py-3 space-y-2">
           {filtered.map((file) => (
@@ -1046,7 +1138,6 @@ const DocumentRow = ({ type, title, docs }) => {
         </div>
       )}
 
-      {/* MISSING UI */}
       {!exists && (
         <div className="px-4 pb-3 text-xs text-red-500">
           Document not uploaded
@@ -1088,7 +1179,6 @@ const FlightRow = ({ flight }) => {
 
   return (
     <div className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition mb-4 overflow-hidden bg-white">
-      {/* Header */}
       <div
         onClick={() => setOpen(!open)}
         className="flex justify-between items-center px-5 py-4 cursor-pointer"
@@ -1122,7 +1212,6 @@ const FlightRow = ({ flight }) => {
         </div>
       </div>
 
-      {/* Expand */}
       <div
         className={`transition-all duration-300 ease-in-out ${
           open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
@@ -1133,10 +1222,12 @@ const FlightRow = ({ flight }) => {
             <b>PNR:</b> {flight.pnr}
           </p>
           <p>
-            <b>Departure:</b> {new Date(flight.departure_time).toLocaleString()}
+            <b>Departure:</b>{" "}
+            {new Date(flight.departure_time).toLocaleString("en-GB")}
           </p>
           <p>
-            <b>Arrival:</b> {new Date(flight.arrival_time).toLocaleString()}
+            <b>Arrival:</b>{" "}
+            {new Date(flight.arrival_time).toLocaleString("en-GB")}
           </p>
 
           {flight.ticket_file && (
@@ -1196,11 +1287,12 @@ const RoomRow = ({ room }) => {
             <b>Room Number:</b> {room.room_number || "-"}
           </p>
           <p>
-            <b>Check-in:</b> {new Date(room.checkin_date).toLocaleDateString()}
+            <b>Check-in:</b>{" "}
+            {new Date(room.checkin_date).toLocaleDateString("en-GB")}
           </p>
           <p>
             <b>Check-out:</b>{" "}
-            {new Date(room.checkout_date).toLocaleDateString()}
+            {new Date(room.checkout_date).toLocaleDateString("en-GB")}
           </p>
           {room.remarks && (
             <p>
@@ -1251,10 +1343,12 @@ const VisaRow = ({ visa }) => {
       {open && (
         <div className="px-5 pb-4 text-sm text-gray-600 space-y-2 border-t">
           <p>
-            <b>Issue Date:</b> {visa.date_of_issue}
+            <b>Issue Date:</b>{" "}
+            {new Date(visa.date_of_issue).toLocaleDateString("en-GB")}
           </p>
           <p>
-            <b>Expiry Date:</b> {visa.date_of_expiry}
+            <b>Expiry Date:</b>{" "}
+            {new Date(visa.date_of_expiry).toLocaleDateString("en-GB")}
           </p>
 
           {visa.visa_file_url && (

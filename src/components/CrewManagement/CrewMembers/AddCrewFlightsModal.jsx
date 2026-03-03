@@ -457,8 +457,8 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center gap-4 mt-6">
-                  <label className="flex items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
+                  <label className="flex w-full max-w-md items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
                     <Upload className="h-4 w-4 text-gray-500" />
                     <span className="text-sm text-gray-600">
                       {form.newTicketFile
@@ -475,7 +475,7 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                     />
                   </label>
 
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center justify-end">
                     <button
                       onClick={saveFlight}
                       disabled={saving}
@@ -527,8 +527,8 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
 
                   {/* DESC */}
                   <p className="text-gray-500 mt-2 max-w-sm">
-                    Start building the crew travel schedule by adding flight
-                    details. All booked flights will appear here.
+                    Start building the crew travel schedule by adding flight.
+                    All booked flights will appear here.
                   </p>
 
                   {/* CTA hint */}
