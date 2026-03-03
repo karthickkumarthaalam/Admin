@@ -53,6 +53,8 @@ const CrewMerchantModal = ({ isOpen, onClose, editData, onSuccess }) => {
       }
 
       onSuccess();
+      setMerchantName("");
+      setMerchantType("flight");
       onClose();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");

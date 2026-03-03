@@ -243,7 +243,9 @@ const CrewMerchantPage = () => {
       </div>
       <CrewMerchantModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
         editData={editData}
         onSuccess={fetchMerchants}
       />

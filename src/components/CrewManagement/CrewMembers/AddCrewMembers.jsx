@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
+import { PlaneLanding, PlaneTakeoff, X } from "lucide-react";
 
 const AddCrewMembers = ({
   isOpen,
@@ -23,13 +24,11 @@ const AddCrewMembers = ({
     passport_number: "",
     date_of_issue: "",
     date_of_expiry: "",
-    visa_type: "",
-    visa_number: "",
-    visa_issue: "",
-    visa_expiry: "",
     food_preference: "",
     flight_class: "",
     room_preference: "",
+    boarding_from: "",
+    returning_to: "",
     remarks: "",
   };
 
@@ -100,16 +99,16 @@ const AddCrewMembers = ({
         className="relative w-full h-full bg-white rounded-2xl shadow-xl flex flex-col"
       >
         {/* Header */}
-        <div className="px-8 py-6 border-b bg-slate-100 flex justify-between rounded-t-2xl">
+        <div className="px-8 py-6 border-b bg-gray-800  flex justify-between rounded-t-2xl">
           <div>
-            <h2 className="text-xl font-semibold text-blue-700">
+            <h2 className="text-xl font-semibold text-gray-100">
               {isEdit ? "Edit Crew Member" : "Add Crew Member"}
             </h2>
-            <p className="text-sm text-gray-900">
-              Manage crew passport & visa details
-            </p>
+            <p className="text-sm text-gray-300">Manage crew member details</p>
           </div>
-          <button onClick={onClose}>✕</button>
+          <button onClick={onClose}>
+            <X size={24} className="text-gray-200" />
+          </button>
         </div>
 
         {/* Body */}
@@ -176,6 +175,19 @@ const AddCrewMembers = ({
 
           {/* ✈️ TRAVEL */}
           <Section title="Travel & Stay">
+            <FormInput
+              label="Boarding From"
+              name="boarding_from"
+              value={form.boarding_from}
+              onChange={handleChange}
+            />
+
+            <FormInput
+              label="Returning To"
+              name="returning_to"
+              value={form.returning_to}
+              onChange={handleChange}
+            />
             <FormSelect
               label="Food Preference"
               name="food_preference"
@@ -245,36 +257,6 @@ const AddCrewMembers = ({
             />
           </Section>
 
-          {/* 🌍 VISA */}
-          <Section title="Visa Details">
-            <FormInput
-              label="Visa Type"
-              name="visa_type"
-              value={form.visa_type}
-              onChange={handleChange}
-            />
-            <FormInput
-              label="Visa Number"
-              name="visa_number"
-              value={form.visa_number}
-              onChange={handleChange}
-            />
-            <FormInput
-              type="date"
-              label="Visa Issue"
-              name="visa_issue"
-              value={form.visa_issue}
-              onChange={handleChange}
-            />
-            <FormInput
-              type="date"
-              label="Visa Expiry"
-              name="visa_expiry"
-              value={form.visa_expiry}
-              onChange={handleChange}
-            />
-          </Section>
-
           {/* 📝 REMARKS */}
           <Section title="Remarks">
             <textarea
@@ -307,24 +289,31 @@ const AddCrewMembers = ({
 
 /* SECTION WRAPPER */
 const Section = ({ title, children }) => (
-  <div className="bg-gray-50/60 border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
-    {/* Section Header */}
-    <div className="flex items-center justify-between mb-5">
-      <h3 className="text-base md:text-lg font-semibold text-gray-800 tracking-wide">
+  <div
+    className="relative overflow-hidden rounded-2xl border border-gray-200 
+  bg-white shadow-sm hover:shadow-xl transition-all duration-300"
+  >
+    {/* Header */}
+    <div className="px-5 md:px-6 pt-5 pb-3 flex items-center gap-4">
+      {/* Fancy dot */}
+
+      {/* Title */}
+      <h3 className="text-base md:text-lg font-semibold text-blue-800 tracking-wide">
         {title}
       </h3>
 
-      {/* optional divider line */}
-      <div className="flex-1 ml-4 h-[1px] bg-gray-200"></div>
+      {/* Stylish divider */}
+      <div className="flex-1 h-[2px] bg-gradient-to-r from-blue-200 via-gray-200 to-transparent rounded-full"></div>
     </div>
 
-    {/* Section Content */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-      {children}
+    {/* Content */}
+    <div className="px-5 md:px-6 pb-6 pt-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {children}
+      </div>
     </div>
   </div>
 );
-
 /* reusable */
 const blockCopyEvents = {
   onCopy: (e) => e.preventDefault(),
@@ -371,4 +360,5 @@ const FormSelect = ({ label, error, children, ...props }) => (
     {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
   </div>
 );
+
 export default AddCrewMembers;

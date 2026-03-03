@@ -1,26 +1,48 @@
-import React, { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  X,
+  Loader2,
+  Hotel,
+  MapPin,
+  Calendar,
+  Clock,
+  FileText,
+  Edit2,
+  Trash2,
+  Plus,
+  ChevronDown,
+  ChevronUp,
+  Building,
+} from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
 const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [merchants, setMerchants] = useState([]);
+  const [editingId, setEditingId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-  const emptyRow = {
-    hotel_name: "",
-    room_number: "",
-    room_type: "",
-    city: "",
-    checkin_date: "",
-    checkout_date: "",
-    remarks: "",
-  };
+  const emptyForm = useMemo(
+    () => ({
+      hotel_name: "",
+      room_number: "",
+      room_type: "",
+      city: "",
+      checkin_date: "",
+      checkout_date: "",
+      remarks: "",
+    }),
+    [],
+  );
 
-  // 🟢 fetch existing
-  const fetchRooms = async () => {
+  const [form, setForm] = useState(emptyForm);
+
+  const fetchRooms = useCallback(async () => {
     if (!crewMember?.id) return;
+
     try {
       setLoading(true);
       const res = await apiCall(`/crew-rooms/${crewMember.id}`, "GET");
@@ -36,246 +58,590 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
           : "",
       }));
 
-      setRooms(formatted.length ? formatted : [emptyRow]);
+      setRooms(formatted);
     } catch {
       toast.error("Failed to fetch rooms");
     } finally {
       setLoading(false);
     }
-  };
+  }, [crewMember?.id]);
 
-  const fetchRoomMerchants = async () => {
+  const fetchRoomMerchants = useCallback(async () => {
     try {
-      const response = await apiCall(
+      const res = await apiCall(
         "/crew-merchant/merchant-type?type=room",
         "GET",
       );
-      setMerchants(response.data);
-    } catch (error) {
-      toast.error("Failed to fetch room merchants");
+      setMerchants(res.data || []);
+    } catch {
+      toast.error("Failed to fetch hotels");
     }
-  };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
-      fetchRoomMerchants();
       fetchRooms();
+      fetchRoomMerchants();
     }
-  }, [isOpen]);
+  }, [isOpen, fetchRooms, fetchRoomMerchants]);
+
+  // ================= FORM VALIDATION =================
+  const validateForm = (formData) => {
+    const required = ["hotel_name", "city", "checkin_date", "checkout_date"];
+    const missing = required.filter((field) => !formData[field]);
+
+    if (missing.length > 0) {
+      toast.error(`Missing required fields: ${missing.join(", ")}`);
+      return false;
+    }
+
+    if (new Date(formData.checkout_date) <= new Date(formData.checkin_date)) {
+      toast.error("Check-out date must be after check-in date");
+      return false;
+    }
+
+    return true;
+  };
+
+  // ================= CREATE/UPDATE =================
+  const saveRoom = async () => {
+    if (!validateForm(form)) return;
+
+    try {
+      setSaving(true);
+      const payload = {
+        crew_list_id: crewMember.id,
+        hotel_name: form.hotel_name,
+        room_number: form.room_number,
+        room_type: form.room_type,
+        city: form.city,
+        checkin_date: form.checkin_date,
+        checkout_date: form.checkout_date,
+        remarks: form.remarks,
+      };
+
+      if (editingId) {
+        await apiCall(`/crew-rooms/update/${editingId}`, "PUT", payload);
+        toast.success("Room updated successfully");
+      } else {
+        await apiCall("/crew-rooms/create", "POST", payload);
+        toast.success("Room added successfully");
+      }
+
+      setForm(emptyForm);
+      setEditingId(null);
+      setShowForm(false);
+      fetchRooms();
+    } catch {
+      toast.error(editingId ? "Failed to update room" : "Failed to add room");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // ================= DELETE =================
+  const deleteRoom = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this room booking?"))
+      return;
+
+    try {
+      await apiCall(`/crew-rooms/delete/${id}`, "DELETE");
+      toast.success("Room deleted");
+      fetchRooms();
+    } catch {
+      toast.error("Failed to delete room");
+    }
+  };
+
+  // ================= EDIT =================
+  const startEdit = (room) => {
+    setEditingId(room.id);
+    setForm({
+      ...room,
+      newAttachment: null,
+    });
+    setShowForm(true);
+  };
+
+  const cancelForm = () => {
+    setForm(emptyForm);
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  const handleClose = () => {
+    onClose();
+    setShowForm(false);
+  };
 
   if (!isOpen) return null;
 
-  const handleChange = (index, key, value) => {
-    const updated = [...rooms];
-    updated[index][key] = value;
-    setRooms(updated);
-  };
-
-  const addRow = () => {
-    setRooms([...rooms, { ...emptyRow }]);
-  };
-  const removeRow = (index) => {
-    const updated = [...rooms];
-    updated.splice(index, 1);
-    setRooms(updated.length ? updated : [emptyRow]);
-  };
-
-  const handleSave = async () => {
-    try {
-      const cleanRooms = rooms
-        .filter((r) => r.hotel_name?.trim())
-        .map((r, index) => ({
-          id: r.id || null,
-          hotel_name: r.hotel_name,
-          room_number: r.room_number,
-          room_type: r.room_type,
-          city: r.city,
-          checkin_date: r.checkin_date || null,
-          checkout_date: r.checkout_date || null,
-          remarks: r.remarks,
-          sort_order: index + 1,
-        }));
-
-      if (cleanRooms.length === 0) {
-        toast.error("Add at least one room");
-        return;
-      }
-
-      await apiCall("/crew-rooms/bulk-save", "POST", {
-        crew_list_id: crewMember.id,
-        rooms: cleanRooms,
-      });
-
-      toast.success("Rooms saved successfully");
-      onClose();
-    } catch (err) {
-      toast.error("Failed to save rooms");
-    }
-  };
-
   return (
-    <div className="fixed inset-0 z-[100] bg-black/40 flex justify-center items-center p-4">
-      <div className="bg-slate-50 w-full  h-full  rounded-xl shadow-2xl flex flex-col">
+    <div className="fixed inset-0 z-[100] bg-black/50 flex justify-center items-center p-4 backdrop-blur-sm">
+      <div className="bg-slate-50 w-full h-full rounded-lg shadow-xl flex flex-col overflow-hidden animate-slideUp">
         {/* HEADER */}
-        <div className="px-8 py-5 border-b bg-gradient-to-r rounded-xl from-blue-50 to-slate-50 flex justify-between items-center">
+        <div className="p-4 border-b bg-gray-800 text-gray-100 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Rooms Management
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <Hotel className="h-6 w-6" />
+              Room Management
             </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Manage rooms for{" "}
-              <span className="font-semibold text-blue-600">
-                {crewMember?.name}
+            <p className="text-blue-100 text-sm mt-1">
+              Managing rooms for:{" "}
+              <span className="font-semibold">
+                {crewMember?.given_name} {crewMember?.sur_name}
               </span>
             </p>
           </div>
-
-          <X
-            size={26}
-            className="cursor-pointer text-gray-500 hover:text-red-600 transition"
-            onClick={onClose}
-          />
+          <button
+            onClick={handleClose}
+            className="hover:bg-white/20 p-2 rounded-full transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        {/* TABLE */}
-        <div className="flex-1 overflow-auto p-6 ">
-          {loading ? (
-            <div className="text-center py-20">Loading...</div>
-          ) : (
-            <div className="overflow-x-auto rounded-xl ">
-              <table className="min-w-[1100px] w-full border text-sm rounded-xl">
-                <thead className="bg-gray-700 text-white text-xs uppercase">
-                  <tr className="text-center">
-                    <th className="p-3">Hotel</th>
-                    <th className="whitespace-nowrap">Room NO</th>
-                    <th className="whitespace-nowrap">Room Type</th>
-                    <th>City</th>
-                    <th>Checkin</th>
-                    <th>Checkout</th>
-                    <th>Remarks</th>
-                    <th className="p-3">Action</th>
-                  </tr>
-                </thead>
+        <div className="flex-1 overflow-auto p-6 space-y-6">
+          {/* ADD BUTTON */}
+          <div className="flex justify-end">
+            {!showForm && (
+              <button
+                onClick={() => {
+                  setEditingId(null);
+                  setForm(emptyForm);
+                  setShowForm(true);
+                }}
+                className="whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-lg shadow-md bg-gradient-to-r  from-blue-600 hover:from-blue-700 to-blue-700 hover:to-blue-800 text-white text-sm "
+              >
+                <Plus className="h-4 w-4" />
+                Add Room Booking
+              </button>
+            )}
+          </div>
 
-                <tbody>
-                  {rooms.map((room, idx) => (
-                    <tr key={idx} className="border-t">
-                      <td className="p-2">
-                        <select
-                          value={room.hotel_name || ""}
-                          className="input"
-                          onChange={(e) =>
-                            handleChange(idx, "hotel_name", e.target.value)
-                          }
-                        >
-                          <option value="">Select Room</option>
-                          {merchants.map((m) => (
-                            <option key={m.id} value={m.merchant_name}>
-                              {m.merchant_name}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
+          {/* ADD/EDIT FORM */}
+          {showForm && (
+            <div className="bg-gradient-to-r from-blue-50 to-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6 animate-slideDown">
+              <h3 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                <Hotel className="h-5 w-5" />
+                {editingId ? "Edit Room Booking" : "Add New Room Booking"}
+              </h3>
 
-                      <td className="p-2">
-                        <input
-                          value={room.room_number}
-                          onChange={(e) =>
-                            handleChange(idx, "room_number", e.target.value)
-                          }
-                          className="w-full border px-2 py-1 rounded"
-                        />
-                      </td>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Hotel Name *
+                  </label>
+                  <select
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.hotel_name}
+                    onChange={(e) =>
+                      setForm({ ...form, hotel_name: e.target.value })
+                    }
+                  >
+                    <option value="">Select Hotel</option>
+                    {merchants.map((m) => (
+                      <option key={m.id} value={m.merchant_name}>
+                        {m.merchant_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                      <td className="p-2">
-                        <input
-                          value={room.room_type}
-                          onChange={(e) =>
-                            handleChange(idx, "room_type", e.target.value)
-                          }
-                          className="w-full border px-2 py-1 rounded"
-                        />
-                      </td>
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Room Number
+                  </label>
+                  <input
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    placeholder="e.g., 101, Suite A"
+                    value={form.room_number}
+                    onChange={(e) =>
+                      setForm({ ...form, room_number: e.target.value })
+                    }
+                  />
+                </div>
 
-                      <td className="p-2">
-                        <input
-                          value={room.city}
-                          onChange={(e) =>
-                            handleChange(idx, "city", e.target.value)
-                          }
-                          className="w-full border px-2 py-1 rounded"
-                        />
-                      </td>
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Room Type
+                  </label>
+                  <select
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.room_type}
+                    onChange={(e) =>
+                      setForm({ ...form, room_type: e.target.value })
+                    }
+                  >
+                    <option value="">Select Type</option>
+                    <option value="single">Single</option>
+                    <option value="double">Double</option>
+                    <option value="suite">Suite</option>
+                    <option value="deluxe">Deluxe</option>
+                    <option value="presidential">Presidential</option>
+                  </select>
+                </div>
 
-                      <td className="p-2">
-                        <input
-                          type="datetime-local"
-                          value={room.checkin_date || ""}
-                          onChange={(e) =>
-                            handleChange(idx, "checkin_date", e.target.value)
-                          }
-                          className="border px-2 py-1 rounded"
-                        />
-                      </td>
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    City *
+                  </label>
+                  <input
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    placeholder="e.g., New York"
+                    value={form.city}
+                    onChange={(e) => setForm({ ...form, city: e.target.value })}
+                  />
+                </div>
 
-                      <td className="p-2">
-                        <input
-                          type="datetime-local"
-                          value={room.checkout_date || ""}
-                          onChange={(e) =>
-                            handleChange(idx, "checkout_date", e.target.value)
-                          }
-                          className="border px-2 py-1 rounded"
-                        />
-                      </td>
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Check-in *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.checkin_date}
+                    onChange={(e) =>
+                      setForm({ ...form, checkin_date: e.target.value })
+                    }
+                  />
+                </div>
 
-                      <td className="p-2">
-                        <input
-                          value={room.remarks}
-                          onChange={(e) =>
-                            handleChange(idx, "remarks", e.target.value)
-                          }
-                          className="w-full border px-2 py-1 rounded"
-                        />
-                      </td>
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Check-out *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.checkout_date}
+                    onChange={(e) =>
+                      setForm({ ...form, checkout_date: e.target.value })
+                    }
+                  />
+                </div>
 
-                      <td className="text-center">
-                        {rooms.length > 1 && (
-                          <button
-                            onClick={() => removeRow(idx)}
-                            className="text-red-600"
-                          >
-                            ✖
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                <div className="space-y-1 lg:col-span-2">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Remarks
+                  </label>
+                  <textarea
+                    className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
+          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                    rows="2"
+                    placeholder="Any special requests or notes..."
+                    value={form.remarks}
+                    onChange={(e) =>
+                      setForm({ ...form, remarks: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end items-center gap-4 mt-6">
+                <div className="flex gap-2">
+                  <button
+                    onClick={saveRoom}
+                    disabled={saving}
+                    className="whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-lg shadow-md bg-gradient-to-r  from-blue-600 hover:from-blue-700 to-blue-700 hover:to-blue-800 text-white text-sm "
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        {editingId ? "Updating..." : "Saving..."}
+                      </>
+                    ) : (
+                      <>
+                        <Hotel className="h-4 w-4" />
+                        {editingId ? "Update Room" : "Add Room"}
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={cancelForm}
+                    className="px-5 py-2 border bg-white rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 
-          <button
-            className="mt-4 px-4 py-2 text-sm font-medium text-green-700 bg-green-50 rounded-lg hover:bg-green-100"
-            onClick={addRow}
-          >
-            + Add Room
-          </button>
-        </div>
+          {/* ROOMS LIST */}
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+          ) : rooms.length === 0 && !showForm ? (
+            <div className="relative overflow-hidden rounded-2xl border border-dashed border-blue-200 bg-gradient-to-br from-blue-50 via-indigo-50 to-white p-12 text-center shadow-sm">
+              {/* Background glow */}
+              <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top_right,rgba(34,197,94,0.15),transparent_60%)]"></div>
 
-        {/* FOOTER */}
-        <div className="flex justify-end gap-3 mt-4 border-t p-4">
-          <button className="px-5 py-2 border rounded-lg" onClick={onClose}>
-            Cancel
-          </button>
+              <div className="relative z-10 flex flex-col items-center">
+                {/* Icon */}
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-5 rounded-2xl shadow-lg mb-5 animate-float">
+                  <Hotel className="h-10 w-10 text-white" />
+                </div>
 
-          <button
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium shadow-md transition disabled:opacity-50"
-            onClick={handleSave}
-          >
-            Save Rooms
-          </button>
+                {/* Title */}
+                <h3 className="text-xl font-semibold text-gray-800 tracking-tight">
+                  No Room Bookings Yet
+                </h3>
+
+                {/* Description */}
+                <p className="text-gray-500 mt-2 max-w-sm">
+                  Start adding room accommodations for the crew member. All
+                  bookings will appear here.
+                </p>
+
+                {/* CTA hint */}
+                <div className="mt-6 flex items-center gap-2 text-sm text-blue-600 bg-blue-100 px-4 py-2 rounded-full">
+                  <span className="animate-pulse">🏨</span>
+                  Click{" "}
+                  <span className="font-semibold">"Add Room Booking"</span> to
+                  begin
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {rooms.map((room) => {
+                const isActive = new Date(room.checkout_date) > new Date();
+                const isCompleted = new Date(room.checkout_date) <= new Date();
+
+                return (
+                  <div
+                    key={room.id}
+                    className="group relative bg-white border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-[2px]"
+                  >
+                    {/* Left border accent based on status */}
+                    <div
+                      className={`absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-white rounded-l-2xl opacity-80 group-hover:opacity-100 ${
+                        isActive
+                          ? "via-blue-500 to-white"
+                          : isCompleted
+                            ? "via-gray-400 to-white"
+                            : "via-yellow-500 to-white"
+                      }`}
+                    ></div>
+
+                    <div className="flex flex-wrap justify-between gap-6">
+                      {/* Left Content */}
+                      <div className="flex-1 min-w-[260px]">
+                        {/* Hotel Header */}
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={`bg-gradient-to-br p-3 rounded-xl shadow-md ${
+                              isActive
+                                ? "from-blue-500 to-blue-600"
+                                : "from-gray-500 to-gray-600"
+                            }`}
+                          >
+                            <Hotel className="h-5 w-5 text-white" />
+                          </div>
+
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-gray-800 tracking-tight">
+                              {room.hotel_name}
+                            </h3>
+
+                            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
+                              <MapPin className="h-3 w-3" />
+                              <span>{room.city}</span>
+                              {room.room_number && (
+                                <>
+                                  <span>•</span>
+                                  <span>Room: {room.room_number}</span>
+                                </>
+                              )}
+                              {room.room_type && (
+                                <>
+                                  <span>•</span>
+                                  <span className="capitalize">
+                                    {room.room_type}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Date Section */}
+                        <div className="grid sm:grid-cols-2 gap-4 mt-5">
+                          {/* Check-in */}
+                          <div className="flex items-center gap-3">
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <Calendar className="h-4 w-4 text-gray-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">Check-in</p>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {room.checkin_date
+                                  ? new Date(room.checkin_date).toLocaleString()
+                                  : "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Check-out */}
+                          <div className="flex items-center gap-3">
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <Calendar className="h-4 w-4 text-gray-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">Check-out</p>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {room.checkout_date
+                                  ? new Date(
+                                      room.checkout_date,
+                                    ).toLocaleString()
+                                  : "-"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Duration Badge */}
+                        {room.checkin_date && room.checkout_date && (
+                          <div className="mt-3 flex items-center gap-2">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">
+                              {(() => {
+                                const diff =
+                                  new Date(room.checkout_date) -
+                                  new Date(room.checkin_date);
+                                const days = Math.floor(diff / 86400000);
+                                const nights = days;
+                                return `${days} ${days === 1 ? "day" : "days"} (${nights} ${nights === 1 ? "night" : "nights"})`;
+                              })()}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Status + Remarks */}
+                        <div className="mt-4 space-y-2">
+                          {room.remarks && (
+                            <div className="flex items-start gap-2 text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                              <FileText className="h-4 w-4 text-gray-400 mt-0.5 flex-shrink-0" />
+                              <p>{room.remarks}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right Actions */}
+                      <div className="flex flex-col items-end justify-between gap-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => startEdit(room)}
+                            className="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-lg transition"
+                            title="Edit Room"
+                          >
+                            <Edit2 className="h-5 w-5" />
+                          </button>
+
+                          <button
+                            onClick={() => deleteRoom(room.id)}
+                            className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition"
+                            title="Delete Room"
+                          >
+                            <Trash2 className="h-5 w-5" />
+                          </button>
+                        </div>
+
+                        {/* Mini Location */}
+                        <div className="hidden sm:flex items-center gap-2 text-[11px] text-gray-400">
+                          <MapPin size={12} />
+                          {room.city}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

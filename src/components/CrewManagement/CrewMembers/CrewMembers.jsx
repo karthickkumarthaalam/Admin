@@ -2,21 +2,34 @@ import React, { useCallback, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
 import {
+  AlertCircle,
+  Building2,
+  BuildingIcon,
   Check,
+  CheckCircle,
+  ChevronDown,
   Edit2,
-  Edit2Icon,
-  Edit3,
+  Filter,
+  Globe,
+  Hotel,
   Loader2,
   MessageCircleMore,
+  Plane,
   PlusCircleIcon,
+  Search,
+  ShieldCheck,
   Trash2,
   Upload,
+  UploadCloud,
   X,
+  XCircle,
 } from "lucide-react";
 import AddCrewMembers from "./AddCrewMembers";
 import AddCrewFlightsModal from "./AddCrewFlightsModal";
 import AddCrewRoomsModal from "./AddCrewRoomModal";
 import { useAuth } from "../../../context/AuthContext";
+import CrewDocumentsModal from "./CrewDocumentsModal";
+import AddCrewVisaModal from "./AddCrewVisaModal";
 
 const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
   const [crewMembers, setCrewMembers] = useState([]);
@@ -27,7 +40,15 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
 
   const [roomModal, setRoomModal] = useState(false);
   const [flightModal, setFlightModal] = useState(false);
+  const [visaModal, setVisaModal] = useState(false);
   const [selectedCrew, setSelectedCrew] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const [expandedRow, setExpandedRow] = useState(null);
+
+  const [documentModal, setDocumentModal] = useState(false);
 
   const [moduleAccess, setModuleAccess] = useState({
     can_manage_flight: false,
@@ -104,6 +125,23 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
     });
   };
 
+  const filteredCrew = crewMembers.filter((member) => {
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      member?.given_name?.toLowerCase().includes(search) ||
+      member?.sur_name?.toLowerCase().includes(search) ||
+      member?.email?.toLowerCase().includes(search) ||
+      member?.phone?.toLowerCase().includes(search) ||
+      member?.passport_number?.toLowerCase().includes(search) ||
+      member?.designation?.toLowerCase().includes(search);
+
+    const matchesStatus =
+      statusFilter === "all" ? true : member.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
   const handleExcelUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -175,6 +213,109 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
             />
           </div>
         </div>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            {/* TOTAL CREW */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-2xl shadow-sm">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
+                {crewMembers.length}
+              </div>
+              <div className="leading-tight">
+                <p className="text-xs text-gray-500">Total Crew</p>
+                <p className="text-sm font-semibold text-gray-800">Members</p>
+              </div>
+            </div>
+
+            {/* ACTIVE CREW */}
+            <div className="flex items-center gap-2 bg-white border border-gray-200 px-4 py-2 rounded-2xl shadow-sm">
+              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-green-100 text-green-600 font-bold text-sm">
+                {crewMembers.filter((m) => m.status === "active").length}
+              </div>
+              <div className="leading-tight">
+                <p className="text-xs text-gray-500">Active</p>
+                <p className="text-sm font-semibold text-gray-800">Members</p>
+              </div>
+            </div>
+          </div>
+          <div className="mb-5 flex flex-col md:flex-row md:items-center md:justify-end gap-3">
+            <div className="relative w-full md:w-96 group">
+              <Search
+                size={18}
+                className="absolute left-3 top-3.5 text-gray-400 group-focus-within:text-blue-600 transition"
+              />
+
+              <input
+                type="text"
+                placeholder="Search name, email, phone, passport, designation..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="
+        w-full pl-10 pr-10 py-2.5 rounded-2xl 
+        bg-white
+        border-2 border-gray-300
+        text-sm text-gray-700
+        shadow-sm
+        focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+        outline-none transition-all
+      "
+              />
+
+              {/* clear search */}
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-3 top-3.5 text-gray-400 hover:text-red-500 transition"
+                >
+                  <XCircle size={18} />
+                </button>
+              )}
+            </div>
+
+            {/* 🟢 STATUS FILTER */}
+            <div className="relative flex items-center">
+              <Filter size={16} className="absolute left-3 text-gray-400" />
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="
+        appearance-none
+        pl-9 pr-8 py-2.5 rounded-2xl
+        bg-white
+        border-2 border-gray-300
+        text-sm font-medium text-gray-700
+        shadow-sm
+        focus:ring-2 focus:ring-blue-500 outline-none
+        cursor-pointer
+      "
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="in-active">Inactive</option>
+              </select>
+            </div>
+
+            {(searchTerm || statusFilter !== "all") && (
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setStatusFilter("all");
+                }}
+                className="
+        flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-medium
+        bg-gradient-to-r from-gray-100 to-gray-200
+        hover:from-red-50 hover:to-red-100
+        text-gray-700 hover:text-red-600
+        border border-gray-200
+        transition shadow-sm
+      "
+              >
+                <XCircle size={16} />
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
 
         {selectedRows.length > 0 && (
           <div className="mb-5 sticky top-0 z-20">
@@ -185,7 +326,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
             >
               {/* LEFT */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white text-sm font-semibold shadow">
+                <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-500 text-sm font-semibold shadow-sm">
                   {selectedRows.length}
                 </div>
 
@@ -195,27 +336,60 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
               </div>
 
               {/* RIGHT ACTIONS */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* DOCUMENT UPLOAD */}
+                <button
+                  disabled={selectedRows.length !== 1}
+                  onClick={() => {
+                    if (selectedRows.length !== 1) return;
+                    setSelectedCrew(selectedRows[0]);
+                    setDocumentModal(true);
+                    clearSelection();
+                  }}
+                  className={`
+      flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+      transition shadow-sm
+
+      ${
+        selectedRows.length === 1
+          ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:from-emerald-700 hover:to-green-700 hover:shadow-md"
+          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+      }
+    `}
+                >
+                  <Upload size={16} />
+                  Documents
+                </button>
+
                 {/* EDIT */}
-                {selectedRows.length === 1 && (
-                  <button
-                    onClick={() => {
-                      setSelectedCrewMember(selectedRows[0]);
-                      setOpenAddModal(true);
-                      clearSelection();
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl 
-            bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium 
-            shadow-sm hover:shadow-md transition"
-                  >
-                    <Edit2 size={16} />
-                    Edit
-                  </button>
-                )}
+                <button
+                  disabled={selectedRows.length !== 1}
+                  onClick={() => {
+                    if (selectedRows.length !== 1) return;
+                    setSelectedCrewMember(selectedRows[0]);
+                    setOpenAddModal(true);
+                    clearSelection();
+                  }}
+                  className={`
+      flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+      transition shadow-sm
+
+      ${
+        selectedRows.length === 1
+          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 hover:shadow-md"
+          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+      }
+    `}
+                >
+                  <Edit2 size={16} />
+                  Edit
+                </button>
 
                 {/* DELETE */}
                 <button
+                  disabled={selectedRows.length === 0}
                   onClick={async () => {
+                    if (!selectedRows.length) return;
                     if (!window.confirm("Delete selected crew?")) return;
 
                     try {
@@ -229,9 +403,16 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                       toast.error("Delete failed");
                     }
                   }}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl 
-          bg-red-50 hover:bg-red-100 text-red-600 border border-red-200
-          text-sm font-medium transition"
+                  className={`
+      flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold
+      transition shadow-sm border
+
+      ${
+        selectedRows.length > 0
+          ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:shadow-md"
+          : "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed"
+      }
+    `}
                 >
                   <Trash2 size={16} />
                   Delete
@@ -246,70 +427,81 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
             <Loader2 size={32} className="text-blue-600 animate-spin" />
           </div>
         ) : (
-          <div className="overflow-x-auto mt-4 max-w-full border border-gray-200 bg-white rounded-xl shadow-md">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-700 text-white">
-                <tr className="text-left">
-                  <th className="px-3 py-3 sm:px-4 text-center">#</th>
-                  <th className="px-3 py-3 sm:px-4">Details</th>
-                  <th className="px-3 py-3 sm:px-4">Preferences</th>
-                  <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
-                    Passport Details
-                  </th>
-                  <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
-                    Visa Details
-                  </th>
-                  {(isAdmin || moduleAccess.can_manage_flight) && (
+          <>
+            <div className="overflow-x-auto mt-4 max-w-full border border-gray-200 bg-white rounded-xl shadow-md">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-700 text-white">
+                  <tr className="text-left">
+                    <th className="px-3 py-3 sm:px-4 text-center">#</th>
+                    <th className="px-3 py-3 sm:px-4">Details</th>
+                    <th className="px-3 py-3 sm:px-4">Preferences</th>
                     <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
-                      Flight Details
+                      Passport Details
                     </th>
-                  )}
-                  {(isAdmin || moduleAccess.can_manage_rooms) && (
-                    <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
-                      Room Details
-                    </th>
-                  )}
-                  <th className="px-3 py-3 sm:px-4 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {crewMembers.length === 0 ? (
-                  <tr>
-                    <td className="py-14" colSpan="100%">
-                      <div className="flex items-center flex-col justify-center text-center">
-                        <div className="w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center shadow-sm">
-                          <MessageCircleMore
-                            size={32}
-                            className="text-blue-600"
-                          />
-                        </div>
 
-                        <p className="text-base font-semibold text-gray-700">
-                          No Crew Members Found
-                        </p>
-                      </div>
-                    </td>
+                    {(isAdmin || moduleAccess.can_manage_flight) && (
+                      <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
+                        Flight Details
+                      </th>
+                    )}
+                    {(isAdmin || moduleAccess.can_manage_rooms) && (
+                      <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
+                        Room Details
+                      </th>
+                    )}
+                    {(isAdmin || moduleAccess.can_manage_visa) && (
+                      <th className="px-3 py-3 sm:px-4 whitespace-nowrap">
+                        Visa Details
+                      </th>
+                    )}
+
+                    <th className="px-3 py-3 sm:px-4 text-center">Status</th>
                   </tr>
-                ) : (
-                  crewMembers.map((member, index) => (
-                    <tr
-                      key={member.id}
-                      className="hover:bg-slate-50 transition border-b"
-                    >
-                      <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
-                        <label className="relative flex items-center justify-center cursor-pointer group">
-                          <input
-                            type="checkbox"
-                            checked={selectedRows.some(
-                              (m) => m.id === member.id,
-                            )}
-                            onChange={() => toggleSelect(member)}
-                            className="hidden"
-                          />
+                </thead>
+                <tbody>
+                  {filteredCrew.length === 0 ? (
+                    <tr>
+                      <td className="py-14" colSpan="100%">
+                        <div className="flex items-center flex-col justify-center text-center">
+                          <div className="w-16 h-16 mb-4 rounded-full bg-gray-100 flex items-center justify-center shadow-sm">
+                            <MessageCircleMore
+                              size={32}
+                              className="text-blue-600"
+                            />
+                          </div>
 
-                          {/* box */}
-                          <div
-                            className={`
+                          <p className="text-base font-semibold text-gray-700">
+                            No Crew Members Found
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredCrew.map((member, index) => (
+                      <>
+                        <tr
+                          key={member.id}
+                          className="hover:bg-slate-50 transition border-b cursor-pointer"
+                          onClick={() =>
+                            setExpandedRow(
+                              expandedRow === member.id ? null : member.id,
+                            )
+                          }
+                        >
+                          <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
+                            <label className="relative flex items-center justify-center cursor-pointer group">
+                              <input
+                                type="checkbox"
+                                checked={selectedRows.some(
+                                  (m) => m.id === member.id,
+                                )}
+                                onChange={() => toggleSelect(member)}
+                                className="hidden"
+                              />
+
+                              {/* box */}
+                              <div
+                                className={`
                               w-5 h-5 rounded-lg border flex items-center justify-center
                               transition-all duration-200 shadow-sm
 
@@ -319,233 +511,427 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                   : "bg-white border-gray-300 group-hover:border-blue-500"
                               }
                             `}
-                          >
-                            {selectedRows.some((m) => m.id === member.id) && (
-                              <Check
-                                size={14}
-                                strokeWidth={3}
-                                className="text-white"
-                              />
-                            )}
-                          </div>
-                        </label>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex flex-col leading-tight">
-                          <span className="font-semibold text-gray-900 text-base whitespace-nowrap">
-                            {member?.given_name || ""} {member?.sur_name || ""}
-                          </span>
+                              >
+                                {selectedRows.some(
+                                  (m) => m.id === member.id,
+                                ) && (
+                                  <Check
+                                    size={14}
+                                    strokeWidth={3}
+                                    className="text-white"
+                                  />
+                                )}
+                              </div>
+                            </label>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-start  gap-3">
+                              <span className="text-gray-700 font-semibold text-sm mt-0.5">
+                                {index + 1}.
+                              </span>
 
-                          {member.designation && (
-                            <span className="text-sm text-blue-600 font-medium whitespace-nowrap">
-                              {member.designation}
-                            </span>
+                              <div className="flex flex-col leading-tight">
+                                <span className="font-semibold text-gray-900 text-base whitespace-nowrap">
+                                  {member?.given_name || ""}{" "}
+                                  {member?.sur_name || ""}
+                                </span>
+                                {member.designation && (
+                                  <span className="text-sm text-blue-600 font-medium whitespace-nowrap">
+                                    {member.designation}
+                                  </span>
+                                )}
+
+                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
+                                  <span className="capitalize">
+                                    {member.gender}
+                                  </span>
+                                  <span className="text-gray-300">•</span>
+                                  <span>{member.nationality}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <div className="flex flex-col gap-2 text-sm">
+                              <div className="flex items-center  gap-3">
+                                <span className="text-gray-500 text-xs">
+                                  Food
+                                </span>
+
+                                {member.food_preference ? (
+                                  <span className="px-2 py-0.5 rounded-lg bg-green-100 text-green-800 font-medium text-xs capitalize border border-green-200">
+                                    {member.food_preference.replace("_", " ")}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-xs italic">
+                                    Not added
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Flight Class */}
+                              <div className="flex items-center  gap-3">
+                                <span className="text-gray-500 text-xs whitespace-nowrap">
+                                  Flight Class
+                                </span>
+
+                                {member.flight_class ? (
+                                  <span className="px-2 py-0.5 rounded-lg bg-blue-100 text-blue-800 font-medium text-xs capitalize border border-blue-200">
+                                    {member.flight_class}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-xs italic">
+                                    Not added
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <span className="text-gray-500 text-xs whitespace-nowrap">
+                                  Room Type
+                                </span>
+                                {member.room_preference ? (
+                                  <span className="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 font-medium text-xs capitalize border border-purple-200">
+                                    {member.room_preference}
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400 text-xs italic">
+                                    Not added
+                                  </span>
+                                )}{" "}
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-4">
+                            {!member.passport_number ? (
+                              <div className="flex items-center gap-2 text-sm text-gray-400">
+                                <span className="italic">
+                                  No passport Provided
+                                </span>
+                              </div>
+                            ) : (
+                              <div className="flex  flex-col text-sm">
+                                <span className="font-semibold text-gray-900 tracking-wide">
+                                  {member.passport_number}
+                                </span>
+
+                                <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                                  <span>
+                                    Issue:{" "}
+                                    {member.date_of_issue
+                                      ? new Date(
+                                          member.date_of_issue,
+                                        ).toLocaleDateString("en-GB")
+                                      : "-"}
+                                  </span>
+
+                                  <span className="text-gray-300">•</span>
+
+                                  <span>
+                                    Exp:{" "}
+                                    {member.date_of_expiry
+                                      ? new Date(
+                                          member.date_of_expiry,
+                                        ).toLocaleDateString("en-GB")
+                                      : "-"}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+                          </td>
+                          {(isAdmin || moduleAccess.can_manage_flight) && (
+                            <td className="px-4 py-4">
+                              <button
+                                onClick={() => {
+                                  setSelectedCrew(member);
+                                  setFlightModal(true);
+                                }}
+                                className={`
+      flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold
+      border transition-all duration-200 whitespace-nowrap
+
+      ${
+        member.flights?.length
+          ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
+          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+      }
+      `}
+                              >
+                                <Plane size={14} />
+
+                                {member.flights?.length ? (
+                                  <>Flights</>
+                                ) : (
+                                  "Add Flight"
+                                )}
+                              </button>
+                            </td>
+                          )}
+                          {(isAdmin || moduleAccess.can_manage_rooms) && (
+                            <td className="px-4 py-4">
+                              <button
+                                onClick={() => {
+                                  setSelectedCrew(member);
+                                  setRoomModal(true);
+                                }}
+                                className={`
+      flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold
+      border transition-all duration-200 whitespace-nowrap
+
+      ${
+        member.rooms?.length
+          ? "bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100"
+          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+      }
+      `}
+                              >
+                                <Building2 size={14} />
+
+                                {member.rooms?.length ? <>Rooms</> : "Add Room"}
+                              </button>
+                            </td>
+                          )}
+                          {(isAdmin || moduleAccess.can_manage_visa) && (
+                            <td className="px-4 py-4">
+                              <button
+                                onClick={() => {
+                                  setSelectedCrew(member);
+                                  setVisaModal(true);
+                                }}
+                                className={`
+      flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold
+      border transition-all duration-200 whitespace-nowrap
+
+      ${
+        member.visas?.length
+          ? "bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100"
+          : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
+      }
+      `}
+                              >
+                                <ShieldCheck size={14} />
+
+                                {member.visas?.length ? <>Visa</> : "Add Visa"}
+                              </button>
+                            </td>
                           )}
 
-                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-                            <span className="capitalize">{member.gender}</span>
-                            <span className="text-gray-300">•</span>
-                            <span>{member.nationality}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex flex-col gap-2 text-sm">
-                          <div className="flex items-center  gap-3">
-                            <span className="text-gray-500 text-xs">Food</span>
-
-                            {member.food_preference ? (
-                              <span className="px-2 py-0.5 rounded-lg bg-green-50 text-green-700 font-medium text-xs capitalize border border-green-200">
-                                {member.food_preference.replace("_", " ")}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-xs italic">
-                                Not added
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Flight Class */}
-                          <div className="flex items-center  gap-3">
-                            <span className="text-gray-500 text-xs whitespace-nowrap">
-                              Flight Class
-                            </span>
-
-                            {member.flight_class ? (
-                              <span className="px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-medium text-xs capitalize border border-blue-200">
-                                {member.flight_class}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-xs italic">
-                                Not added
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <span className="text-gray-500 text-xs whitespace-nowrap">
-                              Room Type
-                            </span>
-                            {member.room_preference ? (
-                              <span className="px-2 py-0.5 rounded-lg bg-purple-50 text-purple-700 font-medium text-xs capitalize border border-purple-200">
-                                {member.room_preference}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400 text-xs italic">
-                                Not added
-                              </span>
-                            )}{" "}
-                          </div>
-                        </div>
-                      </td>
-
-                      <td className="py-4 px-4">
-                        {!member.passport_number ? (
-                          <div className="flex items-center gap-2 text-sm text-gray-400">
-                            <span className="italic">No passport Provided</span>
-                          </div>
-                        ) : (
-                          <div className="flex  flex-col text-sm">
-                            <span className="font-semibold text-gray-900 tracking-wide">
-                              {member.passport_number}
-                            </span>
-
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                              <span>
-                                Issue:{" "}
-                                {member.date_of_issue
-                                  ? new Date(
-                                      member.date_of_issue,
-                                    ).toLocaleDateString("en-GB")
-                                  : "-"}
-                              </span>
-
-                              <span className="text-gray-300">•</span>
-
-                              <span>
-                                Exp:{" "}
-                                {member.date_of_expiry
-                                  ? new Date(
-                                      member.date_of_expiry,
-                                    ).toLocaleDateString("en-GB")
-                                  : "-"}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </td>
-
-                      <td className="py-4 px-4">
-                        {!member.visa_type && !member.visa_number ? (
-                          <div className="flex items-center gap-2 text-sm text-gray-400">
-                            <span className="italic">No Visa Provided</span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col text-sm">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-gray-900 tracking-wide mb-1">
-                                {member.visa_number}
-                              </span>
-                              <span className="text-gray-300">•</span>
-
-                              <span className="text-xs text-gray-700 font-medium ">
-                                {member.visa_type?.toUpperCase()}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
-                              <span>
-                                Exp:{" "}
-                                {member.visa_expiry
-                                  ? new Date(
-                                      member.visa_expiry,
-                                    ).toLocaleDateString("en-GB")
-                                  : "-"}
-                              </span>
-                            </div>
-                          </div>
-                        )}
-                      </td>
-
-                      {(isAdmin || moduleAccess.can_manage_flight) && (
-                        <td className="px-4 py-4">
-                          <button
-                            onClick={() => {
-                              setSelectedCrew(member);
-                              setFlightModal(true);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 
-                                  rounded-lg text-xs font-semibold 
-                                  bg-gradient-to-r from-blue-50 to-indigo-50 
-                                  text-blue-700 border border-blue-200
-                                  hover:from-blue-100 hover:to-indigo-100 
-                                  hover:border-blue-300 hover:text-blue-800
-                                  transition-all duration-200 shadow-sm hover:shadow whitespace-nowrap"
-                          >
-                            + Add Flight
-                          </button>
-                        </td>
-                      )}
-                      {(isAdmin || moduleAccess.can_manage_rooms) && (
-                        <td className="px-4 py-4">
-                          <button
-                            onClick={() => {
-                              setSelectedCrew(member);
-                              setRoomModal(true);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 
-                                  rounded-lg text-xs font-semibold 
-                                  bg-gradient-to-r from-purple-50 to-pink-50 
-                                  text-purple-700 border border-purple-200
-                                  hover:from-purple-100 hover:to-pink-100 
-                                  hover:border-purple-300 hover:text-purple-800
-                                  transition-all duration-200 shadow-sm hover:shadow whitespace-nowrap"
-                          >
-                            + Add Room
-                          </button>
-                        </td>
-                      )}
-                      <td className="px-4 py-4">
-                        <div className="flex flex-col items-center justify-center gap-1">
-                          <button
-                            onClick={() =>
-                              handleUpdateStatus(
-                                member.id,
-                                member.status === "active"
-                                  ? "in-active"
-                                  : "active",
-                              )
-                            }
-                            className={`
+                          <td className="px-4 py-4">
+                            <div className="flex flex-col items-center justify-center gap-1">
+                              <button
+                                onClick={() =>
+                                  handleUpdateStatus(
+                                    member.id,
+                                    member.status === "active"
+                                      ? "in-active"
+                                      : "active",
+                                  )
+                                }
+                                className={`
       relative inline-flex items-center h-6 w-11 rounded-full transition-all duration-300 focus:outline-none
       ${member.status === "active" ? "bg-green-500" : "bg-gray-300"}
     `}
-                          >
-                            <span
-                              className={`
+                              >
+                                <span
+                                  className={`
         inline-block h-5 w-5 transform rounded-full bg-white shadow transition-all duration-300
         ${member.status === "active" ? "translate-x-5" : "translate-x-1"}
       `}
-                            />
-                          </button>
+                                />
+                              </button>
 
-                          <span
-                            className={`ml-2 text-xs font-semibold ${
-                              member.status === "active"
-                                ? "text-green-600"
-                                : "text-gray-500"
-                            }`}
-                          >
-                            {member.status === "active" ? "Active" : "Inactive"}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                              <span
+                                className={`ml-2 text-xs font-semibold ${
+                                  member.status === "active"
+                                    ? "text-green-600"
+                                    : "text-gray-500"
+                                }`}
+                              >
+                                {member.status === "active"
+                                  ? "Active"
+                                  : "Inactive"}
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                        {expandedRow === member.id && (
+                          <tr className="bg-purple-50">
+                            <td colSpan="100%" className="px-8 py-7">
+                              {/* MAIN WRAPPER */}
+                              <div className="space-y-6">
+                                {/* HEADER */}
+                                <div className="flex items-center justify-between border-b pb-4">
+                                  <div>
+                                    <h2 className="text-lg font-bold text-gray-800">
+                                      {member.given_name} {member.sur_name}
+                                    </h2>
+                                    <p className="text-sm text-gray-500">
+                                      {member.designation}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {/* GRID */}
+                                <div className="grid lg:grid-cols-3 gap-6">
+                                  {/* 👤 CREW CARD */}
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <h3 className="font-semibold text-gray-800 mb-4">
+                                      👤 Crew Info
+                                    </h3>
+
+                                    <Info
+                                      label="Passport"
+                                      value={member.passport_number}
+                                    />
+                                    <Info
+                                      label="DOB"
+                                      value={member.date_of_birth}
+                                    />
+                                    <Info
+                                      label="Expiry"
+                                      value={member.date_of_expiry}
+                                    />
+                                    <Info
+                                      label="Boarding"
+                                      value={member.boarding_from}
+                                    />
+                                    <Info
+                                      label="Returning"
+                                      value={member.returning_to}
+                                    />
+                                    <Info
+                                      label="Flight Preference"
+                                      value={member.flight_class}
+                                    />
+                                    <Info
+                                      label="Food Preference"
+                                      value={member.food_preference}
+                                    />
+                                    <Info
+                                      label="Room Preference"
+                                      value={member.room_preference}
+                                    />
+                                  </div>
+
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <div className="flex items-center justify-between gap-3 mb-4">
+                                      <h3 className="font-semibold text-gray-800 text-lg">
+                                        📁 Document Verification
+                                      </h3>
+
+                                      <button
+                                        onClick={() => {
+                                          setDocumentModal(true);
+                                          setSelectedCrew(member);
+                                        }}
+                                        className="p-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 transition"
+                                      >
+                                        <Upload
+                                          size={20}
+                                          className="text-indigo-600"
+                                        />
+                                      </button>
+                                    </div>
+                                    <div className="space-y-3">
+                                      <DocumentRow
+                                        type="photo"
+                                        title="Photo"
+                                        docs={member.documents}
+                                      />
+                                      <DocumentRow
+                                        type="passport"
+                                        title="Passport"
+                                        docs={member.documents}
+                                      />
+                                      <DocumentRow
+                                        type="aadhar_card"
+                                        title="Aadhar Card"
+                                        docs={member.documents}
+                                      />
+                                      <DocumentRow
+                                        type="bank_statement"
+                                        title="Bank Statement"
+                                        docs={member.documents}
+                                      />
+                                      <DocumentRow
+                                        type="previous_visa"
+                                        title="Previous Visa"
+                                        docs={member.documents}
+                                      />
+                                      <DocumentRow
+                                        type="income_revenue"
+                                        title="Income Revenue"
+                                        docs={member.documents}
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {/* ✈ FLIGHTS */}
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <SectionHeader
+                                      title="Flights"
+                                      count={member.flights?.length}
+                                      ok={member.flights?.length}
+                                    />
+
+                                    {member.flights?.length ? (
+                                      member.flights.map((flight) => (
+                                        <FlightRow
+                                          key={flight.id}
+                                          flight={flight}
+                                        />
+                                      ))
+                                    ) : (
+                                      <Empty text="No flights added" />
+                                    )}
+                                  </div>
+
+                                  {/* 🏨 ROOMS */}
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <SectionHeader
+                                      title="Rooms"
+                                      count={member.rooms?.length}
+                                      ok={member.rooms?.length}
+                                    />
+
+                                    {member.rooms?.length ? (
+                                      member.rooms.map((room) => (
+                                        <RoomRow key={room.id} room={room} />
+                                      ))
+                                    ) : (
+                                      <Empty text="No rooms booked" />
+                                    )}
+                                  </div>
+
+                                  {/* 🛂 VISA */}
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <SectionHeader
+                                      title="Visa"
+                                      count={member.visas?.length}
+                                      ok={member.visas?.length}
+                                    />
+
+                                    {member.visas?.length ? (
+                                      member.visas.map((visa) => (
+                                        <VisaRow key={visa.id} visa={visa} />
+                                      ))
+                                    ) : (
+                                      <Empty text="No visa added" />
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
       <AddCrewMembers
@@ -568,6 +954,320 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
         onClose={() => setFlightModal(false)}
         crewMember={selectedCrew}
       />
+      <AddCrewVisaModal
+        isOpen={visaModal}
+        onClose={() => setVisaModal(false)}
+        crewMember={selectedCrew}
+      />
+      <CrewDocumentsModal
+        isOpen={documentModal}
+        onClose={() => {
+          setSelectedCrew(null);
+          setDocumentModal(false);
+        }}
+        crewMember={selectedCrew}
+      />
+    </div>
+  );
+};
+
+const Info = ({ label, value }) => (
+  <div className="flex justify-between text-sm py-1 border-b last:border-none">
+    <span className="text-gray-500">{label}</span>
+    <span className="font-semibold text-gray-800">{value || "-"}</span>
+  </div>
+);
+
+const Empty = ({ text }) => (
+  <p className="text-gray-400 text-sm italic">{text}</p>
+);
+
+const StatusBadge = ({ label, ok }) => (
+  <div
+    className={`px-3 py-1 rounded-full text-xs font-semibold
+  ${ok ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"}`}
+  >
+    {label}: {ok ? "Done" : "Missing"}
+  </div>
+);
+
+const DocumentRow = ({ type, title, docs }) => {
+  const [open, setOpen] = useState(false);
+
+  const filtered = docs?.filter((d) => d.document_type === type) || [];
+  const exists = filtered.length > 0;
+
+  return (
+    <div className="border rounded-xl overflow-hidden bg-gray-50">
+      {/* HEADER */}
+      <div
+        onClick={() => exists && setOpen(!open)}
+        className={`flex items-center justify-between px-4 py-3 cursor-pointer transition
+        ${exists ? "hover:bg-blue-50" : "opacity-70 cursor-not-allowed"}`}
+      >
+        <div className="flex items-center gap-3">
+          {/* STATUS ICON */}
+          <div
+            className={`w-6 h-6 flex items-center justify-center rounded-full
+            ${exists ? "bg-green-100 text-green-600" : "bg-red-100 text-red-500"}`}
+          >
+            {exists ? "✓" : "✕"}
+          </div>
+
+          <span className="font-semibold text-gray-800">{title}</span>
+        </div>
+
+        <div className="text-xs font-semibold text-gray-500">
+          {exists ? `${filtered.length} file` : "Missing"}
+        </div>
+      </div>
+
+      {/* FILES LIST */}
+      {open && exists && (
+        <div className="bg-white border-t px-4 py-3 space-y-2">
+          {filtered.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+            >
+              <span className="text-sm text-gray-700 truncate w-56">
+                {file.file_name}
+              </span>
+
+              <a
+                href={file.file_url}
+                target="_blank"
+                className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700"
+              >
+                View
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* MISSING UI */}
+      {!exists && (
+        <div className="px-4 pb-3 text-xs text-red-500">
+          Document not uploaded
+        </div>
+      )}
+    </div>
+  );
+};
+
+const SectionHeader = ({ title, count }) => {
+  const available = count > 0;
+
+  return (
+    <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center gap-3">
+        <h3 className="text-lg font-semibold text-gray-800 tracking-tight">
+          {title}
+        </h3>
+
+        <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full">
+          {count || 0}
+        </span>
+      </div>
+
+      <div
+        className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full
+        ${
+          available ? "bg-green-50 text-green-600" : "bg-rose-50 text-rose-500"
+        }`}
+      >
+        {available ? <CheckCircle size={14} /> : <AlertCircle size={14} />}
+        {available ? "Available" : "Missing"}
+      </div>
+    </div>
+  );
+};
+const FlightRow = ({ flight }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition mb-4 overflow-hidden bg-white">
+      {/* Header */}
+      <div
+        onClick={() => setOpen(!open)}
+        className="flex justify-between items-center px-5 py-4 cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-50 rounded-xl">
+            <Plane size={18} className="text-blue-600" />
+          </div>
+
+          <div>
+            <p className="font-semibold text-gray-800 text-sm">
+              {flight.from_city} → {flight.to_city}
+            </p>
+            <p className="text-xs text-gray-500">
+              {flight.airline} • {flight.flight_number}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+            {flight.flight_class}
+          </span>
+
+          <ChevronDown
+            size={18}
+            className={`transition-transform duration-300 ${
+              open ? "rotate-180 text-blue-600" : "text-gray-400"
+            }`}
+          />
+        </div>
+      </div>
+
+      {/* Expand */}
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          open ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        } overflow-hidden`}
+      >
+        <div className="px-5 pb-4 text-sm text-gray-600 space-y-2 border-t">
+          <p>
+            <b>PNR:</b> {flight.pnr}
+          </p>
+          <p>
+            <b>Departure:</b> {new Date(flight.departure_time).toLocaleString()}
+          </p>
+          <p>
+            <b>Arrival:</b> {new Date(flight.arrival_time).toLocaleString()}
+          </p>
+
+          {flight.ticket_file && (
+            <a
+              href={flight.ticket_file}
+              target="_blank"
+              className="inline-block mt-2 text-blue-600 text-xs font-semibold hover:underline"
+            >
+              View Ticket →
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RoomRow = ({ room }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition mb-4 bg-white overflow-hidden">
+      <div
+        onClick={() => setOpen(!open)}
+        className="flex justify-between items-center px-5 py-4 cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-purple-50 rounded-xl">
+            <Hotel size={18} className="text-purple-600" />
+          </div>
+
+          <div>
+            <p className="font-semibold text-gray-800 text-sm">
+              {room.hotel_name}
+            </p>
+            <p className="text-xs text-gray-500">{room.city}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
+            {room.room_type}
+          </span>
+
+          <ChevronDown
+            size={18}
+            className={`transition-transform duration-300 ${
+              open ? "rotate-180 text-purple-600" : "text-gray-400"
+            }`}
+          />
+        </div>
+      </div>
+
+      {open && (
+        <div className="px-5 pb-4 text-sm text-gray-600 space-y-2 border-t">
+          <p>
+            <b>Room Number:</b> {room.room_number || "-"}
+          </p>
+          <p>
+            <b>Check-in:</b> {new Date(room.checkin_date).toLocaleDateString()}
+          </p>
+          <p>
+            <b>Check-out:</b>{" "}
+            {new Date(room.checkout_date).toLocaleDateString()}
+          </p>
+          {room.remarks && (
+            <p>
+              <b>Remarks:</b> {room.remarks}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+const VisaRow = ({ visa }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition mb-4 bg-white overflow-hidden">
+      <div
+        onClick={() => setOpen(!open)}
+        className="flex justify-between items-center px-5 py-4 cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-50 rounded-xl">
+            <Globe size={18} className="text-emerald-600" />
+          </div>
+
+          <div>
+            <p className="font-semibold text-gray-800 text-sm">
+              {visa.country}
+            </p>
+            <p className="text-xs text-gray-500">{visa.visa_type}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+            {visa.visa_number}
+          </span>
+
+          <ChevronDown
+            size={18}
+            className={`transition-transform duration-300 ${
+              open ? "rotate-180 text-emerald-600" : "text-gray-400"
+            }`}
+          />
+        </div>
+      </div>
+
+      {open && (
+        <div className="px-5 pb-4 text-sm text-gray-600 space-y-2 border-t">
+          <p>
+            <b>Issue Date:</b> {visa.date_of_issue}
+          </p>
+          <p>
+            <b>Expiry Date:</b> {visa.date_of_expiry}
+          </p>
+
+          {visa.visa_file_url && (
+            <a
+              href={visa.visa_file_url}
+              target="_blank"
+              className="inline-block mt-2 text-emerald-600 text-xs font-semibold hover:underline"
+            >
+              View Visa →
+            </a>
+          )}
+        </div>
+      )}
     </div>
   );
 };
