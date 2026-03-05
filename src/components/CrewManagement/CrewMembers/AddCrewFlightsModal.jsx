@@ -9,7 +9,10 @@ import {
   FileText,
   Edit2,
   Trash2,
-  Eye,
+  TicketCheck,
+  TicketIcon,
+  DollarSign,
+  Wallet,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
@@ -21,6 +24,7 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
   const [merchants, setMerchants] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [currencies, setCurrencies] = useState([]);
 
   const emptyForm = useMemo(
     () => ({
@@ -29,12 +33,17 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
       flight_number: "",
       airline: "",
       flight_class: "",
+
+      departure_date: "",
       departure_time: "",
+      arrival_date: "",
       arrival_time: "",
       pnr: "",
       booking_status: "booked",
       remarks: "",
       newTicketFile: null,
+      currency: "",
+      ticket_charge: 0,
     }),
     [],
   );
@@ -52,12 +61,10 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
 
       const formatted = data.map((f) => ({
         ...f,
-        departure_time: f.departure_time
-          ? new Date(f.departure_time).toISOString().slice(0, 16)
-          : "",
-        arrival_time: f.arrival_time
-          ? new Date(f.arrival_time).toISOString().slice(0, 16)
-          : "",
+        departure_date: f.departure_date || "",
+        arrival_date: f.arrival_date || "",
+        departure_time: f.departure_time || "",
+        arrival_time: f.arrival_time || "",
       }));
 
       setFlights(formatted);
@@ -80,10 +87,20 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
     }
   }, []);
 
+  const fetchCurrency = useCallback(async () => {
+    try {
+      const res = await apiCall(`/currency`, "GET");
+      setCurrencies(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch currency");
+    }
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       fetchFlights();
       fetchMerchants();
+      fetchCurrency();
     }
   }, [isOpen, fetchFlights, fetchMerchants]);
 
@@ -140,7 +157,6 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
   // ================= EDIT =================
   const startEdit = (flight) => {
     setEditingId(flight.id);
-    // populate the shared form and open it
     setForm({
       ...flight,
       newTicketFile: null,
@@ -158,6 +174,10 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
     onClose();
     setShowForm(false);
   };
+
+  const selectedMerchant = merchants.find(
+    (m) => m.merchant_name === form.airline,
+  );
 
   if (!isOpen) return null;
 
@@ -199,7 +219,7 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                   className="whitespace-nowrap flex items-center gap-2 px-3 py-2 rounded-lg shadow-md bg-gradient-to-r  from-blue-600 hover:from-blue-700 to-blue-700 hover:to-blue-800 text-white text-sm "
                 >
                   <Plane className="h-4 w-4" />
-                  Add Flight Details
+                  Add Ticket Details
                 </button>
               )}
             </div>
@@ -208,16 +228,204 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-6 mb-6">
                 <h3 className="font-semibold text-blue-800 mb-4 flex items-center gap-2">
                   <Plane className="h-5 w-5" />
-                  {editingId ? "Edit Flight" : "Add New Flight"}
+                  {editingId ? "Edit Ticket" : "Add New Ticket"}
                 </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                  {/* LEFT SIDE - INPUTS */}
+                  <div className="lg:col-span-3 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* From City */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        From City *
+                      </label>
+                      <input
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        placeholder="e.g., New York"
+                        value={form.from_city}
+                        onChange={(e) =>
+                          setForm({ ...form, from_city: e.target.value })
+                        }
+                      />
+                    </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      From City *
-                    </label>
-                    <input
-                      className="
+                    {/* To City */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        To City *
+                      </label>
+                      <input
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        placeholder="e.g., London"
+                        value={form.to_city}
+                        onChange={(e) =>
+                          setForm({ ...form, to_city: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Flight Number */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Flight No *
+                      </label>
+                      <input
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        placeholder="e.g., AA123"
+                        value={form.flight_number}
+                        onChange={(e) =>
+                          setForm({ ...form, flight_number: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Airline */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Airline *
+                      </label>
+                      <select
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.airline}
+                        onChange={(e) => {
+                          const selectedAirline = e.target.value;
+
+                          setForm({
+                            ...form,
+                            airline: selectedAirline,
+                            flight_class: "",
+                          });
+                        }}
+                      >
+                        <option value="">Select Airline</option>
+                        {merchants.map((m) => (
+                          <option key={m.id} value={m.merchant_name}>
+                            {m.merchant_name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Class */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Class
+                      </label>
+                      <select
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.flight_class}
+                        onChange={(e) =>
+                          setForm({ ...form, flight_class: e.target.value })
+                        }
+                      >
+                        <option value="">Select Class</option>
+
+                        {selectedMerchant?.merchant_category?.length > 0 ? (
+                          selectedMerchant.merchant_category.map((cat, i) => (
+                            <option key={i} value={cat.toLowerCase()}>
+                              {cat}
+                            </option>
+                          ))
+                        ) : (
+                          <>
+                            <option value="economy">Economy</option>
+                            <option value="business">Business</option>
+                            <option value="first">First</option>
+                          </>
+                        )}
+                      </select>
+                    </div>
+
+                    {/* PNR */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        PNR
+                      </label>
+                      <input
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        placeholder="Booking reference"
+                        value={form.pnr}
+                        onChange={(e) =>
+                          setForm({ ...form, pnr: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Departure Date */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Departure Date *
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.departure_date}
+                        onChange={(e) =>
+                          setForm({ ...form, departure_date: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Departure Time */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Departure Time *
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.departure_time}
+                        onChange={(e) =>
+                          setForm({ ...form, departure_time: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Arrival Date */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Arrival Date
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.arrival_date}
+                        onChange={(e) =>
+                          setForm({ ...form, arrival_date: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    {/* Arrival Time */}
+                    <div className="space-y-1">
+                      <label className="text-sm text-gray-700 font-medium">
+                        Arrival Time
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                        value={form.arrival_time}
+                        onChange={(e) =>
+                          setForm({ ...form, arrival_time: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs text-gray-700 font-medium">
+                        Currency
+                      </label>
+                      <select
+                        className="
     w-full h-11 px-4
     rounded-xl
     border border-gray-200
@@ -231,20 +439,27 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
     focus:ring-4 focus:ring-blue-100
     focus:border-blue-500
   "
-                      placeholder="e.g., New York"
-                      value={form.from_city}
-                      onChange={(e) =>
-                        setForm({ ...form, from_city: e.target.value })
-                      }
-                    />
-                  </div>
+                        value={form.currency}
+                        onChange={(e) =>
+                          setForm({ ...form, currency: e.target.value })
+                        }
+                      >
+                        <option value="">Select Currency</option>
+                        {currencies.map((curr) => (
+                          <option key={curr.id} value={curr.symbol}>
+                            {curr.currency_name} ({curr.symbol})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      To City *
-                    </label>
-                    <input
-                      className="
+                    <div className="space-y-1">
+                      <label className="text-xs text-gray-700 font-medium">
+                        Ticket Charge
+                      </label>
+                      <input
+                        type="number"
+                        className="
     w-full h-11 px-4
     rounded-xl
     border border-gray-200
@@ -258,223 +473,89 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
     focus:ring-4 focus:ring-blue-100
     focus:border-blue-500
   "
-                      placeholder="e.g., London"
-                      value={form.to_city}
-                      onChange={(e) =>
-                        setForm({ ...form, to_city: e.target.value })
-                      }
-                    />
+                        placeholder="0"
+                        value={form.ticket_charge}
+                        onChange={(e) =>
+                          setForm({ ...form, ticket_charge: e.target.value })
+                        }
+                      />
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Flight No *
-                    </label>
-                    <input
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      placeholder="e.g., AA123"
-                      value={form.flight_number}
-                      onChange={(e) =>
-                        setForm({ ...form, flight_number: e.target.value })
-                      }
-                    />
-                  </div>
+                  {/* RIGHT SIDE - UPLOAD BOX */}
+                  <div className="flex flex-col items-center justify-start gap-3">
+                    {editingId && form.ticket_file ? (
+                      <div className="w-full">
+                        {/* EXISTING TICKET */}
+                        <a
+                          href={form.ticket_file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex flex-col items-center justify-center 
+        w-full h-48 border rounded-xl bg-blue-50 hover:bg-blue-100 
+        transition cursor-pointer"
+                        >
+                          <TicketCheck className="h-10 w-10 text-blue-600 mb-2" />
+                          <span className="text-sm font-medium text-blue-700">
+                            View Uploaded Ticket
+                          </span>
+                        </a>
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Airline *
-                    </label>
-                    <select
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      value={form.airline}
-                      onChange={(e) =>
-                        setForm({ ...form, airline: e.target.value })
-                      }
-                    >
-                      <option value="">Select Airline</option>
-                      {merchants.map((m) => (
-                        <option key={m.id} value={m.merchant_name}>
-                          {m.merchant_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                        {/* REPLACE BUTTON */}
+                        <label
+                          className="mt-3 flex items-center justify-center gap-2 
+        border-2 border-dashed border-gray-300 rounded-xl 
+        px-4 py-3 cursor-pointer hover:border-blue-500 transition"
+                        >
+                          <Upload className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm text-gray-600">
+                            Replace Ticket
+                          </span>
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Class
-                    </label>
-                    <select
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      value={form.flight_class}
-                      onChange={(e) =>
-                        setForm({ ...form, flight_class: e.target.value })
-                      }
-                    >
-                      <option value="">Select Class</option>
-                      <option value="economy">Economy</option>
-                      <option value="business">Business</option>
-                      <option value="first">First</option>
-                    </select>
-                  </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={(e) =>
+                              setForm({
+                                ...form,
+                                newTicketFile: e.target.files[0],
+                              })
+                            }
+                          />
+                        </label>
+                      </div>
+                    ) : (
+                      <label
+                        className="w-full h-64 flex flex-col items-center justify-center 
+      border-2 border-dashed border-gray-300 rounded-xl 
+      cursor-pointer hover:border-blue-500 transition-all bg-white"
+                      >
+                        <Upload className="h-10 w-10 text-gray-400 mb-2" />
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Departure *
-                    </label>
-                    <input
-                      type="datetime-local"
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      value={form.departure_time}
-                      onChange={(e) =>
-                        setForm({ ...form, departure_time: e.target.value })
-                      }
-                    />
-                  </div>
+                        <span className="text-sm text-gray-600 text-center px-4">
+                          {form.newTicketFile
+                            ? form.newTicketFile.name
+                            : "Upload Ticket"}
+                        </span>
 
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Arrival *
-                    </label>
-                    <input
-                      type="datetime-local"
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      value={form.arrival_time}
-                      onChange={(e) =>
-                        setForm({ ...form, arrival_time: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-sm text-gray-700 font-medium">
-                      PNR
-                    </label>
-                    <input
-                      className="
-    w-full h-11 px-4
-    rounded-xl
-    border border-gray-200
-    bg-white
-    text-sm text-gray-800
-    placeholder:text-gray-400
-    shadow-sm
-    transition-all duration-200
-    hover:border-gray-300
-    focus:outline-none
-    focus:ring-4 focus:ring-blue-100
-    focus:border-blue-500
-  "
-                      placeholder="Booking reference"
-                      value={form.pnr}
-                      onChange={(e) =>
-                        setForm({ ...form, pnr: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-1 flex flex-col gap-2">
-                    <label className="text-sm text-gray-700 font-medium">
-                      Remarks
-                    </label>
-
-                    <textarea
-                      className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                      placeholder="Add your remarks"
-                      value={form.remarks}
-                      onChange={(e) =>
-                        setForm({ ...form, remarks: e.target.value })
-                      }
-                    >
-                      {" "}
-                    </textarea>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              newTicketFile: e.target.files[0],
+                            })
+                          }
+                        />
+                      </label>
+                    )}
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
-                  <label className="flex w-full max-w-md items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                    <Upload className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      {form.newTicketFile
-                        ? form.newTicketFile.name
-                        : "Upload Ticket"}
-                    </span>
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept=".pdf,.jpg,.jpeg,.png"
-                      onChange={(e) =>
-                        setForm({ ...form, newTicketFile: e.target.files[0] })
-                      }
-                    />
-                  </label>
-
+                <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4 mt-6">
                   <div className="flex gap-2 items-center justify-end">
                     <button
                       onClick={saveFlight}
@@ -489,7 +570,7 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                       ) : (
                         <>
                           <Plane className="h-4 w-4" />
-                          {editingId ? "Update Flight" : "Add Flight"}
+                          {editingId ? "Update Ticket" : "Add Ticket"}
                         </>
                       )}
                     </button>
@@ -596,7 +677,7 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                         </div>
 
                         {/* TIME SECTION */}
-                        <div className="grid sm:grid-cols-3 gap-6 mt-5">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-5">
                           {/* DEPARTURE */}
                           <div className="flex items-center gap-3">
                             <div className="bg-gray-100 p-2 rounded-lg">
@@ -605,10 +686,19 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                             <div>
                               <p className="text-xs text-gray-400">Departure</p>
                               <p className="text-sm font-semibold text-gray-800">
-                                {flight.departure_time
-                                  ? new Date(
-                                      flight.departure_time,
-                                    ).toLocaleString()
+                                {flight.departure_date
+                                  ? `${flight.departure_date}${
+                                      flight.departure_time
+                                        ? " • " +
+                                          new Date(
+                                            `1970-01-01T${flight.departure_time}`,
+                                          ).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                          })
+                                        : ""
+                                    }`
                                   : "-"}
                               </p>
                             </div>
@@ -622,10 +712,19 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                             <div>
                               <p className="text-xs text-gray-400">Arrival</p>
                               <p className="text-sm font-semibold text-gray-800">
-                                {flight.arrival_time
-                                  ? new Date(
-                                      flight.arrival_time,
-                                    ).toLocaleString()
+                                {flight.arrival_date
+                                  ? `${flight.arrival_date}${
+                                      flight.arrival_time
+                                        ? " • " +
+                                          new Date(
+                                            `1970-01-01T${flight.arrival_time}`,
+                                          ).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                          })
+                                        : ""
+                                    }`
                                   : "-"}
                               </p>
                             </div>
@@ -637,9 +736,27 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                               <FileText className="h-4 w-4 text-gray-600" />
                             </div>
                             <div>
-                              <p className="text-xs text-gray-400">PNR</p>
+                              <p className="text-xs text-gray-400">
+                                PNR Number
+                              </p>
                               <p className="text-sm font-semibold text-gray-800">
                                 {flight.pnr || "Not added"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <Wallet className="h-4 w-4 text-gray-600" />{" "}
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">
+                                Ticket charge
+                              </p>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {flight.ticket_charge
+                                  ? `${flight.currency || ""} ${flight.ticket_charge}`
+                                  : "Not added"}
                               </p>
                             </div>
                           </div>
@@ -684,10 +801,10 @@ const AddCrewFlightsModal = ({ isOpen, onClose, crewMember }) => {
                               href={flight.ticket_file}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
+                              className="p-2 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition flex items-center gap-2"
                               title="View Ticket"
                             >
-                              View Ticket
+                              <TicketIcon size={18} /> Ticket
                             </a>
                           )}
 

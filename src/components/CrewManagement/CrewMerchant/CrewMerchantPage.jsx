@@ -29,7 +29,6 @@ const CrewMerchantPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { hasPermission } = usePermission();
-  const { user } = useAuth();
 
   const pageSize = 50;
 
@@ -41,8 +40,8 @@ const CrewMerchantPage = () => {
         "GET",
       );
 
-      setMerchants(response.data || []);
-      setTotalRecords(response.pagination.totalRecords || 0);
+      setMerchants(response?.data || []);
+      setTotalRecords(response?.pagination?.totalRecords || 0);
     } catch (error) {
       toast.error("Failed to fetch error");
     } finally {
@@ -55,6 +54,7 @@ const CrewMerchantPage = () => {
   }, [currentPage, searchTerm, merchantType]);
 
   const handleSearch = debounce((value) => {
+    setCurrentPage(1);
     setSearchTerm(value);
   }, 500);
 
@@ -134,6 +134,7 @@ const CrewMerchantPage = () => {
                   <th className="py-3 px-3 sm:px-4">#</th>
                   <th className="py-3 px-3 sm:px-4">Name</th>
                   <th className="py-3 px-3 sm:px-4">Type</th>
+                  <th className="py-3 px-3 sm:px-4">Category</th>
                   <th className="py-3 px-3 sm:px-4 text-center">Action</th>
                 </tr>
               </thead>
@@ -184,6 +185,24 @@ const CrewMerchantPage = () => {
                           )}
                           {merchant.merchant_type}
                         </span>
+                      </td>
+                      <td className="py-3 px-3 sm:px-4">
+                        <div className="flex flex-wrap gap-1">
+                          {merchant.merchant_category?.length ? (
+                            merchant.merchant_category.map((cat, i) => (
+                              <span
+                                key={i}
+                                className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-700 border"
+                              >
+                                {cat}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">
+                              No category
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td>
                         <div className="flex justify-center gap-2">

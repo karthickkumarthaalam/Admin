@@ -7,6 +7,7 @@ import {
   Check,
   CheckCircle,
   ChevronDown,
+  Download,
   Edit2,
   Filter,
   Globe,
@@ -28,6 +29,7 @@ import AddCrewRoomsModal from "./AddCrewRoomModal";
 import { useAuth } from "../../../context/AuthContext";
 import CrewDocumentsModal from "./CrewDocumentsModal";
 import AddCrewVisaModal from "./AddCrewVisaModal";
+import { exportCrewMemberPDF } from "../../../utils/exportCrewMemberPDF";
 
 const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
   const [crewMembers, setCrewMembers] = useState([]);
@@ -92,6 +94,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
     onClose();
     setSelectedCrew(null);
     setSelectedRows([]);
+    setExpandedRow(null);
   };
 
   const handleBackdropClick = useCallback(
@@ -128,6 +131,10 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
         return [...prev, member];
       }
     });
+  };
+
+  const handleExportPDF = async (member) => {
+    await exportCrewMemberPDF(member);
   };
 
   const filteredCrew = crewMembers.filter((member) => {
@@ -465,6 +472,9 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                     )}
 
                     <th className="px-3 py-3 sm:px-4 text-center">Status</th>
+                    <th className="px-3 py-3 sm:px-4 text-center whitespace-nowrap">
+                      Export PDF
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -536,7 +546,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                             </label>
                           </td>
                           <td className="py-4 px-4">
-                            <div className="flex items-start  gap-3">
+                            <div className="flex items-start gap-3">
                               <span className="text-gray-700 font-semibold text-sm mt-0.5">
                                 {index + 1}.
                               </span>
@@ -546,6 +556,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                   {member?.given_name || ""}{" "}
                                   {member?.sur_name || ""}
                                 </span>
+
                                 {member.designation && (
                                   <span className="text-sm text-blue-600 font-medium whitespace-nowrap">
                                     {member.designation}
@@ -805,6 +816,31 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                               </span>
                             </div>
                           </td>
+                          <td className="py-4 px-4">
+                            <div className="flex items-center justify-center">
+                              {member?.flights?.length > 0 &&
+                              member?.rooms?.length > 0 ? (
+                                <button
+                                  title="Export PDF"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleExportPDF(member);
+                                  }}
+                                  className="p-2 rounded-lg border border-blue-200 bg-gradient-to-br from-blue-500 to-blue-600
+      hover:from-blue-600 hover:to-blue-700 hover:border-blue-300
+      transition-all duration-200 shadow-sm hover:shadow text-white flex gap-2 text-xs"
+                                >
+                                  <Download size={14} />
+                                  PDF
+                                </button>
+                              ) : (
+                                <span className="text-xs text-gray-400 italic">
+                                  Add flight and <br /> rooms details <br /> to
+                                  export pdf
+                                </span>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                         {expandedRow === member.id && (
                           <tr className="bg-purple-50">
@@ -877,7 +913,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                                     <div className="flex items-center justify-between gap-3 mb-4">
                                       <h3 className="font-semibold text-gray-800 text-lg">
-                                        📁 Document Verification
+                                        📁 Visa Documents
                                       </h3>
 
                                       <button
@@ -1013,6 +1049,73 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
                                       <Empty text="No visa added" />
                                     )}
                                   </div>
+
+                                  <div className="rounded-2xl border bg-white shadow-sm p-5">
+                                    <SectionHeader
+                                      title="Charges"
+                                      count={
+                                        (member.flights?.length || 0) +
+                                        (member.rooms?.length || 0) +
+                                        (member.visas?.length || 0)
+                                      }
+                                    />
+
+                                    <div className="space-y-3 text-sm">
+                                      {/* Flight Charges */}
+                                      {member.flights?.map((f) => (
+                                        <div
+                                          key={`flight-${f.id}`}
+                                          className="flex justify-between items-center bg-blue-50 px-3 py-2 rounded-lg"
+                                        >
+                                          <span className="text-gray-700 font-semibold">
+                                            Flight ({f.from_city} → {f.to_city})
+                                          </span>
+
+                                          <span className="font-semibold text-blue-700">
+                                            {f.ticket_charge
+                                              ? `${f.currency} ${f.ticket_charge}`
+                                              : "-"}
+                                          </span>
+                                        </div>
+                                      ))}
+
+                                      {/* Room Charges */}
+                                      {member.rooms?.map((r) => (
+                                        <div
+                                          key={`room-${r.id}`}
+                                          className="flex justify-between items-center bg-purple-50 px-3 py-2 rounded-lg"
+                                        >
+                                          <span className="text-gray-700 font-semibold">
+                                            Room ({r.hotel_name})
+                                          </span>
+
+                                          <span className="font-semibold text-purple-700">
+                                            {r.room_charge
+                                              ? `${r.currency} ${r.room_charge}`
+                                              : "-"}
+                                          </span>
+                                        </div>
+                                      ))}
+
+                                      {/* Visa Charges */}
+                                      {member.visas?.map((v) => (
+                                        <div
+                                          key={`visa-${v.id}`}
+                                          className="flex justify-between items-center bg-emerald-50 px-3 py-2 rounded-lg"
+                                        >
+                                          <span className="text-gray-700 font-semibold">
+                                            Visa ({v.country})
+                                          </span>
+
+                                          <span className="font-semibold text-emerald-700">
+                                            {v.visa_charge
+                                              ? `${v.currency} ${v.visa_charge}`
+                                              : "-"}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </td>
@@ -1039,17 +1142,26 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
       />
       <AddCrewRoomsModal
         isOpen={roomModal}
-        onClose={() => setRoomModal(false)}
+        onClose={() => {
+          setRoomModal(false);
+          fetchCrewMembers();
+        }}
         crewMember={selectedCrew}
       />
       <AddCrewFlightsModal
         isOpen={flightModal}
-        onClose={() => setFlightModal(false)}
+        onClose={() => {
+          setFlightModal(false);
+          fetchCrewMembers();
+        }}
         crewMember={selectedCrew}
       />
       <AddCrewVisaModal
         isOpen={visaModal}
-        onClose={() => setVisaModal(false)}
+        onClose={() => {
+          setVisaModal(false);
+          fetchCrewMembers();
+        }}
         crewMember={selectedCrew}
       />
       <CrewDocumentsModal
@@ -1058,6 +1170,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
           setSelectedCrew(null);
           setDocumentModal(false);
           setSelectedDocType(null);
+          fetchCrewMembers();
         }}
         crewMember={selectedCrew}
         selectedType={selectedDocType}
@@ -1223,14 +1336,47 @@ const FlightRow = ({ flight }) => {
           </p>
           <p>
             <b>Departure:</b>{" "}
-            {new Date(flight.departure_time).toLocaleString("en-GB")}
-          </p>
-          <p>
-            <b>Arrival:</b>{" "}
-            {new Date(flight.arrival_time).toLocaleString("en-GB")}
+            {flight.departure_date
+              ? `${flight.departure_date}${
+                  flight.departure_time
+                    ? " • " +
+                      new Date(
+                        `1970-01-01T${flight.departure_time}`,
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : ""
+                }`
+              : "-"}
           </p>
 
-          {flight.ticket_file && (
+          <p>
+            <b>Arrival:</b>{" "}
+            {flight.arrival_date
+              ? `${flight.arrival_date}${
+                  flight.arrival_time
+                    ? " • " +
+                      new Date(
+                        `1970-01-01T${flight.arrival_time}`,
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : ""
+                }`
+              : "-"}
+          </p>
+          <p>
+            <b>Flight Charges:</b>{" "}
+            {flight?.ticket_charge
+              ? `${flight.currency} ${flight.ticket_charge}`
+              : "No charges added"}
+          </p>
+
+          {flight?.ticket_file && (
             <a
               href={flight.ticket_file}
               target="_blank"
@@ -1288,13 +1434,48 @@ const RoomRow = ({ room }) => {
           </p>
           <p>
             <b>Check-in:</b>{" "}
-            {new Date(room.checkin_date).toLocaleDateString("en-GB")}
+            {room.checkin_date
+              ? `${room.checkin_date}${
+                  room.checkin_time
+                    ? " • " +
+                      new Date(
+                        `1970-01-01T${room.checkin_time}`,
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : ""
+                }`
+              : "-"}
           </p>
+
           <p>
             <b>Check-out:</b>{" "}
-            {new Date(room.checkout_date).toLocaleDateString("en-GB")}
+            {room.checkout_date
+              ? `${room.checkout_date}${
+                  room.checkout_time
+                    ? " • " +
+                      new Date(
+                        `1970-01-01T${room.checkout_time}`,
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })
+                    : ""
+                }`
+              : "-"}
           </p>
-          {room.remarks && (
+
+          <p>
+            <b>Room Charges:</b>{" "}
+            {room?.room_charge
+              ? `${room.currency} ${room.room_charge}`
+              : "No charges added"}
+          </p>
+
+          {room?.remarks && (
             <p>
               <b>Remarks:</b> {room.remarks}
             </p>
@@ -1349,6 +1530,13 @@ const VisaRow = ({ visa }) => {
           <p>
             <b>Expiry Date:</b>{" "}
             {new Date(visa.date_of_expiry).toLocaleDateString("en-GB")}
+          </p>
+
+          <p>
+            <b>Room Charges:</b>{" "}
+            {visa?.visa_charge
+              ? `${visa.currency} ${visa.visa_charge}`
+              : "No charges added"}
           </p>
 
           {visa.visa_file_url && (

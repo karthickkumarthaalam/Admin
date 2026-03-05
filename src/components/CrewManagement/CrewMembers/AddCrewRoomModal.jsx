@@ -13,6 +13,7 @@ import {
   ChevronDown,
   ChevronUp,
   Building,
+  Wallet2,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
@@ -24,6 +25,7 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
   const [merchants, setMerchants] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [currencies, setCurrencies] = useState([]);
 
   const emptyForm = useMemo(
     () => ({
@@ -33,7 +35,11 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
       city: "",
       checkin_date: "",
       checkout_date: "",
+      checkin_time: "",
+      checkout_time: "",
       remarks: "",
+      currency: "",
+      room_charge: 0,
     }),
     [],
   );
@@ -50,12 +56,10 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
 
       const formatted = data.map((r) => ({
         ...r,
-        checkin_date: r.checkin_date
-          ? new Date(r.checkin_date).toISOString().slice(0, 16)
-          : "",
-        checkout_date: r.checkout_date
-          ? new Date(r.checkout_date).toISOString().slice(0, 16)
-          : "",
+        checkin_date: r.checkin_date || "",
+        checkout_date: r.checkout_date || "",
+        checkin_time: r.checkin_time || "",
+        checkout_time: r.checkout_time || "",
       }));
 
       setRooms(formatted);
@@ -78,10 +82,20 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
     }
   }, []);
 
+  const fetchCurrency = useCallback(async () => {
+    try {
+      const res = await apiCall(`/currency`, "GET");
+      setCurrencies(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch currency");
+    }
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       fetchRooms();
       fetchRoomMerchants();
+      fetchCurrency();
     }
   }, [isOpen, fetchRooms, fetchRoomMerchants]);
 
@@ -117,7 +131,11 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
         city: form.city,
         checkin_date: form.checkin_date,
         checkout_date: form.checkout_date,
+        checkin_time: form.checkin_time ? `${form.checkin_time}:00` : null,
+        checkout_time: form.checkout_time ? `${form.checkout_time}:00` : null,
         remarks: form.remarks,
+        currency: form.currency,
+        room_charge: form.room_charge,
       };
 
       if (editingId) {
@@ -174,6 +192,10 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
     setShowForm(false);
   };
 
+  const selectedRoom = merchants.find(
+    (m) => m.merchant_name === form.hotel_name,
+  );
+
   if (!isOpen) return null;
 
   return (
@@ -227,7 +249,7 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                 {editingId ? "Edit Room Booking" : "Add New Room Booking"}
               </h3>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm text-gray-700 font-medium">
                     Hotel Name *
@@ -248,9 +270,10 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
     focus:border-blue-500
   "
                     value={form.hotel_name}
-                    onChange={(e) =>
-                      setForm({ ...form, hotel_name: e.target.value })
-                    }
+                    onChange={(e) => {
+                      const selected = e.target.value;
+                      setForm({ ...form, hotel_name: selected, room_type: "" });
+                    }}
                   >
                     <option value="">Select Hotel</option>
                     {merchants.map((m) => (
@@ -313,11 +336,22 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                     }
                   >
                     <option value="">Select Type</option>
-                    <option value="single">Single</option>
-                    <option value="double">Double</option>
-                    <option value="suite">Suite</option>
-                    <option value="deluxe">Deluxe</option>
-                    <option value="presidential">Presidential</option>
+
+                    {selectedRoom?.merchant_category?.length > 0 ? (
+                      selectedRoom.merchant_category.map((cat, i) => (
+                        <option key={i} value={cat.toLowerCase()}>
+                          {cat}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="single">Single</option>
+                        <option value="double">Double</option>
+                        <option value="suite">Suite</option>
+                        <option value="deluxe">Deluxe</option>
+                        <option value="presidential">Presidential</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -345,13 +379,12 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                     onChange={(e) => setForm({ ...form, city: e.target.value })}
                   />
                 </div>
-
                 <div className="space-y-1">
                   <label className="text-sm text-gray-700 font-medium">
-                    Check-in *
+                    Check-in Date *
                   </label>
                   <input
-                    type="datetime-local"
+                    type="date"
                     className="
     w-full h-11 px-4
     rounded-xl
@@ -375,10 +408,37 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
 
                 <div className="space-y-1">
                   <label className="text-sm text-gray-700 font-medium">
-                    Check-out *
+                    Check-in Time
                   </label>
                   <input
-                    type="datetime-local"
+                    type="time"
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.checkin_time}
+                    onChange={(e) =>
+                      setForm({ ...form, checkin_time: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Check-out Date *
+                  </label>
+                  <input
+                    type="date"
                     className="
     w-full h-11 px-4
     rounded-xl
@@ -400,7 +460,95 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                   />
                 </div>
 
-                <div className="space-y-1 lg:col-span-2">
+                <div className="space-y-1">
+                  <label className="text-sm text-gray-700 font-medium">
+                    Check-out Time
+                  </label>
+                  <input
+                    type="time"
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.checkout_time}
+                    onChange={(e) =>
+                      setForm({ ...form, checkout_time: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-700 font-medium">
+                    Currency
+                  </label>
+                  <select
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    value={form.currency}
+                    onChange={(e) =>
+                      setForm({ ...form, currency: e.target.value })
+                    }
+                  >
+                    <option value="">Select Currency</option>
+                    {currencies.map((curr) => (
+                      <option key={curr.id} value={curr.symbol}>
+                        {curr.currency_name} ({curr.symbol})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs text-gray-700 font-medium">
+                    Room Charge
+                  </label>
+                  <input
+                    type="number"
+                    className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                    placeholder="0"
+                    value={form.room_charge}
+                    onChange={(e) =>
+                      setForm({ ...form, room_charge: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className="space-y-1 ">
                   <label className="text-sm text-gray-700 font-medium">
                     Remarks
                   </label>
@@ -548,7 +696,7 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                         </div>
 
                         {/* Date Section */}
-                        <div className="grid sm:grid-cols-2 gap-4 mt-5">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-4  gap-4 mt-5">
                           {/* Check-in */}
                           <div className="flex items-center gap-3">
                             <div className="bg-gray-100 p-2 rounded-lg">
@@ -558,7 +706,18 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                               <p className="text-xs text-gray-400">Check-in</p>
                               <p className="text-sm font-semibold text-gray-800">
                                 {room.checkin_date
-                                  ? new Date(room.checkin_date).toLocaleString()
+                                  ? `${room.checkin_date}${
+                                      room.checkin_time
+                                        ? " • " +
+                                          new Date(
+                                            `1970-01-01T${room.checkin_time}`,
+                                          ).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                          })
+                                        : ""
+                                    }`
                                   : "-"}
                               </p>
                             </div>
@@ -573,10 +732,35 @@ const AddCrewRoomsModal = ({ isOpen, onClose, crewMember }) => {
                               <p className="text-xs text-gray-400">Check-out</p>
                               <p className="text-sm font-semibold text-gray-800">
                                 {room.checkout_date
-                                  ? new Date(
-                                      room.checkout_date,
-                                    ).toLocaleString()
+                                  ? `${room.checkout_date}${
+                                      room.checkout_time
+                                        ? " • " +
+                                          new Date(
+                                            `1970-01-01T${room.checkout_time}`,
+                                          ).toLocaleTimeString("en-US", {
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                            hour12: true,
+                                          })
+                                        : ""
+                                    }`
                                   : "-"}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <div className="bg-gray-100 p-2 rounded-lg">
+                              <Wallet2 className="h-4 w-4 text-gray-600" />
+                            </div>
+                            <div>
+                              <p className="text-xs text-gray-400">
+                                Room Charge
+                              </p>
+                              <p className="text-sm font-semibold text-gray-800">
+                                {room.room_charge
+                                  ? `${room.currency || ""} ${room.room_charge}`
+                                  : "Not added"}
                               </p>
                             </div>
                           </div>

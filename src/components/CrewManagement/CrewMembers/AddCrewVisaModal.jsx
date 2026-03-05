@@ -11,6 +11,8 @@ import {
   Edit2,
   Trash2,
   Eye,
+  FileAxis3D,
+  Wallet,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
@@ -21,6 +23,7 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [currencies, setCurrencies] = useState([]);
 
   const emptyForm = useMemo(
     () => ({
@@ -32,6 +35,8 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
       visa_verified: false,
       remarks: "",
       newVisaFile: null,
+      currency: "",
+      visa_charge: 0,
     }),
     [],
   );
@@ -53,8 +58,20 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
     }
   }, [crewMember?.id]);
 
+  const fetchCurrency = useCallback(async () => {
+    try {
+      const res = await apiCall(`/currency`, "GET");
+      setCurrencies(res.data);
+    } catch (error) {
+      toast.error("Failed to fetch currency");
+    }
+  }, []);
+
   useEffect(() => {
-    if (isOpen) fetchVisas();
+    if (isOpen) {
+      fetchVisas();
+      fetchCurrency();
+    }
   }, [isOpen, fetchVisas]);
 
   // ================= SAVE =================
@@ -116,6 +133,12 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
     setShowForm(false);
   };
 
+  const handleClose = () => {
+    onClose();
+    setEditingId(null);
+    setShowForm(false);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -137,7 +160,7 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
           </div>
 
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="hover:bg-white/20 p-2 rounded-full"
           >
             <X className="h-5 w-5" />
@@ -170,145 +193,268 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
                 {editingId ? "Edit Visa" : "Add New Visa"}
               </h3>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* VISA TYPE */}
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Visa Type *
-                  </label>
-                  <select
-                    className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    value={form.visa_type}
-                    onChange={(e) =>
-                      setForm({ ...form, visa_type: e.target.value })
-                    }
-                  >
-                    <option value="">Select Type</option>
-                    <option value="tourist">Tourist</option>
-                    <option value="business">Business</option>
-                    <option value="work">Work</option>
-                    <option value="student">Student</option>
-                  </select>
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* LEFT SIDE INPUTS */}
+                <div className="lg:col-span-3 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {/* VISA TYPE */}
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Visa Type *
+                    </label>
+                    <select
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      value={form.visa_type}
+                      onChange={(e) =>
+                        setForm({ ...form, visa_type: e.target.value })
+                      }
+                    >
+                      <option value="">Select Type</option>
+                      <option value="tourist">Tourist</option>
+                      <option value="business">Business</option>
+                      <option value="work">Work</option>
+                      <option value="student">Student</option>
+                    </select>
+                  </div>
+
+                  {/* VISA NUMBER */}
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Visa Number
+                    </label>
+                    <input
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      placeholder="Enter visa number"
+                      value={form.visa_number}
+                      onChange={(e) =>
+                        setForm({ ...form, visa_number: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* COUNTRY */}
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Country *
+                    </label>
+                    <input
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      placeholder="e.g., USA"
+                      value={form.country}
+                      onChange={(e) =>
+                        setForm({ ...form, country: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* ISSUE DATE */}
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Issue Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      value={form.date_of_issue}
+                      onChange={(e) =>
+                        setForm({ ...form, date_of_issue: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* EXPIRY DATE */}
+                  <div className="space-y-1">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Expiry Date
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      value={form.date_of_expiry}
+                      onChange={(e) =>
+                        setForm({ ...form, date_of_expiry: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* VERIFIED */}
+                  <div className="flex items-center gap-3 mt-6">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Visa Verified
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm({ ...form, visa_verified: !form.visa_verified })
+                      }
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 
+      ${form.visa_verified ? "bg-green-500" : "bg-gray-300"}`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200
+        ${form.visa_verified ? "translate-x-6" : "translate-x-1"}`}
+                      />
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-gray-700 font-medium">
+                      Currency
+                    </label>
+                    <select
+                      className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                      value={form.currency}
+                      onChange={(e) =>
+                        setForm({ ...form, currency: e.target.value })
+                      }
+                    >
+                      <option value="">Select Currency</option>
+                      {currencies.map((curr) => (
+                        <option key={curr.id} value={curr.symbol}>
+                          {curr.currency_name} ({curr.symbol})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs text-gray-700 font-medium">
+                      Visa Charge
+                    </label>
+                    <input
+                      type="number"
+                      className="
+    w-full h-11 px-4
+    rounded-xl
+    border border-gray-200
+    bg-white
+    text-sm text-gray-800
+    placeholder:text-gray-400
+    shadow-sm
+    transition-all duration-200
+    hover:border-gray-300
+    focus:outline-none
+    focus:ring-4 focus:ring-blue-100
+    focus:border-blue-500
+  "
+                      placeholder="0"
+                      value={form.visa_charge}
+                      onChange={(e) =>
+                        setForm({ ...form, visa_charge: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  {/* REMARKS */}
+                  <div className="space-y-1 lg:col-span-3">
+                    <label className="text-sm text-gray-700 font-medium">
+                      Remarks
+                    </label>
+                    <textarea
+                      className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm shadow-sm
+        hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
+                      rows="2"
+                      placeholder="Add remarks..."
+                      value={form.remarks}
+                      onChange={(e) =>
+                        setForm({ ...form, remarks: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
 
-                {/* VISA NUMBER */}
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Visa Number
-                  </label>
-                  <input
-                    className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    placeholder="Enter visa number"
-                    value={form.visa_number}
-                    onChange={(e) =>
-                      setForm({ ...form, visa_number: e.target.value })
-                    }
-                  />
-                </div>
+                {/* RIGHT SIDE UPLOAD */}
+                <div className="flex flex-col items-center justify-start gap-3">
+                  {editingId && form.visa_file_url ? (
+                    <div className="w-full">
+                      {/* EXISTING VISA */}
+                      <a
+                        href={form.visa_file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center justify-center 
+        w-full h-48 border rounded-xl bg-blue-50 hover:bg-blue-100 
+        transition cursor-pointer"
+                      >
+                        <FileText className="h-10 w-10 text-blue-600 mb-2" />
+                        <span className="text-sm font-medium text-blue-700">
+                          View Uploaded Visa
+                        </span>
+                      </a>
 
-                {/* COUNTRY */}
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Country *
-                  </label>
-                  <input
-                    className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    placeholder="e.g., USA, UK"
-                    value={form.country}
-                    onChange={(e) =>
-                      setForm({ ...form, country: e.target.value })
-                    }
-                  />
-                </div>
+                      {/* REPLACE VISA */}
+                      <label
+                        className="mt-3 flex items-center justify-center gap-2 
+        border-2 border-dashed border-gray-300 rounded-xl 
+        px-4 py-3 cursor-pointer hover:border-blue-500 transition"
+                      >
+                        <Upload className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm text-gray-600">
+                          Replace Visa Document
+                        </span>
 
-                {/* ISSUE DATE */}
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Issue Date
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    value={form.date_of_issue}
-                    onChange={(e) =>
-                      setForm({ ...form, date_of_issue: e.target.value })
-                    }
-                  />
-                </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              newVisaFile: e.target.files[0],
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <label
+                      className="w-full h-64 flex flex-col items-center justify-center 
+      border-2 border-dashed border-gray-300 rounded-xl 
+      cursor-pointer hover:border-blue-500 transition-all bg-white"
+                    >
+                      <Upload className="h-10 w-10 text-gray-400 mb-2" />
 
-                {/* EXPIRY DATE */}
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Expiry Date
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    value={form.date_of_expiry}
-                    onChange={(e) =>
-                      setForm({ ...form, date_of_expiry: e.target.value })
-                    }
-                  />
-                </div>
+                      <span className="text-sm text-gray-600 text-center px-4">
+                        {form.newVisaFile
+                          ? form.newVisaFile.name
+                          : "Upload Visa Document"}
+                      </span>
 
-                {/* VERIFIED */}
-                <div className="space-y-1 flex items-center gap-3 mt-6">
-                  <input
-                    type="checkbox"
-                    checked={form.visa_verified}
-                    onChange={(e) =>
-                      setForm({ ...form, visa_verified: e.target.checked })
-                    }
-                    className="h-4 w-4"
-                  />
-                  <label className="text-sm text-gray-700 font-medium">
-                    Visa Verified
-                  </label>
-                </div>
-
-                {/* REMARKS */}
-                <div className="space-y-1 lg:col-span-2">
-                  <label className="text-sm text-gray-700 font-medium">
-                    Remarks
-                  </label>
-                  <textarea
-                    className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 shadow-sm
-          transition-all duration-200 hover:border-gray-300 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500"
-                    rows="2"
-                    placeholder="Add remarks..."
-                    value={form.remarks}
-                    onChange={(e) =>
-                      setForm({ ...form, remarks: e.target.value })
-                    }
-                  />
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            newVisaFile: e.target.files[0],
+                          })
+                        }
+                      />
+                    </label>
+                  )}
                 </div>
               </div>
 
               {/* FILE + BUTTON */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-6">
-                {/* FILE */}
-                <label className="flex w-full max-w-md items-center gap-2 bg-white border-2 border-dashed border-gray-300 px-4 py-2 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
-                  <Upload className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-600">
-                    {form.newVisaFile
-                      ? form.newVisaFile.name
-                      : "Upload Visa Document"}
-                  </span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.jpg,.jpeg,.png"
-                    onChange={(e) =>
-                      setForm({ ...form, newVisaFile: e.target.files[0] })
-                    }
-                  />
-                </label>
-
+              <div className="flex flex-col md:flex-row justify-end items-start md:items-center gap-4 mt-6">
                 {/* BUTTONS */}
                 <div className="flex gap-2 items-center">
                   <button
@@ -427,14 +573,16 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
                       </div>
 
                       {/* DATE SECTION */}
-                      <div className="grid sm:grid-cols-2 gap-6 mt-5">
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-5">
                         {/* ISSUE */}
                         <div className="flex items-center gap-3">
                           <div className="bg-gray-100 p-2 rounded-lg">
                             <Calendar className="h-4 w-4 text-gray-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-gray-400">Issue Date</p>
+                            <p className="text-xs text-gray-400">
+                              Visa Issue Date
+                            </p>
                             <p className="text-sm font-semibold text-gray-800">
                               {v.date_of_issue
                                 ? new Date(v.date_of_issue).toLocaleDateString()
@@ -449,13 +597,30 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
                             <Calendar className="h-4 w-4 text-gray-600" />
                           </div>
                           <div>
-                            <p className="text-xs text-gray-400">Expiry Date</p>
+                            <p className="text-xs text-gray-400">
+                              Visa Expiry Date
+                            </p>
                             <p className="text-sm font-semibold text-gray-800">
                               {v.date_of_expiry
                                 ? new Date(
                                     v.date_of_expiry,
                                   ).toLocaleDateString()
                                 : "-"}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="bg-gray-100 p-2 rounded-lg">
+                            <Wallet className="h-4 w-4 text-gray-600" />
+                          </div>
+                          <div>
+                            {" "}
+                            <p className="text-xs text-gray-400">Visa Cost</p>
+                            <p className="text-sm font-semibold text-gray-800">
+                              {v.visa_charge
+                                ? `${v.currency || ""} ${v.visa_charge}`
+                                : "Not added"}
                             </p>
                           </div>
                         </div>
@@ -511,10 +676,10 @@ const AddCrewVisaModal = ({ isOpen, onClose, crewMember }) => {
                             href={v.visa_file_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
+                            className="p-2 flex gap-1 items-center bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition"
                             title="View Visa"
                           >
-                            View Document
+                            <FileAxis3D size={18} /> Document
                           </a>
                         )}
 
