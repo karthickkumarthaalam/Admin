@@ -68,9 +68,9 @@ const AddCrewManagement = ({ isOpen, onClose, onSuccess, editCrewData }) => {
 
     const payload = {
       crew_id: crewId,
-      title: form.title.trim(),
-      email: form.email.trim(),
-      description: form.description.trim(),
+      title: form.title?.trim() || "",
+      email: form.email?.trim() || "",
+      description: form.description?.trim() || "",
     };
 
     try {

@@ -11,11 +11,13 @@ import {
   MessageCircleMore,
   Search,
   Trash2,
+  Upload,
 } from "lucide-react";
 import AddCrewManagement from "./AddCrewManagement";
 import CrewMembers from "./CrewMembers/CrewMembers";
 import CrewPermissionModal from "./CrewPermissionModal";
 import { useAuth } from "../../context/AuthContext";
+import CrewManagementDocumentModal from "./CrewManagementDocumentModal";
 
 const CrewManagementPage = () => {
   const [crew, setCrew] = useState([]);
@@ -27,13 +29,30 @@ const CrewManagementPage = () => {
   const [selectedCrew, setSelectedCrew] = useState(null);
   const [addCrewMembers, setAddCrewMember] = useState(false);
 
+  const [openCrewDocument, setOpenCrewDocument] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(null);
+
   const [permissionModal, setPermissionModal] = useState(false);
   const [selectedPermissionCrew, setSelectedPermissionCrew] = useState(null);
+
+  const [selectedDocType, setSelectedDocType] = useState(null);
 
   const { hasPermission } = usePermission();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.name === "admin";
   const pageSize = 20;
+
+  const embassyDocumentTypes = [
+    { key: "invitation_letter", label: "Invitation Letter" },
+    { key: "covering_letter", label: "Covering Letter" },
+    { key: "crew_list", label: "Crew List" },
+    { key: "flyer", label: "Flyer" },
+    { key: "thaalam_profile", label: "Thaalam Profile" },
+    { key: "hotel_itinerary", label: "Hotel Itinerary" },
+    { key: "switzerland_residence_id", label: "Switzerland Residence ID" },
+    { key: "company_registration", label: "Company Registration" },
+    { key: "passport", label: "Passport" },
+  ];
 
   const fetchCrew = async () => {
     setLoading(true);
@@ -167,6 +186,10 @@ const CrewManagementPage = () => {
                       Permission
                     </th>
                   )}
+
+                  {/* {isAdmin && (
+                    <th className="py-3 px-3 sm:px-4 text-center">Documents</th>
+                  )} */}
                   <th className="py-3 px-3 sm:px-4 text-center">Actions</th>
                 </tr>
               </thead>
@@ -194,127 +217,197 @@ const CrewManagementPage = () => {
                   </tr>
                 ) : (
                   crew.map((item, index) => (
-                    <tr
-                      key={item.id}
-                      className="hover:bg-slate-50 transition border-b"
-                    >
-                      <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
-                        {(currentPage - 1) * pageSize + index + 1}
-                      </td>
-                      <td className="py-3 px-3 sm:px-4">
-                        <span className="text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-md text-xs sm:text-sm">
-                          {item.crew_id}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 sm:px-4 font-bold text-slate-700 whitespace-nowrap">
-                        <h2>{item.title}</h2>
-                        <span className="text-slate-500 text-xs font-medium">
-                          {item.description}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 sm:px-4">
-                        {item.email ? (
-                          <div className="flex items-center gap-3">
-                            <label className="relative inline-flex items-center cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={item.is_active}
-                                onChange={() => handleToggleStatus(item.id)}
-                                className="sr-only peer"
-                              />
+                    <>
+                      <tr
+                        key={item.id}
+                        onClick={() =>
+                          setExpandedRow(
+                            expandedRow === item.id ? null : item.id,
+                          )
+                        }
+                        className="hover:bg-slate-50 transition border-b"
+                      >
+                        <td className="py-3 px-3 sm:px-4 text-gray-700 font-semibold">
+                          {(currentPage - 1) * pageSize + index + 1}
+                        </td>
+                        <td className="py-3 px-3 sm:px-4">
+                          <span className="text-blue-600 font-semibold bg-blue-50 px-3 py-1 rounded-md text-xs sm:text-sm">
+                            {item.crew_id}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 sm:px-4 font-bold text-slate-700 whitespace-nowrap">
+                          <h2>{item.title}</h2>
+                          <span className="text-slate-500 text-xs font-medium">
+                            {item.description}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 sm:px-4">
+                          {item.email ? (
+                            <div className="flex items-center gap-3">
+                              <label className="relative inline-flex items-center cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={item.is_active}
+                                  onChange={() => handleToggleStatus(item.id)}
+                                  className="sr-only peer"
+                                />
 
-                              <div
-                                className="w-11 h-6 bg-gray-300 rounded-full peer 
+                                <div
+                                  className="w-11 h-6 bg-gray-300 rounded-full peer 
           peer-checked:bg-gradient-to-r peer-checked:from-green-500 peer-checked:to-emerald-500
           transition-all duration-300"
-                              ></div>
+                                ></div>
 
-                              <div
-                                className="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full shadow-md
+                                <div
+                                  className="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full shadow-md
           transition-all duration-300 peer-checked:translate-x-5"
-                              ></div>
-                            </label>
-                            <div className="flex flex-col">
-                              <span className="text-sm font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">
-                                {item.email}
-                              </span>
+                                ></div>
+                              </label>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-semibold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">
+                                  {item.email}
+                                </span>
 
-                              <span
-                                className={`text-xs font-semibold mt-1  ${
-                                  item.is_active
-                                    ? "text-green-600"
-                                    : "text-red-500"
-                                }`}
-                              >
-                                {item.is_active
-                                  ? "Access Enabled"
-                                  : "Access Disabled"}
+                                <span
+                                  className={`text-xs font-semibold mt-1  ${
+                                    item.is_active
+                                      ? "text-green-600"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {item.is_active
+                                    ? "Access Enabled"
+                                    : "Access Disabled"}
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-400 italic">
+                                No Access Assigned
+                              </span>
+                              <span className="text-[11px] text-gray-300 whitespace-nowrap">
+                                Add email to enable login
                               </span>
                             </div>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col">
-                            <span className="text-xs text-gray-400 italic">
-                              No Access Assigned
-                            </span>
-                            <span className="text-[11px] text-gray-300 whitespace-nowrap">
-                              Add email to enable login
-                            </span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 sm:px-4 text-center">
-                        <span
-                          onClick={() => {
-                            setAddCrewMember(true);
-                            setSelectedCrew(item);
-                          }}
-                          className="font-semibold text-green-600 bg-green-50 rounded-md text-xs sm:text-sm px-3 py-1 cursor-pointer whitespace-nowrap hover:underline"
-                        >
-                          Crew Members
-                        </span>
-                      </td>
-                      {isAdmin && (
+                          )}
+                        </td>
                         <td className="py-3 px-3 sm:px-4 text-center">
-                          <button
-                            onClick={() => {
-                              setSelectedPermissionCrew(item);
-                              setPermissionModal(true);
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAddCrewMember(true);
+                              setSelectedCrew(item);
                             }}
-                            className="px-3 py-1.5 text-xs font-semibold 
+                            className="font-semibold text-green-600 bg-green-50 border border-green-200 hover:bg-green-100 rounded-md text-xs sm:text-sm px-3 py-1 cursor-pointer whitespace-nowrap "
+                          >
+                            Crew Members
+                          </span>
+                        </td>
+                        {isAdmin && (
+                          <td className="py-3 px-3 sm:px-4 text-center">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPermissionCrew(item);
+                                setPermissionModal(true);
+                              }}
+                              className="px-3 py-1.5 text-xs font-semibold 
     bg-indigo-50 text-indigo-700 border border-indigo-200 
     rounded-lg hover:bg-indigo-100 transition whitespace-nowrap"
-                          >
-                            Manage Access
-                          </button>
-                        </td>
-                      )}
-                      <td className="py-3 px-3 sm:px-4">
-                        <div className="flex justify-center gap-2">
-                          {hasPermission("Crew Management", "update") && (
+                            >
+                              Manage Access
+                            </button>
+                          </td>
+                        )}
+                        {/* {isAdmin && (
+                          <td className="py-3 px-3 sm:px-4 text-center">
                             <button
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setSelectedCrew(item);
-                                setAddCrewModal(true);
+                                setOpenCrewDocument(true);
                               }}
-                              className="text-sm border border-gray-200  text-blue-500 hover:bg-blue-50 hover:border-blue-500 p-2  rounded-md"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold
+      bg-blue-50 text-blue-700 border border-blue-200
+      rounded-lg hover:bg-blue-100 transition whitespace-nowrap"
                             >
-                              <Edit size={16} />
+                              <Upload size={14} />
+                              Documents
                             </button>
-                          )}
-                          {hasPermission("Crew Management", "delete") && (
-                            <button
-                              onClick={() => {
-                                handleDelete(item.id);
-                              }}
-                              className="text-sm border border-gray-200  text-red-500 hover:bg-red-50 hover:border-red-500  p-2 rounded-md"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
+                          </td>
+                        )} */}
+                        <td className="py-3 px-3 sm:px-4">
+                          <div className="flex justify-center gap-2">
+                            {hasPermission("Crew Management", "update") && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedCrew(item);
+                                  setAddCrewModal(true);
+                                }}
+                                className="text-sm border border-gray-200  text-blue-500 hover:bg-blue-50 hover:border-blue-500 p-2  rounded-md"
+                              >
+                                <Edit size={16} />
+                              </button>
+                            )}
+                            {hasPermission("Crew Management", "delete") && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDelete(item.id);
+                                }}
+                                className="text-sm border border-gray-200  text-red-500 hover:bg-red-50 hover:border-red-500  p-2 rounded-md"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                      {expandedRow === item.id && (
+                        <tr className="bg-purple-50">
+                          <td colSpan="100%" className="px-8 py-7">
+                            <div className="rounded-2xl border bg-white shadow-sm p-5">
+                              <div className="flex items-center justify-between gap-3 mb-4">
+                                <h3 className="font-semibold text-gray-800 text-base">
+                                  📁 Embassy Documents
+                                </h3>
+
+                                <button
+                                  onClick={() => {
+                                    setOpenCrewDocument(true);
+                                    setSelectedCrew(item);
+                                    setSelectedDocType(null);
+                                  }}
+                                >
+                                  <Upload
+                                    size={20}
+                                    className="text-indigo-600"
+                                  />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                                {embassyDocumentTypes.map((doc) => (
+                                  <DocumentRow
+                                    key={doc.key}
+                                    type={doc.key}
+                                    title={doc.label}
+                                    docs={item.documents || []}
+                                    onOpenModal={() => {
+                                      setSelectedCrew(item);
+                                      setSelectedDocType(doc.key);
+                                      setOpenCrewDocument(true);
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   ))
                 )}
               </tbody>
@@ -367,6 +460,77 @@ const CrewManagementPage = () => {
         onClose={() => setPermissionModal(false)}
         crew={selectedPermissionCrew}
       />
+      <CrewManagementDocumentModal
+        isOpen={openCrewDocument}
+        onClose={() => {
+          setSelectedCrew(null);
+          setOpenCrewDocument(false);
+        }}
+        crew={selectedCrew}
+        selectedType={selectedDocType}
+      />
+    </div>
+  );
+};
+
+const DocumentRow = ({ type, title, docs, onOpenModal }) => {
+  const [open, setOpen] = useState(false);
+
+  const filtered = docs?.filter((d) => d.document_type === type) || [];
+  const exists = filtered.length > 0;
+
+  const handleClick = () => {
+    if (exists) {
+      setOpen(!open);
+    } else {
+      onOpenModal();
+    }
+  };
+  return (
+    <div className="border rounded-xl overflow-hidden bg-gray-50">
+      <div
+        onClick={handleClick}
+        className={`flex items-center justify-between px-4 py-3 cursor-pointer transition
+        ${exists ? "hover:bg-blue-50" : "opacity-70 "}`}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`w-6 h-6 flex items-center justify-center rounded-full
+            ${exists ? "bg-green-100 text-green-600" : "bg-red-100 text-red-500"}`}
+          >
+            {exists ? "✓" : "✕"}
+          </div>
+
+          <span className="font-semibold text-gray-800">{title}</span>
+        </div>
+
+        <div className="text-xs font-semibold text-gray-500">
+          {exists ? `${filtered.length} file` : "Missing"}
+        </div>
+      </div>
+
+      {open && exists && (
+        <div className="bg-white border-t px-4 py-3 space-y-2">
+          {filtered.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+            >
+              <span className="text-sm text-gray-700 truncate w-56">
+                {file.document_type}
+              </span>
+
+              <a
+                href={file.file_url}
+                target="_blank"
+                className="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700"
+              >
+                View
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
