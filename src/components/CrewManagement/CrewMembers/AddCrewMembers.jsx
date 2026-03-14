@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
-import { PlaneLanding, PlaneTakeoff, X } from "lucide-react";
+import { X } from "lucide-react";
 
 const AddCrewMembers = ({
   isOpen,
@@ -35,6 +35,8 @@ const AddCrewMembers = ({
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [roomCategory, setRoomCategory] = useState([]);
+  const [flightCategory, setFlightCategory] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,8 +45,25 @@ const AddCrewMembers = ({
       } else {
         setForm(initialState);
       }
+      fetchCategories();
     }
   }, [isOpen, editCrewMember]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await apiCall(`/crew-merchant/all-categories`, "GET");
+
+      const categories = res.data || [];
+
+      const flight = categories.find((item) => item.type === "flight");
+      const room = categories.find((item) => item.type === "room");
+
+      setFlightCategory(flight ? flight.categories : []);
+      setRoomCategory(room ? room.categories : []);
+    } catch (error) {
+      toast.error("Failed to fetch categories");
+    }
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -211,9 +230,12 @@ const AddCrewMembers = ({
               error={errors.flight_class}
             >
               <option value="">Select</option>
-              <option value="economy">Economy</option>
-              <option value="business">Business</option>
-              <option value="first">First</option>
+
+              {flightCategory.map((item, index) => (
+                <option key={index} value={item}>
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </option>
+              ))}
             </FormSelect>
 
             <FormSelect
@@ -223,12 +245,12 @@ const AddCrewMembers = ({
               onChange={handleChange}
             >
               <option value="">Select</option>
-              <option value="single">Single</option>
-              <option value="double">Double</option>
-              <option value="triple">Triple</option>
-              <option value="quad">Quad</option>
-              <option value="six">6 Sharing</option>
-              <option value="eight">8 Sharing</option>
+
+              {roomCategory.map((item, index) => (
+                <option key={index} value={item}>
+                  {item.charAt(0).toUpperCase() + item.slice(1)}
+                </option>
+              ))}
             </FormSelect>
           </Section>
 

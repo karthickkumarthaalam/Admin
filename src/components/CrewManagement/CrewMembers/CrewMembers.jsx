@@ -30,6 +30,7 @@ import { useAuth } from "../../../context/AuthContext";
 import CrewDocumentsModal from "./CrewDocumentsModal";
 import AddCrewVisaModal from "./AddCrewVisaModal";
 import { exportCrewMemberPDF } from "../../../utils/exportCrewMemberPDF";
+import { exportCategoryCrewPDF } from "../../../utils/exportCategoryCrewPDF";
 
 const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
   const [crewMembers, setCrewMembers] = useState([]);
@@ -57,6 +58,62 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
     can_manage_flight: false,
     can_manage_rooms: false,
   });
+
+  const [exportCategory, setExportCategory] = useState("");
+  const [exportOptions, setExportOptions] = useState([]);
+  const [exportValue, setExportValue] = useState("");
+
+  useEffect(() => {
+    if (!exportCategory) {
+      setExportOptions([]);
+      return;
+    }
+
+    let values = [];
+
+    if (exportCategory === "food") {
+      values = crewMembers.map((m) => m.food_preference);
+    }
+    if (exportCategory === "flight") {
+      values = crewMembers.map((m) => m.flight_class);
+    }
+
+    if (exportCategory === "room") {
+      values = crewMembers.map((m) => m.room_preference);
+    }
+
+    const uniqueValues = [...new Set(values.filter(Boolean))];
+
+    setExportOptions(uniqueValues);
+    setExportValue("");
+  }, [exportCategory, crewMembers]);
+
+  const exportFilteredCrew = crewMembers.filter((member) => {
+    if (!exportCategory || !exportValue) return false;
+
+    if (exportCategory === "food") {
+      return member.food_preference === exportValue;
+    }
+
+    if (exportCategory === "flight") {
+      return member.flight_class === exportValue;
+    }
+
+    if (exportCategory === "room") {
+      return member.room_preference === exportValue;
+    }
+
+    return false;
+  });
+
+  const exportCrewGroupPDF = async (members) => {
+    await exportCategoryCrewPDF(
+      crewManagement.title,
+      exportValue,
+      exportCategory,
+      members,
+    );
+  };
 
   const { user } = useAuth();
   const isAdmin = user?.role === "admin" || user?.name === "admin";
@@ -95,6 +152,7 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
     setSelectedCrew(null);
     setSelectedRows([]);
     setExpandedRow(null);
+    setExportCategory("");
   };
 
   const handleBackdropClick = useCallback(
@@ -209,36 +267,105 @@ const CrewMembers = ({ isOpen, onClose, crewManagement }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="mt-4 flex flex-row justify-end gap-3">
-            {/* Upload Button */}
-            <label
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium 
-      bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-lg 
-      hover:from-emerald-700 hover:to-emerald-800 shadow-sm cursor-pointer transition"
-            >
-              <Upload size={16} />
-              Upload Excel
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                hidden
-                onChange={handleExcelUpload}
-              />
-            </label>
+          <div className="mt-4 flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* LEFT SIDE — EXPORT FILTER */}
+            <div className="flex flex-wrap items-center  gap-3 bg-white border border-gray-200 rounded-2xl shadow-sm px-4 py-3">
+              <span
+                className={`text-sm font-semibold text-gray-700 flex items-center gap-2`}
+              >
+                <Download size={16} className="text-blue-600" />
+                Export
+              </span>
 
-            {/* Add Crew Button */}
-            <button
-              onClick={() => {
-                setOpenAddModal(true);
-                setSelectedCrewMember(null);
-              }}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 
-        rounded-lg shadow-sm bg-gradient-to-r from-blue-600 to-blue-700 
-        hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium transition"
-            >
-              <PlusCircleIcon size={16} />
-              Add Crew Member
-            </button>
+              {/* Category Select */}
+              <div className="relative">
+                <select
+                  value={exportCategory}
+                  onChange={(e) => setExportCategory(e.target.value)}
+                  className="appearance-none pl-4 pr-6 md:pr-10 py-1.5 md:py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition cursor-pointer"
+                >
+                  <option value="">Category</option>
+                  <option value="food">Food Preference</option>
+                  <option value="flight">Flight Class</option>
+                  <option value="room">Room Preference</option>
+                </select>
+
+                <ChevronDown
+                  size={16}
+                  className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                />
+              </div>
+
+              {/* Subcategory */}
+              {exportCategory && (
+                <div className="relative">
+                  <select
+                    value={exportValue}
+                    onChange={(e) => setExportValue(e.target.value)}
+                    className="appearance-none pl-4 pr-6 md:pr-10 py-1.5 md:py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition cursor-pointer"
+                  >
+                    <option value="">Select Type</option>
+
+                    {exportOptions.map((option) => (
+                      <option key={option} value={option}>
+                        {option.replace("_", " ")}
+                      </option>
+                    ))}
+                  </select>
+
+                  <ChevronDown
+                    size={16}
+                    className="absolute right-3 top-3 text-gray-400 pointer-events-none"
+                  />
+                </div>
+              )}
+
+              {exportFilteredCrew.length > 0 && (
+                <button
+                  onClick={() => exportCrewGroupPDF(exportFilteredCrew)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold
+        bg-gradient-to-r from-blue-600 to-indigo-600 text-white
+        hover:from-blue-700 hover:to-indigo-700 transition shadow-sm hover:shadow-md"
+                >
+                  <Download size={16} />
+                  Export PDF{" "}
+                  <span className=" px-1 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                    {exportFilteredCrew.length} Member
+                  </span>
+                </button>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <label
+                className="flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium 
+      bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-xl 
+      hover:from-emerald-700 hover:to-emerald-800 shadow-sm cursor-pointer transition"
+              >
+                <Upload size={16} />
+                Upload Excel
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  hidden
+                  onChange={handleExcelUpload}
+                />
+              </label>
+
+              {/* Add Crew Button */}
+              <button
+                onClick={() => {
+                  setOpenAddModal(true);
+                  setSelectedCrewMember(null);
+                }}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 
+      rounded-xl shadow-sm bg-gradient-to-r from-blue-600 to-blue-700 
+      hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium transition"
+              >
+                <PlusCircleIcon size={16} />
+                Add Crew Member
+              </button>
+            </div>
           </div>
         </div>
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
