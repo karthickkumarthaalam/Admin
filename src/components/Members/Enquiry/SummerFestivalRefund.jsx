@@ -3,7 +3,9 @@ import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 import debounce from "lodash.debounce";
 import BreadCrumb from "../../BreadCrum";
-import { Copy, Loader2, Search, X } from "lucide-react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+import { Copy, Download, Loader2, Search, X } from "lucide-react";
 
 const SummerFestivalRefund = () => {
   const [enquiries, setEnquiries] = useState([]);
@@ -75,6 +77,38 @@ const SummerFestivalRefund = () => {
     }
   };
 
+  const exportEmailsToExcel = () => {
+    if (!enquiries.length) {
+      toast.info("No emails to export");
+      return;
+    }
+
+    const emailData = enquiries.map((item, index) => ({
+      SI: index + 1,
+      ORDER_ID: item.ORDER_ID,
+      NAME: item.NAME,
+      EMAIL: item.EMAIL_ID,
+      PHONE: item.PHONE_NUMBER,
+      STATUS: item.REFUNDED_STATUS,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(emailData);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Refund Emails");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    saveAs(blob, "summer_festival_refund_emails.xlsx");
+  };
+
   const capitalizeStr = (str) => {
     if (!str) {
       return;
@@ -99,6 +133,12 @@ const SummerFestivalRefund = () => {
           </p>
 
           <div className="flex justify-end mt-4 gap-3">
+            <button
+              onClick={exportEmailsToExcel}
+              className="px-4 py-2 text-sm flex gap-2 bg-gradient-to-br from-green-600 to-green-700 text-white rounded-md hover:from-green-800 hover:to-green-900 transform duration-300 items-center"
+            >
+              <Download size={16} /> Export Data
+            </button>
             <div className="w-48">
               <select
                 value={status}

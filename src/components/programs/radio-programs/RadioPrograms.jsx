@@ -9,6 +9,10 @@ import {
   Radio,
   Clock,
   Edit,
+  BarChart3,
+  X,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
@@ -17,6 +21,7 @@ import BreadCrumb from "../../../components/BreadCrum";
 import AddRadioProgramModal from "./AddRadioProgramModal";
 import { usePermission } from "../../../context/PermissionContext";
 import { useAuth } from "../../../context/AuthContext";
+import ProgramQuestionManagement from "./ProgramQuestionManagement";
 
 const RadioPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -28,6 +33,9 @@ const RadioPrograms = () => {
   const [editProgramId, setEditProgramId] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
 
+  const [showPollModal, setShowPollModal] = useState(false);
+  const [selectedProgramForPoll, setSelectedProgramForPoll] = useState(null);
+
   const { hasPermission } = usePermission();
   const { user } = useAuth();
 
@@ -38,7 +46,7 @@ const RadioPrograms = () => {
     try {
       const response = await apiCall(
         `/radio-program?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`,
-        "GET"
+        "GET",
       );
       setPrograms(response.data);
       setTotalRecords(response.pagination?.totalRecords);
@@ -85,10 +93,15 @@ const RadioPrograms = () => {
     }
   };
 
+  const handleOpenPolls = (program) => {
+    setSelectedProgramForPoll(program);
+    setShowPollModal(true);
+  };
+
   const handleStatusToggle = async (item) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this program?"
+        "Are you sure you want to change the status of this program?",
       )
     )
       return;
@@ -163,6 +176,7 @@ const RadioPrograms = () => {
                     </th>
                     <th className="py-3 px-4 border-b text-center">Timmings</th>
                     <th className="py-3 px-4 border-b">Host</th>
+                    <th className="py-3 px-4 border-b">Polls</th>
                     <th className="py-3 px-4 border-b">Status</th>
                     <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
@@ -224,7 +238,16 @@ const RadioPrograms = () => {
                           </p>
                         </td>
                         <td className="py-3 px-4 border-b">
-                          <span
+                          <button
+                            onClick={() => handleOpenPolls(item)}
+                            className="flex items-center gap-1 text-purple-600 hover:text-purple-800 bg-purple-50 px-2 py-1 rounded-md text-xs font-semibold"
+                          >
+                            <BarChart3 size={14} />
+                            Polls
+                          </button>
+                        </td>
+                        <td className="py-3 px-4 border-b">
+                          <button
                             onClick={() => {
                               if (user.role !== "admin") {
                                 toast.info("Only Admin can update status");
@@ -232,14 +255,24 @@ const RadioPrograms = () => {
                               }
                               handleStatusToggle(item);
                             }}
-                            className={`border cursor-pointer rounded-md px-2 py-1 text-xs font-semibold text-center w-auto ${
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 shadow-sm hover:shadow-md ${
                               item.status === "active"
-                                ? "text-green-600 border-green-600 bg-green-50"
-                                : "text-red-600 border-red-600 bg-red-50"
+                                ? "text-green-700 border-green-300 bg-green-50 hover:bg-green-100"
+                                : "text-red-700 border-red-300 bg-red-50 hover:bg-red-100"
                             }`}
                           >
-                            {item.status}
-                          </span>
+                            {item.status === "active" ? (
+                              <>
+                                <CheckCircle size={14} />
+                                Active
+                              </>
+                            ) : (
+                              <>
+                                <XCircle size={14} />
+                                Inactive
+                              </>
+                            )}
+                          </button>
                         </td>
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">
@@ -307,6 +340,66 @@ const RadioPrograms = () => {
           }}
         />
       </div>
+      {showPollModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white w-full h-full rounded-xl shadow-xl overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
+              {/* Left Section */}
+              <div className="flex items-center gap-3">
+                {/* Icon */}
+                <div className="p-2 bg-indigo-100 rounded-xl">
+                  <BarChart3 size={20} className="text-indigo-600" />
+                </div>
+
+                {/* Program Info */}
+                <div className="flex flex-col">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Poll Management
+                  </h2>
+
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                    <span className="font-medium text-indigo-600">
+                      {selectedProgramForPoll?.program_category?.category}
+                    </span>
+
+                    {selectedProgramForPoll?.radio_station?.station_name && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span className="flex items-center gap-1">
+                          <Radio size={12} className="text-gray-400" />
+                          {selectedProgramForPoll.radio_station.station_name}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Section */}
+              <div className="flex items-center gap-3">
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowPollModal(false)}
+                  className="p-2 rounded-lg hover:bg-red-50 group transition"
+                >
+                  <X
+                    size={20}
+                    className="text-gray-400 group-hover:text-red-600 transition"
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* Poll Component */}
+            <div className="flex-1 overflow-y-auto p-6 bg-slate-100">
+              <ProgramQuestionManagement
+                radioProgramId={selectedProgramForPoll?.id}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

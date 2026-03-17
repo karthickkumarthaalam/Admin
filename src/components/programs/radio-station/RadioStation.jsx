@@ -7,6 +7,8 @@ import {
   Trash2,
   ScanEye,
   Edit,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
@@ -36,7 +38,7 @@ const RadioStation = () => {
     try {
       const response = await apiCall(
         `/radio-station?page=${currentPage}&limit=${pageSize}`,
-        "GET"
+        "GET",
       );
       setStations(response.data);
       setTotalRecords(response.pagination?.totalRecords);
@@ -86,7 +88,7 @@ const RadioStation = () => {
   const handleStatusToggle = async (item) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this station?"
+        "Are you sure you want to change the status of this station?",
       )
     )
       return;
@@ -213,16 +215,28 @@ const RadioStation = () => {
                         </td>
                         <td className="py-3 px-4 border-b">{item.country}</td>
                         <td className="py-3 px-4 border-b">
-                          <span
-                            onClick={() => handleStatusToggle(item)}
-                            className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold border ${
+                          <button
+                            onClick={() => {
+                              handleStatusToggle(item);
+                            }}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 shadow-sm hover:shadow-md ${
                               item.status === "active"
-                                ? "text-green-500 border-green-500 bg-green-50"
-                                : "text-red-500  border-red-500 bg-red-50"
+                                ? "text-green-700 border-green-300 bg-green-50 hover:bg-green-100"
+                                : "text-red-700 border-red-300 bg-red-50 hover:bg-red-100"
                             }`}
                           >
-                            {item.status}
-                          </span>
+                            {item.status === "active" ? (
+                              <>
+                                <CheckCircle size={14} />
+                                Active
+                              </>
+                            ) : (
+                              <>
+                                <XCircle size={14} />
+                                Inactive
+                              </>
+                            )}
+                          </button>
                         </td>
                         <td className="py-3 px-4 border-b">
                           <div className="flex items-center gap-2">

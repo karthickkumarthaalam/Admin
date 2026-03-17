@@ -6,11 +6,8 @@ import {
   ContactRound,
   MessageCircleMore,
   BadgeDollarSign,
-  Activity,
   X,
   Settings,
-  UserCheck,
-  Image,
   Podcast,
   Landmark,
   FileText,
@@ -20,9 +17,13 @@ import {
   PartyPopper,
   Notebook,
   UserIcon,
-  User,
   BriefcaseBusiness,
   MicVocalIcon,
+  BoomBox,
+  Images,
+  UserRound,
+  AudioWaveform,
+  AudioLines,
 } from "lucide-react";
 import { usePermission } from "../context/PermissionContext";
 import { useAuth } from "../context/AuthContext";
@@ -64,10 +65,10 @@ const Sidebar = () => {
       path: "/site-information",
       permission: "Site Information",
     },
-    { label: "Banner", icon: Image, path: "/banner", permission: "Banner" },
+    { label: "Banner", icon: Images, path: "/banner", permission: "Banner" },
     {
       label: "Programs",
-      icon: Activity,
+      icon: BoomBox,
       path: "/programs",
       permission: [
         "Radio Station",
@@ -78,7 +79,7 @@ const Sidebar = () => {
     },
     {
       label: "Podcasts",
-      icon: Podcast,
+      icon: AudioWaveform,
       path: "/podcasts",
       permission: "Podcast",
     },
@@ -96,7 +97,7 @@ const Sidebar = () => {
     },
     {
       label: "Creators",
-      icon: MicVocalIcon,
+      icon: AudioLines,
       path: "/creators",
       permission: "Creators",
     },
@@ -114,7 +115,7 @@ const Sidebar = () => {
     },
     {
       label: "Members",
-      icon: UserCheck,
+      icon: UserRound,
       path: "/members",
       permission: ["Members", "Subscriber", "Transaction"],
     },

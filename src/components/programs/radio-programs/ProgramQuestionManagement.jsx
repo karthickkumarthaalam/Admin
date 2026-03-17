@@ -33,7 +33,7 @@ const ProgramQuestionManagement = ({ radioProgramId }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState(null);
   const [expandedQuestion, setExpandedQuestion] = useState(null);
-  const [countryModalData, setCountryModalData] = useState(null); // Changed from hoveredOption
+  const [countryModalData, setCountryModalData] = useState(null);
   const [countryModalPosition, setCountryModalPosition] = useState({
     x: 0,
     y: 0,

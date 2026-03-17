@@ -23,7 +23,7 @@ const AddRadioProgramModal = ({
         onClose();
       }
     },
-    [onClose]
+    [onClose],
   );
 
   if (!isOpen) return null;
@@ -40,20 +40,12 @@ const AddRadioProgramModal = ({
         />
       ),
     },
-    {
-      id: "program-questions",
-      label: "Program Questions",
-      icon: <MessageCircleQuestion size={18} />,
-      component: (
-        <ProgramQuestionManagement radioProgramId={editProgramData?.id} />
-      ),
-    },
   ];
 
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] backdrop-blur-md transition-all duration-300"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-[200] backdrop-blur-md transition-all duration-300 p-4"
     >
       <div className="bg-white rounded-xl shadow-xl w-full h-full overflow-hidden flex flex-col transform transition-all duraiton-300 scale-100">
         <div className="flex justify-between items-center border-b border-gray-200 bg-gradient-r from-gray-50 to-white px-6 py-3">

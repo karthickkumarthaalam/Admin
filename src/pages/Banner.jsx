@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
 import BreadCrumb from "../components/BreadCrum";
-import { BadgePlus, Search, Loader2, Edit2, Trash2 } from "lucide-react";
+import {
+  BadgePlus,
+  Search,
+  Loader2,
+  Edit2,
+  Trash2,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
@@ -28,7 +36,7 @@ const Banner = () => {
     try {
       const response = await apiCall(
         `/banners?page=${currentPage}&search=${searchQuery}&language=${languageFilter}`,
-        "GET"
+        "GET",
       );
       setBanners(response?.data?.data);
       setTotalRecords(response?.data?.pagination?.totalRecords);
@@ -55,7 +63,7 @@ const Banner = () => {
   const handleStatusToggle = async (banner) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this banner?"
+        "Are you sure you want to change the status of this banner?",
       )
     )
       return;
@@ -180,7 +188,7 @@ const Banner = () => {
                             <img
                               src={`${BASE_URL}/${banner.website_image.replace(
                                 /\\/g,
-                                "/"
+                                "/",
                               )}`}
                               alt="website"
                               className="w-32 h-auto rounded border"
@@ -192,7 +200,7 @@ const Banner = () => {
                             <img
                               src={`${BASE_URL}/${banner.mobile_image.replace(
                                 /\\/g,
-                                "/"
+                                "/",
                               )}`}
                               alt="mobile"
                               className="w-24 h-auto rounded border"
@@ -201,18 +209,28 @@ const Banner = () => {
                         </td>
                         <td className="py-3 px-4 border-b align-top">
                           {hasPermission("Banner", "update") ? (
-                            <span
+                            <button
                               onClick={() => handleStatusToggle(banner)}
-                              className={`cursor-pointer px-2 py-1 text-xs rounded font-semibold ${
+                              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 shadow-sm hover:shadow-md ${
                                 banner.status === "active"
-                                  ? "bg-green-500 text-white"
-                                  : "bg-red-500 text-white"
+                                  ? "text-green-700 border-green-300 bg-green-50 hover:bg-green-100"
+                                  : "text-red-700 border-red-300 bg-red-50 hover:bg-red-100"
                               }`}
                             >
-                              {banner.status}
-                            </span>
+                              {banner.status === "active" ? (
+                                <>
+                                  <CheckCircle size={14} />
+                                  Active
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle size={14} />
+                                  Inactive
+                                </>
+                              )}
+                            </button>
                           ) : (
-                            "-"
+                            <span className="text-gray-400 text-sm">-</span>
                           )}
                         </td>
                         <td className="py-3 px-4 border-b align-top">
