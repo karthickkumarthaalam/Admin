@@ -4,6 +4,7 @@ import ProgramCategory from "../components/programs/program-category/ProgramCate
 import RadioPrograms from "../components/programs/radio-programs/RadioPrograms";
 import { usePermission } from "../context/PermissionContext";
 import AuditLogs from "../components/programs/audit-logs/AuditLogs";
+import FlashNews from "../components/programs/flashNews/FlashNews";
 
 const ProgramsPage = () => {
   const { hasPermission } = usePermission();
@@ -25,6 +26,11 @@ const ProgramsPage = () => {
       permission: "Radio Programs",
     },
     {
+      id: "flash-news",
+      label: "Flash News",
+      permission: "Radio Programs",
+    },
+    {
       id: "audit-logs",
       label: "Audit Logs",
       permission: "Audit Logs",
@@ -36,7 +42,7 @@ const ProgramsPage = () => {
   });
 
   const [activeTab, setActiveTab] = useState(
-    visibleTabs.length > 0 ? visibleTabs[0].id : null
+    visibleTabs.length > 0 ? visibleTabs[0].id : null,
   );
 
   return (
@@ -69,6 +75,7 @@ const ProgramsPage = () => {
           {activeTab === "radio-station" && <RadioStation />}
           {activeTab === "program-category" && <ProgramCategory />}
           {activeTab === "radio-program" && <RadioPrograms />}
+          {activeTab === "flash-news" && <FlashNews />}
           {activeTab === "audit-logs" && <AuditLogs />}
         </div>
       </div>
