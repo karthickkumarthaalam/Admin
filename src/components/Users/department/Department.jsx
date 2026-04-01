@@ -23,11 +23,11 @@ const Department = () => {
     try {
       const response = await apiCall(
         `/departments?page=${currentPage}&search=${searchQuery}`,
-        "GET"
+        "GET",
       );
       setDepartments(response.data);
       setTotalRecords(
-        response.pagination?.totalRecords || response.data.length
+        response.pagination?.totalRecords || response.data.length,
       );
     } catch (error) {
       toast.error("Failed to fetch departments");
@@ -70,7 +70,7 @@ const Department = () => {
   const handleStatusToggle = async (dept) => {
     if (
       !window.confirm(
-        "Are you sure you want to change the status of this department?"
+        "Are you sure you want to change the status of this department?",
       )
     )
       return;
@@ -125,7 +125,7 @@ const Department = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className=" text-left">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b">Department Name</th>

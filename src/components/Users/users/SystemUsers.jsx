@@ -16,6 +16,7 @@ const SystemUsers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [status, setStatus] = useState("all");
+  const [employeeType, setEmployeeType] = useState("all");
 
   const pageSize = 20;
 
@@ -23,10 +24,10 @@ const SystemUsers = () => {
     setLoading(true);
     try {
       const response = await apiCall(
-        `/system-user?page=${currentPage}&limit=20&search=${searchQuery}&status=${
+        `/system-user?page=${currentPage}&limit=20&search=${searchQuery}&employee_type=${employeeType !== "all" ? employeeType : ""}&status=${
           status !== "all" ? status : ""
         }`,
-        "GET"
+        "GET",
       );
       setSystemUsers(response.data);
       setTotalRecords(response.pagination?.totalRecords);
@@ -39,7 +40,7 @@ const SystemUsers = () => {
 
   useEffect(() => {
     fetchSystemUsers();
-  }, [currentPage, searchQuery, status]);
+  }, [currentPage, searchQuery, status, employeeType]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
@@ -76,7 +77,7 @@ const SystemUsers = () => {
   const handleStatusToggle = async (item) => {
     if (
       !window.confirm(
-        "Are you sure you want to Change Status of this system user?"
+        "Are you sure you want to Change Status of this system user?",
       )
     )
       return;
@@ -119,7 +120,17 @@ const SystemUsers = () => {
           </div>
 
           <div className="flex justify-end mt-4 gap-2">
-            <div className="w-36">
+            <div className="max-w-full">
+              <select
+                onChange={(e) => setEmployeeType(e.target.value)}
+                className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
+              >
+                <option value="all">All Employee Type</option>
+                <option value="employee">Employee</option>
+                <option value="external">External</option>
+              </select>
+            </div>
+            <div className="max-w-full">
               <select
                 onChange={(e) => setStatus(e.target.value)}
                 className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
@@ -150,18 +161,16 @@ const SystemUsers = () => {
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
               <table className="w-full text-sm ">
-                <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+                <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left text-xs uppercase tracking-wide">
                     <th className="py-3 px-4 border-b">SI</th>
                     <th className="py-3 px-4 border-b min-w-[120px] text-center">
                       Profile
                     </th>
-                    <th className="py-3 px-4 border-b">Name</th>
+                    <th className="py-3 px-4 border-b">User Details</th>
                     <th className="py-3 px-4 border-b text-center whitespace-nowrap">
-                      Employee ID
+                      Employee Type
                     </th>
-                    <th className="py-3 px-4 border-b">Email</th>
-                    <th className="py-3 px-4 border-b">Department</th>
                     <th className="py-3 px-4 border-b text-center">Status</th>
                     <th className="py-3 px-4 border-b text-center">Actions</th>
                   </tr>
@@ -171,7 +180,7 @@ const SystemUsers = () => {
                   {systemUsers.length === 0 ? (
                     <tr>
                       <td
-                        colSpan="8"
+                        colSpan="6"
                         className="py-8 px-4 text-center text-gray-500 text-sm"
                       >
                         No system users found.
@@ -181,6 +190,9 @@ const SystemUsers = () => {
                     systemUsers.map((item, index) => (
                       <tr
                         key={item.id}
+                        onClick={() => {
+                          handleEdit(item.id);
+                        }}
                         className="hover:bg-gray-50 transition-colors duration-150"
                       >
                         <td className="py-3 px-4 border-b text-gray-600">
@@ -204,33 +216,43 @@ const SystemUsers = () => {
                           </div>
                         </td>
 
-                        {/* Name */}
-                        <td
-                          className="py-3 px-4 border-b font-bold text-gray-700 cursor-pointer"
-                          onClick={() => handleEdit(item.id)}
-                        >
-                          {item.name}
+                        {/* User Details - Combined Name, Employee ID, Email, Department */}
+                        <td className="py-3 px-4 border-b">
+                          <div className="space-y-1">
+                            <div className="font-semibold text-gray-800">
+                              {item.name}
+                            </div>
+                            {item.employee_id && (
+                              <div className="text-xs text-gray-600">
+                                <span className="font-medium">ID:</span>{" "}
+                                {item.employee_id}
+                              </div>
+                            )}
+                            <div className="text-xs text-gray-600">
+                              <span className="font-medium">Email:</span>{" "}
+                              {item.email}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              <span className="font-medium">Dept:</span>{" "}
+                              {item.department?.department_name || "N/A"}
+                            </div>
+                          </div>
                         </td>
 
-                        {/* Employee ID */}
-                        <td className="py-3 px-4 border-b text-center text-gray-700">
-                          {item.employee_id || "-"}
-                        </td>
-
-                        {/* Email */}
-                        <td className="py-3 px-4 border-b text-gray-600">
-                          {item.email}
-                        </td>
-
-                        {/* Department */}
-                        <td className="py-3 px-4 border-b text-gray-700">
-                          {item.department?.department_name || "-"}
+                        {/* Employee Type */}
+                        <td className="py-3 px-4 border-b text-center">
+                          <span className="px-3 py-1 text-xs rounded-full font-medium bg-blue-100 text-blue-700 border border-blue-300">
+                            {item.employee_type || "employee"}
+                          </span>
                         </td>
 
                         {/* Status */}
                         <td className="py-3 px-4 border-b text-center">
                           <span
-                            onClick={() => handleStatusToggle(item)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusToggle(item);
+                            }}
                             className={`cursor-pointer px-3 py-1 text-xs rounded-full font-medium transition-all ${
                               item.status === "active"
                                 ? "bg-green-100 text-green-700 border border-green-300"
@@ -245,7 +267,10 @@ const SystemUsers = () => {
                         <td className="py-3 px-4 border-b">
                           <div className="flex justify-center gap-3">
                             <button
-                              onClick={() => handleDelete(item.id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(item.id);
+                              }}
                               className="text-gray-600 hover:text-red-600 transition"
                               title="Delete"
                             >

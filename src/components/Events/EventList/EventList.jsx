@@ -368,7 +368,7 @@ const EventList = () => {
                       <button
                         onClick={() =>
                           window.open(
-                            `https://thaalam.ch/event-details?slug=${item.slug}`,
+                            `https://thaalam.ch/event/experience/details/${item.slug}`,
                             "_blank",
                           )
                         }

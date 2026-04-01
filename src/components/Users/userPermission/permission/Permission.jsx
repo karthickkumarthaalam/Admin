@@ -33,7 +33,7 @@ const Permission = () => {
   const handleDelete = async (system_user_id) => {
     if (
       !window.confirm(
-        "Are you sure you want to remove this user's permissions?"
+        "Are you sure you want to remove this user's permissions?",
       )
     )
       return;
@@ -74,7 +74,7 @@ const Permission = () => {
         ) : (
           <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
             <table className="w-full text-sm ">
-              <thead className="bg-gradient-to-r from-gray-600 to-gray-600 text-white">
+              <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                 <tr className="text-left">
                   <th className="py-3 px-4 border-b">SI</th>
                   <th className="py-3 px-4 border-b">Name</th>

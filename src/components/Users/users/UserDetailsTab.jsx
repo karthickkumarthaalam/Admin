@@ -47,6 +47,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
       pan_number: "",
       uan_number: "",
       remove_image: false,
+      employee_type: "employee",
     };
   }
 
@@ -95,11 +96,12 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
       ifsc_code: data.ifsc_code || "",
       pan_number: data.pan_number || "",
       uan_number: data.uan_number || "",
+      employee_type: data.employee_type || "employee",
     });
     setImagePreview(
       data.image_url
         ? `${BASE_URL}/${data.image_url.replace(/\\/g, "/")}`
-        : null
+        : null,
     );
   };
 
@@ -166,7 +168,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
         await apiCall(
           `/system-user/update/${editUserData.id}`,
           "PATCH",
-          payload
+          payload,
         );
         toast.success("User updated successfully!");
       } else {
@@ -178,7 +180,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
       onClose();
     } catch (error) {
       toast.error(
-        error.response?.data?.message || "Failed to save user details."
+        error.response?.data?.message || "Failed to save user details.",
       );
     } finally {
       setLoading(false);
@@ -189,7 +191,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
     if (!imagePreview) return;
 
     const confirmDelete = window.confirm(
-      "Are you sure you want to remove the current image?"
+      "Are you sure you want to remove the current image?",
     );
     if (!confirmDelete) return;
 
@@ -221,6 +223,20 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
             error={errors.name}
             placeholder="Enter full name"
           />
+          <TextInput
+            label="Employee ID"
+            name="employee_id"
+            value={form.employee_id}
+            onChange={handleChange}
+            placeholder="Enter employee ID"
+          />
+          <SelectInput
+            label="Employee Type"
+            name="employee_type"
+            value={form.employee_type}
+            onChange={handleChange}
+            options={["employee", "external"]}
+          />
           <SelectInput
             label="Gender"
             name="gender"
@@ -234,13 +250,7 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
             value={form.date_of_birth}
             onChange={handleChange}
           />
-          <TextInput
-            label="Employee ID"
-            name="employee_id"
-            value={form.employee_id}
-            onChange={handleChange}
-            placeholder="Enter employee ID"
-          />
+
           <SelectInput
             label="Department *"
             name="department_id"
@@ -439,8 +449,8 @@ const UserDetailsTab = ({ onSuccess, onClose, editUserData }) => {
                 ? "Updating..."
                 : "Saving..."
               : editUserData
-              ? "Update User"
-              : "Save User"}
+                ? "Update User"
+                : "Save User"}
           </button>
         </div>
       </div>
@@ -518,7 +528,7 @@ const SelectInput = ({ label, name, value, onChange, options, error }) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
-        )
+        ),
       )}
     </select>
     {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
