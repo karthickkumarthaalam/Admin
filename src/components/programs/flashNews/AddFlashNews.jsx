@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { X, Zap, FileText, Calendar, Tag, AlertCircle } from "lucide-react";
+import {
+  X,
+  Zap,
+  FileText,
+  Calendar,
+  Tag,
+  AlertCircle,
+  Trash2,
+} from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
@@ -8,7 +16,7 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
 
   const [formData, setFormData] = useState({
     title: "",
-    news_content: "",
+    items: [{ content: "", status: "in-active" }],
     start_date: "",
     end_date: "",
     priority: 1,
@@ -31,7 +39,10 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
     if (flashNews) {
       setFormData({
         title: flashNews.title || "",
-        news_content: flashNews.news_content || "",
+        items:
+          flashNews.items?.length > 0
+            ? flashNews.items
+            : [{ content: "", status: "in-active" }],
         start_date: flashNews.start_date
           ? flashNews.start_date.split("T")[0]
           : "",
@@ -43,7 +54,7 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
     } else {
       setFormData({
         title: "",
-        news_content: "",
+        items: [{ content: "", status: "in-active" }],
         start_date: "",
         end_date: "",
         priority: 1,
@@ -67,9 +78,27 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
     }));
   };
 
+  const handleItemChange = (index, field, value) => {
+    const updatedItems = [...formData.items];
+    updatedItems[index][field] = value;
+    setFormData((prev) => ({ ...prev, items: updatedItems }));
+  };
+
+  const addItem = () => {
+    setFormData((prev) => ({
+      ...prev,
+      items: [...prev.items, { content: "", status: "in-active" }],
+    }));
+  };
+
+  const removeItem = (index) => {
+    const updatedItems = formData.items.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, items: updatedItems }));
+  };
+
   const handleSubmit = async () => {
-    if (!formData.title || !formData.news_content) {
-      toast.error("Title and content are required");
+    if (!formData.title || formData.items.length === 0) {
+      toast.error("Title and atleast one content required");
       return;
     }
     setLoading(true);
@@ -94,7 +123,7 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-md p-4">
-      <div className="bg-white w-full h-full rounded-xl shadow-xl flex flex-col max-h-[90vh]">
+      <div className="bg-white w-full h-full rounded-xl shadow-xl flex flex-col ">
         {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
           <div className="flex items-center gap-3">
@@ -161,22 +190,111 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
                   />
                 </Field>
               </div>
-              <Field label="News Content" required>
-                <textarea
-                  name="news_content"
-                  placeholder="Enter news content..."
-                  value={formData.news_content}
-                  onChange={handleChange}
-                  rows={4}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                />
+              <Field label="News Contents" required>
+                <div className="space-y-4">
+                  {(formData.items || []).map((item, index) => {
+                    const charCount = item.content.length;
+                    const maxChars = 250;
+
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-col gap-2 border rounded-xl p-4 bg-gray-50 shadow-sm"
+                      >
+                        {/* Header Row */}
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs font-semibold text-gray-500">
+                            Content #{index + 1}
+                          </span>
+
+                          <div className="flex items-center gap-2">
+                            {/* Status */}
+                            <select
+                              value={item.status}
+                              onChange={(e) =>
+                                handleItemChange(
+                                  index,
+                                  "status",
+                                  e.target.value,
+                                )
+                              }
+                              className="text-xs border rounded-lg px-2 py-1 bg-white"
+                            >
+                              <option value="active">🟢 Active</option>
+                              <option value="in-active">⚪ Inactive</option>
+                            </select>
+
+                            {/* Remove */}
+                            <button
+                              type="button"
+                              disabled={formData.items.length === 1}
+                              onClick={() => removeItem(index)}
+                              className={`p-1 rounded-md transition ${
+                                formData.items.length === 1
+                                  ? "text-gray-300 cursor-not-allowed"
+                                  : "text-red-500 hover:bg-red-100"
+                              }`}
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Textarea */}
+                        <textarea
+                          placeholder={`Enter news content ${index + 1}...`}
+                          value={item.content}
+                          onChange={(e) => {
+                            if (e.target.value.length <= maxChars) {
+                              handleItemChange(
+                                index,
+                                "content",
+                                e.target.value,
+                              );
+                            }
+                          }}
+                          rows={2}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white"
+                        />
+
+                        {/* Footer Row */}
+                        <div className="flex justify-between items-center text-xs">
+                          <span
+                            className={`${
+                              charCount > maxChars - 20
+                                ? "text-red-500"
+                                : "text-gray-400"
+                            }`}
+                          >
+                            {charCount}/{maxChars} characters
+                          </span>
+
+                          {charCount >= maxChars && (
+                            <span className="text-red-500 font-medium">
+                              Max limit reached
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Add Button */}
+                  <button
+                    type="button"
+                    onClick={addItem}
+                    className="w-full border border-dashed border-blue-300 text-blue-600 py-2 rounded-xl text-sm font-medium hover:bg-blue-50 transition"
+                  >
+                    + Add Another Content
+                  </button>
+                </div>
               </Field>
             </div>
           </SectionCard>
 
           {/* Categories */}
           <SectionCard
-            icon={<Tag size={18} className="text-purple-600" />}
+            icon={<Tag size={18} className="text-indigo-600" />}
             title="Programs"
             action={
               <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer select-none">
@@ -194,7 +312,7 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
                         : [],
                     }))
                   }
-                  className="w-4 h-4 accent-purple-600 cursor-pointer"
+                  className="w-4 h-4 accent-indigo-600 cursor-pointer"
                 />
                 Select All
               </label>
@@ -203,21 +321,29 @@ const AddFlashNews = ({ isOpen, onClose, flashNews, onSuccess }) => {
             {categories.length === 0 ? (
               <p className="text-sm text-gray-400">No categories available</p>
             ) : (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {categories.map((cat) => {
                   const selected = formData.category_ids.includes(cat.id);
+
                   return (
                     <button
                       key={cat.id}
                       type="button"
                       onClick={() => handleCategoryToggle(cat.id)}
-                      className={`px-4 py-1.5 rounded-xl text-sm font-semibold border transition-all duration-200 ${
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm border transition ${
                         selected
-                          ? "bg-blue-300 text-blue-800 border-blue-600"
-                          : "bg-white text-gray-600 border-gray-200 hover:bg-blue-100 hover:text-blue-600"
+                          ? "bg-indigo-50 text-indigo-700 border-indigo-500"
+                          : "bg-white text-gray-600 border-gray-200 hover:bg-indigo-50 hover:text-indigo-600"
                       }`}
                     >
-                      {cat.category}
+                      <span className="truncate">{cat.category}</span>
+
+                      {/* ✅ Tick mark */}
+                      {selected && (
+                        <span className="text-indigo-600 text-xs font-bold">
+                          ✓
+                        </span>
+                      )}
                     </button>
                   );
                 })}

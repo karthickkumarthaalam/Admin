@@ -5,6 +5,7 @@ import RadioPrograms from "../components/programs/radio-programs/RadioPrograms";
 import { usePermission } from "../context/PermissionContext";
 import AuditLogs from "../components/programs/audit-logs/AuditLogs";
 import FlashNews from "../components/programs/flashNews/FlashNews";
+import ProgramPolls from "../components/programs/program-polls/ProgramPolls";
 
 const ProgramsPage = () => {
   const { hasPermission } = usePermission();
@@ -29,6 +30,11 @@ const ProgramsPage = () => {
       id: "flash-news",
       label: "Flash News",
       permission: "Radio Programs",
+    },
+    {
+      id: "program-polls",
+      label: "Program Polls",
+      permission: "Program Polls",
     },
     {
       id: "audit-logs",
@@ -76,6 +82,7 @@ const ProgramsPage = () => {
           {activeTab === "program-category" && <ProgramCategory />}
           {activeTab === "radio-program" && <RadioPrograms />}
           {activeTab === "flash-news" && <FlashNews />}
+          {activeTab === "program-polls" && <ProgramPolls />}
           {activeTab === "audit-logs" && <AuditLogs />}
         </div>
       </div>

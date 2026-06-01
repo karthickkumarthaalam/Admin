@@ -15,6 +15,7 @@ import BreadCrumb from "../../../components/BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
 import { useAuth } from "../../../context/AuthContext";
 import AddFlashNews from "./AddFlashNews";
+import Pagination from "../../Pagination";
 
 const FlashNews = () => {
   const [flashNews, setFlashNews] = useState([]);
@@ -129,105 +130,155 @@ const FlashNews = () => {
               <Loader2 className="animate-spin text-blue-500" />
             </div>
           ) : (
-            <div className="mt-6 overflow-x-auto border rounded-lg">
+            <div className="mt-6 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
               <table className="w-full text-sm">
-                <thead className="bg-gray-700 text-white">
+                {/* Header */}
+                <thead className="bg-gray-700 text-gray-50 text-xs uppercase tracking-wide">
                   <tr>
-                    <th className="p-3 w-10 text-left">SI</th>
-                    <th className="p-3 w-40 text-left">Title</th>
-                    <th className="p-3 w-64 text-left ">Content</th>
-                    <th className="p-3">Programs</th>
-                    <th className="p-3 w-16 text-left">Status</th>
-                    <th className="p-3 w-24 text-left">Actions</th>
+                    <th className="p-4 text-left w-10">#</th>
+                    <th className="p-4 text-left">Flash News</th>
+                    <th className="p-4 text-left">Contents</th>
+                    <th className="p-4 text-left">Programs</th>
+                    <th className="p-4 text-left">Status</th>
+                    <th className="p-4 text-left w-28">Actions</th>
                   </tr>
                 </thead>
 
-                <tbody>
+                {/* Body */}
+                <tbody className="divide-y">
                   {flashNews.length === 0 ? (
                     <tr>
-                      <td colSpan="7" className="text-center py-6">
-                        No data found
+                      <td
+                        colSpan="6"
+                        className="text-center py-10 text-gray-400"
+                      >
+                        No flash news found
                       </td>
                     </tr>
                   ) : (
-                    flashNews.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className="p-3 border-b">
-                          {(currentPage - 1) * pageSize + index + 1}
-                        </td>
+                    flashNews.map((item, index) => {
+                      const activeCount =
+                        item.items?.filter((i) => i.status === "active")
+                          .length || 0;
 
-                        <td className="p-3 font-semibold w-40 max-w-[10rem] truncate border-b">
-                          {item.title}
-                        </td>
+                      return (
+                        <tr
+                          key={item.id}
+                          className="hover:bg-gray-50 transition-all duration-150"
+                        >
+                          {/* SI */}
+                          <td className="p-4 text-gray-500">
+                            {(currentPage - 1) * pageSize + index + 1}
+                          </td>
 
-                        <td className="p-3 w-64 max-w-[16rem] truncate border-b">
-                          {item.news_content}
-                        </td>
-
-                        <td className="p-3 w-80 max-w-[24rem] truncate border-b">
-                          <div className="flex flex-wrap gap-1">
-                            {item.categories?.map((cat) => (
-                              <span
-                                key={cat.id}
-                                className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs"
-                              >
-                                {cat.category}
+                          {/* Title */}
+                          <td className="p-4">
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-gray-800">
+                                {item.title}
                               </span>
-                            ))}
-                          </div>
-                        </td>
+                              <span className="text-xs text-gray-400">
+                                {activeCount} active items
+                              </span>
+                            </div>
+                          </td>
 
-                        <td className="p-3 border-b align-center">
-                          <button
-                            onClick={() => {
-                              handleStatusToggle(item);
-                            }}
-                            className={`flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 shadow-sm hover:shadow-md ${
-                              item.status === "active"
-                                ? "text-green-700 border-green-300 bg-green-50 hover:bg-green-100"
-                                : "text-red-700 border-red-300 bg-red-50 hover:bg-red-100"
-                            }`}
-                          >
-                            {item.status === "active" ? (
-                              <>
+                          {/* Contents */}
+                          <td className="p-4">
+                            <div className="flex flex-col gap-1 max-w-[220px]">
+                              {item.items?.slice(0, 2).map((news) => (
+                                <div
+                                  key={news.id}
+                                  className={`flex items-center justify-between px-2 py-1 rounded-md text-xs ${
+                                    news.status === "active"
+                                      ? "bg-green-50 text-green-700"
+                                      : "bg-gray-100 text-gray-500"
+                                  }`}
+                                >
+                                  <span className="truncate">
+                                    {news.content}
+                                  </span>
+                                  <span className="ml-2">
+                                    {news.status === "active" ? "●" : "○"}
+                                  </span>
+                                </div>
+                              ))}
+
+                              {item.items?.length > 2 && (
+                                <span className="text-[11px] text-gray-400">
+                                  +{item.items.length - 2} more
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Programs */}
+                          <td className="p-4">
+                            <div className="flex flex-wrap gap-1 max-w-[200px]">
+                              {item.categories?.slice(0, 2).map((cat) => (
+                                <span
+                                  key={cat.id}
+                                  className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full text-xs"
+                                >
+                                  {cat.category}
+                                </span>
+                              ))}
+
+                              {item.categories?.length > 2 && (
+                                <span className="text-xs text-gray-400">
+                                  +{item.categories.length - 2}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Status */}
+                          <td className="p-4">
+                            <button
+                              onClick={() => handleStatusToggle(item)}
+                              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-full border transition ${
+                                item.status === "active"
+                                  ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                                  : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                              }`}
+                            >
+                              {item.status === "active" ? (
                                 <CheckCircle size={14} />
-                                Active
-                              </>
-                            ) : (
-                              <>
+                              ) : (
                                 <XCircle size={14} />
-                                Inactive
-                              </>
-                            )}
-                          </button>
-                        </td>
+                              )}
+                              {item.status}
+                            </button>
+                          </td>
 
-                        <td className="p-3 border-b">
-                          <div className="flex items-center  gap-2 h-full">
-                            {hasPermission("Flash News", "update") && (
-                              <button
-                                onClick={() => {
-                                  setSelectedNews(item);
-                                  setShowModal(true);
-                                }}
-                                className="p-2 bg-blue-50 text-blue-600 rounded"
-                              >
-                                <Edit size={14} />
-                              </button>
-                            )}
+                          {/* Actions */}
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              {hasPermission("Flash News", "update") && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedNews(item);
+                                    setShowModal(true);
+                                  }}
+                                  className="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition"
+                                >
+                                  <Edit size={14} />
+                                </button>
+                              )}
 
-                            {hasPermission("Flash News", "delete") && (
-                              <button
-                                onClick={() => handleDelete(item.id)}
-                                className="p-2 bg-red-50 text-red-600 rounded"
-                              >
-                                <Trash2 size={14} />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                              {hasPermission("Flash News", "delete") && (
+                                <button
+                                  onClick={() => handleDelete(item.id)}
+                                  className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -235,37 +286,20 @@ const FlashNews = () => {
           )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-4 gap-3">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-1 border rounded"
-              >
-                Prev
-              </button>
-
-              <span>
-                {currentPage} / {totalPages}
-              </span>
-
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalRecords={totalRecords}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
       <AddFlashNews
         isOpen={showModal}
         onClose={() => {
           setShowModal(false);
+          setSelectedNews(null);
         }}
         flashNews={selectedNews}
         onSuccess={() => {

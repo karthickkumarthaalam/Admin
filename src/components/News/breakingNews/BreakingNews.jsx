@@ -1,119 +1,95 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BadgePlus,
-  Search,
   Loader2,
-  Edit2,
-  Trash2,
-  ScanEye,
-  Projector,
-  Radio,
-  Clock1,
   Edit,
+  Trash2,
+  Search,
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { apiCall } from "../../../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
-import BreadCrumb from "../../../components/BreadCrum";
-import AddProgramCategoryModal from "./AddProgramCategoryModal";
-import ViewProgramCategoryModal from "./ViewProgramCategoryModal";
-import { usePermission } from "../../../context/PermissionContext";
-import Pagination from "../../Pagination";
 
-const ProgramCategory = () => {
-  const [categories, setCategories] = useState([]);
+import BreadCrumb from "../../../components/BreadCrum";
+import Pagination from "../../Pagination";
+import { apiCall } from "../../../utils/apiCall";
+import { usePermission } from "../../../context/PermissionContext";
+import AddBreakingNewsModal from "./AddBreakingNews";
+
+const BreakingNews = () => {
+  const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [showModal, setShowModal] = useState(false);
-  const [editCategoryId, setEditCategoryId] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedNews, setSelectedNews] = useState(null);
 
   const { hasPermission } = usePermission();
 
   const pageSize = 20;
-  const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
-  const fetchCategories = async () => {
+  const fetchNews = async () => {
     setLoading(true);
+
     try {
-      const response = await apiCall(
-        `/program-category?page=${currentPage}&limit=${pageSize}`,
+      const res = await apiCall(
+        `/breaking-news?page=${currentPage}&limit=${pageSize}&search=${searchQuery}`,
         "GET",
       );
-      setCategories(response.data);
-      setTotalRecords(response.pagination?.totalRecords);
+
+      setNews(res.data || []);
+      setTotalRecords(res.pagination?.totalRecords || 0);
     } catch (error) {
-      toast.error("Failed to fetch Program Categories");
+      toast.error("Failed to fetch breaking news");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchNews();
   }, [currentPage, searchQuery]);
 
   const handleSearch = debounce((value) => {
     setSearchQuery(value);
   }, 500);
 
-  const handleAddCategory = () => {
-    setEditCategoryId(null);
-    setSelectedCategory(null);
-    setShowModal(true);
-  };
-
-  const handleEdit = (id) => {
-    const categoryToEdit = categories.find((item) => item.id === id);
-    setEditCategoryId(id);
-    setSelectedCategory(categoryToEdit);
-    setShowModal(true);
-  };
-
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this category?"))
-      return;
-    setLoading(true);
+    if (!window.confirm("Are you sure you want to delete this news?")) return;
+
     try {
-      await apiCall(`/program-category/${id}`, "DELETE");
-      toast.success("Category deleted successfully");
-      fetchCategories();
+      setLoading(true);
+
+      await apiCall(`/breaking-news/${id}`, "DELETE");
+
+      toast.success("Breaking news deleted successfully");
+
+      fetchNews();
     } catch (error) {
-      toast.error("Failed to delete category");
+      toast.error("Failed to delete breaking news");
     } finally {
       setLoading(false);
     }
   };
 
   const handleStatusToggle = async (item) => {
-    if (
-      !window.confirm(
-        "Are you sure you want to change the status of this category?",
-      )
-    )
-      return;
-    const newStatus = item.status === "active" ? "in-active" : "active";
-    setLoading(true);
     try {
-      await apiCall(`/program-category/${item.id}/status`, "PATCH", {
-        status: newStatus,
+      setLoading(true);
+
+      await apiCall(`/breaking-news/${item.id}`, "PUT", {
+        is_active: !item.is_active,
       });
-      fetchCategories();
+
+      toast.success("Status updated successfully");
+
+      fetchNews();
     } catch (error) {
       toast.error("Failed to update status");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleViewCategory = (item) => {
-    setSelectedCategory(item);
-    setIsViewModalOpen(true);
   };
 
   const totalPages = Math.ceil(totalRecords / pageSize);
@@ -122,108 +98,140 @@ const ProgramCategory = () => {
     <div className="flex h-screen overflow-hidden">
       <div className="flex flex-col flex-1 overflow-hidden">
         <BreadCrumb
-          title={"Program Category Management"}
-          paths={["Programs", "Program Category Management"]}
+          title={"Breaking News Management"}
+          paths={["News", "Breaking News"]}
         />
 
         <div className="mt-4 rounded-sm shadow-md px-2 py-1 md:px-6 md:py-4 md:mx-4 bg-white flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300">
+          {/* Header */}
           <div className="flex justify-between items-center gap-3 border-b border-dashed border-gray-300 pb-3">
             <p className="text-sm sm:text-lg font-semibold text-gray-800">
-              Program Categories
+              Breaking News
             </p>
-            {hasPermission("Program Category", "create") && (
+
+            {hasPermission("News", "create") && (
               <button
-                onClick={handleAddCategory}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
+                onClick={() => setShowModal(true)}
+                className="flex items-center gap-2 px-4  py-2 text-sm bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/25 font-medium"
               >
                 <BadgePlus size={16} />
-                <span>Add Category</span>
+                <span>Add News</span>
               </button>
             )}
           </div>
 
+          {/* Search */}
           <div className="flex justify-end mt-4">
             <div className="relative w-64">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               />
+
               <input
                 type="text"
-                placeholder="Search Category..."
+                placeholder="Search News..."
                 onChange={(e) => handleSearch(e.target.value)}
                 className="border-2 border-gray-300 rounded-md text-xs sm:text-sm px-8 py-2 focus:outline-none focus:ring-2 focus:ring-red-300 w-full"
               />
             </div>
           </div>
 
+          {/* Table */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="animate-spin text-red-500" size={32} />
             </div>
           ) : (
             <div className="overflow-x-auto mt-6 max-w-full border border-gray-200 rounded-lg shadow-sm">
-              <table className="w-full text-sm ">
+              <table className="w-full text-sm">
                 <thead className="bg-gradient-to-r from-gray-700 to-gray-700 text-white">
                   <tr className="text-left">
                     <th className="py-3 px-4 border-b">SI</th>
-                    <th className="py-3 px-4 border-b">Category</th>
-                    <th className="py-3 px-4 border-b text-center">Timmings</th>
-                    <th className="py-3 px-4 border-b">Country</th>
-                    <th className="py-3 px-4 border-b">Status</th>
-                    <th className="py-3 px-4 border-b">Actions</th>
+                    <th className="py-3 px-4 border-b">Content</th>
+                    <th className="py-3 px-4 border-b">URL</th>
+                    <th className="py-3 px-4 border-b text-center">Date</th>
+                    <th className="py-3 px-4 border-b ">Status</th>
+                    <th className="py-3 px-4 border-b ">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {categories.length === 0 ? (
+                  {news.length === 0 ? (
                     <tr>
                       <td
                         colSpan="7"
                         className="py-6 px-4 border text-center text-gray-500 text-sm"
                       >
-                        No categories found.
+                        No breaking news found.
                       </td>
                     </tr>
                   ) : (
-                    categories.map((item, index) => (
+                    news.map((item, index) => (
                       <tr key={item.id}>
-                        <td className="py-3 px-4 border-b font-semibold">
+                        <td className="py-3 px-4 border-b">
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
-                        <td className="py-3 px-4 border-b ">
-                          <div className="flex items-center gap-2">
-                            <Radio size={24} className="text-slate-400" />
-                            <p className="font-semibold text-slate-800 text-base">
-                              {" "}
-                              {item.category}
-                            </p>
-                          </div>
+
+                        <td className="py-3 px-4 border-b min-w-[260px] max-w-[420px]">
+                          <p className="font-semibold">{item.content}</p>
                         </td>
-                        <td className="py-3 px-4 border-b">
-                          <div className="flex items-center gap-1 justify-center">
-                            <div className="text-green-600 p-2 bg-green-50 rounded-md">
-                              <Clock1 size={18} />
+
+                        <td className="py-3 px-4 border-b whitespace-nowrap">
+                          {item.url ? (
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-500 hover:underline"
+                            >
+                              Open Link
+                            </a>
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+
+                        <td className="py-3 px-4 border-b ">
+                          <div className="flex flex-col  items-center gap-2 max-w-[260px]">
+                            {/* Start Date */}
+                            <div className="flex items-center gap-4">
+                              <p className="text-[10px] font-semibold uppercase tracking-wide text-green-700 whitespace-nowrap">
+                                Start Date :
+                              </p>
+
+                              <p className="text-xs font-medium text-gray-700 whitespace-nowrap">
+                                {item.start_date
+                                  ? new Date(item.start_date).toLocaleString()
+                                  : "-"}
+                              </p>
                             </div>
 
-                            <p className="text-green-800 font-semibold">
-                              {" "}
-                              {item.start_time} - {item.end_time}
-                            </p>
+                            {/* End Date */}
+                            <div className="flex gap-4 items-center">
+                              <p className="text-[10px] font-semibold uppercase tracking-wide text-red-700 whitespace-nowrap">
+                                End Date :
+                              </p>
+
+                              <p className="text-xs font-medium text-gray-700 whitespace-nowrap">
+                                {item.end_date
+                                  ? new Date(item.end_date).toLocaleString()
+                                  : "-"}
+                              </p>
+                            </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4 border-b">{item.country}</td>
-                        <td className="py-3 px-4 border-b">
+
+                        <td className="py-3 px-4 border-b ">
                           <button
-                            onClick={() => {
-                              handleStatusToggle(item);
-                            }}
+                            onClick={() => handleStatusToggle(item)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 shadow-sm hover:shadow-md ${
-                              item.status === "active"
+                              item.is_active
                                 ? "text-green-700 border-green-300 bg-green-50 hover:bg-green-100"
                                 : "text-red-700 border-red-300 bg-red-50 hover:bg-red-100"
                             }`}
                           >
-                            {item.status === "active" ? (
+                            {item.is_active ? (
                               <>
                                 <CheckCircle size={14} />
                                 Active
@@ -236,18 +244,23 @@ const ProgramCategory = () => {
                             )}
                           </button>
                         </td>
-                        <td className="py-3 px-4 border-b">
+
+                        <td className="py-3 px-4 border-b ">
                           <div className="flex items-center gap-2">
-                            {hasPermission("Program Category", "update") && (
+                            {hasPermission("News", "update") && (
                               <button
-                                onClick={() => handleEdit(item.id)}
+                                onClick={() => {
+                                  setShowModal(true);
+                                  setSelectedNews(item);
+                                }}
                                 className="text-blue-600 hover:text-blue-800 bg-blue-50 p-2 rounded-md"
                                 title="Edit"
                               >
                                 <Edit size={16} />
                               </button>
                             )}
-                            {hasPermission("Program Category", "delete") && (
+
+                            {hasPermission("News", "delete") && (
                               <button
                                 onClick={() => handleDelete(item.id)}
                                 className="text-red-600 hover:text-red-800 bg-red-50 p-2 rounded-md"
@@ -266,6 +279,7 @@ const ProgramCategory = () => {
             </div>
           )}
 
+          {/* Pagination */}
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -274,26 +288,21 @@ const ProgramCategory = () => {
             onPageChange={setCurrentPage}
           />
         </div>
-
-        <AddProgramCategoryModal
-          isOpen={showModal}
-          onClose={() => setShowModal(false)}
-          editCategoryId={editCategoryId}
-          editCategoryData={selectedCategory}
-          onSuccess={() => {
-            fetchCategories();
-            setShowModal(false);
-          }}
-        />
-
-        <ViewProgramCategoryModal
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          categoryData={selectedCategory}
-        />
       </div>
+      <AddBreakingNewsModal
+        isOpen={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setSelectedNews(null);
+        }}
+        onSuccess={() => {
+          setShowModal(false);
+          fetchNews();
+        }}
+        editNewsData={selectedNews}
+      />
     </div>
   );
 };
 
-export default ProgramCategory;
+export default BreakingNews;

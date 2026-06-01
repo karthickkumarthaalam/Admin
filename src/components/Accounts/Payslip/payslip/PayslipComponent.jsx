@@ -17,6 +17,7 @@ import {
 import { AddPayslip } from "./AddPayslip";
 import ViewPayslipModal from "./ViewPayslipModal";
 import { useAuth } from "../../../../context/AuthContext";
+import Pagination from "../../../Pagination";
 
 const PayslipComponent = () => {
   const [payslips, setPayslips] = useState([]);
@@ -380,29 +381,13 @@ const PayslipComponent = () => {
           )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <span className="text-sm font-medium">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalRecords={totalRecords}
+            onPageChange={setCurrentPage}
+          />
         </div>
 
         {/* Add/Edit Modal - Hide when showing deleted */}

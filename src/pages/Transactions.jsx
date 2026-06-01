@@ -4,6 +4,7 @@ import { Search, Loader2 } from "lucide-react";
 import { apiCall } from "../utils/apiCall";
 import debounce from "lodash.debounce";
 import { toast } from "react-toastify";
+import Pagination from "../components/Pagination";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -251,31 +252,13 @@ const Transactions = () => {
               </div>
             )}
 
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-4">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span className="text-sm font-medium">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalRecords={totalRecords}
+              onPageChange={setCurrentPage}
+            />
           </>
         )}
       </div>

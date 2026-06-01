@@ -7,6 +7,7 @@ import { apiCall } from "../../../../utils/apiCall";
 import { usePermission } from "../../../../context/PermissionContext";
 import AddBudgetCategory from "./AddBudgetCategory";
 import { useAuth } from "../../../../context/AuthContext";
+import Pagination from "../../../Pagination";
 
 const BudgetCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -189,29 +190,13 @@ const BudgetCategory = () => {
           </table>
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-4 mt-4">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border rounded"
-            >
-              Previous
-            </button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border rounded"
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <AddBudgetCategory

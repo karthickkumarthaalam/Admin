@@ -6,6 +6,7 @@ import BreadCrumb from "../../BreadCrum";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { Copy, Download, Loader2, Search, X } from "lucide-react";
+import Pagination from "../../Pagination";
 
 const SummerFestivalRefund = () => {
   const [enquiries, setEnquiries] = useState([]);
@@ -271,32 +272,13 @@ const SummerFestivalRefund = () => {
                 </tbody>
               </table>
             </div>
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-4">
-                <button
-                  disabled={currentPage === 1}
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-                >
-                  {" "}
-                  Previous
-                </button>
-                <span className="text-sm font-medium">
-                  page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalRecords={totalRecords}
+              onPageChange={setCurrentPage}
+            />
           </>
         )}
       </div>

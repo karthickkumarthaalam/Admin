@@ -50,12 +50,12 @@ const AddPopupBannerModal = ({
     setWebsitePreview(
       data.website_image
         ? `${BASE_URL}/${data.website_image.replace(/\\/g, "/")}`
-        : null
+        : null,
     );
     setMobilePreview(
       data.mobile_image
         ? `${BASE_URL}/${data.mobile_image.replace(/\\/g, "/")}`
-        : null
+        : null,
     );
   };
 
@@ -64,7 +64,11 @@ const AddPopupBannerModal = ({
 
     if (!file) return;
 
-    if (!file.type.startswith("image/")) {
+    const isImage = file.type
+      ? file.type.startsWith("image/")
+      : /\.(jpe?g|png|gif|bmp|webp|svg)$/i.test(file.name);
+
+    if (!isImage) {
       setErrors((prev) => ({
         ...prev,
         [type]: "Please upload a valid image file",
@@ -72,10 +76,11 @@ const AddPopupBannerModal = ({
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
+    const maxFileSize = 15 * 1024 * 1024;
+    if (file.size > maxFileSize) {
       setErrors((prev) => ({
         ...prev,
-        [type]: "Image Size must be less than 15MB",
+        [type]: "Image size must be less than 15MB",
       }));
       return;
     }
@@ -89,7 +94,10 @@ const AddPopupBannerModal = ({
     };
 
     reader.onerror = () => {
-      console.error("File reading failed");
+      setErrors((prev) => ({
+        ...prev,
+        [type]: "Failed to read the selected file",
+      }));
     };
 
     reader.readAsDataURL(file);
@@ -169,21 +177,21 @@ const AddPopupBannerModal = ({
             "website_image",
             handleFileChange,
             websitePreview,
-            errors.website_image
+            errors.website_image,
           )}
           {renderFileInput(
             "Mobile Image",
             "mobile_image",
             handleFileChange,
             mobilePreview,
-            errors.mobile_image
+            errors.mobile_image,
           )}
           {renderSelectInput(
             "Status",
             "status",
             form.status,
             handleStatusChange,
-            errors.status
+            errors.status,
           )}
           {renderLanguageCheckboxes()}
         </div>

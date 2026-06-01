@@ -48,7 +48,7 @@ const ViewExperienceModal = ({ isOpen, onClose, experience }) => {
     id,
   } = experience;
 
-  const qrData = `https://thaalam.ch/experience/verify?qrid=${id}`;
+  const qrData = `https://thaalam.ch/experience/verify.php?qrid=${id}`;
 
   const employeeName = user?.name || "Employee Name";
   const employeeId = user?.employee_id || "-";

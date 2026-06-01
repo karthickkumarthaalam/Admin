@@ -22,6 +22,7 @@ import AddRadioProgramModal from "./AddRadioProgramModal";
 import { usePermission } from "../../../context/PermissionContext";
 import { useAuth } from "../../../context/AuthContext";
 import ProgramQuestionManagement from "./ProgramQuestionManagement";
+import Pagination from "../../Pagination";
 
 const RadioPrograms = () => {
   const [programs, setPrograms] = useState([]);
@@ -32,9 +33,6 @@ const RadioPrograms = () => {
   const [showModal, setShowModal] = useState(false);
   const [editProgramId, setEditProgramId] = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
-
-  const [showPollModal, setShowPollModal] = useState(false);
-  const [selectedProgramForPoll, setSelectedProgramForPoll] = useState(null);
 
   const { hasPermission } = usePermission();
   const { user } = useAuth();
@@ -91,11 +89,6 @@ const RadioPrograms = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleOpenPolls = (program) => {
-    setSelectedProgramForPoll(program);
-    setShowPollModal(true);
   };
 
   const handleStatusToggle = async (item) => {
@@ -176,7 +169,6 @@ const RadioPrograms = () => {
                     </th>
                     <th className="py-3 px-4 border-b text-center">Timmings</th>
                     <th className="py-3 px-4 border-b">Host</th>
-                    <th className="py-3 px-4 border-b">Polls</th>
                     <th className="py-3 px-4 border-b">Status</th>
                     <th className="py-3 px-4 border-b">Actions</th>
                   </tr>
@@ -237,15 +229,7 @@ const RadioPrograms = () => {
                             {item.system_users?.name}
                           </p>
                         </td>
-                        <td className="py-3 px-4 border-b">
-                          <button
-                            onClick={() => handleOpenPolls(item)}
-                            className="flex items-center gap-1 text-purple-600 hover:text-purple-800 bg-purple-50 px-2 py-1 rounded-md text-xs font-semibold"
-                          >
-                            <BarChart3 size={14} />
-                            Polls
-                          </button>
-                        </td>
+
                         <td className="py-3 px-4 border-b">
                           <button
                             onClick={() => {
@@ -304,29 +288,13 @@ const RadioPrograms = () => {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <span className="text-sm font-medium">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="text-sm px-3 py-1.5 rounded border hover:bg-gray-100 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalRecords={totalRecords}
+            onPageChange={setCurrentPage}
+          />
         </div>
 
         <AddRadioProgramModal
@@ -340,66 +308,6 @@ const RadioPrograms = () => {
           }}
         />
       </div>
-      {showPollModal && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white w-full h-full rounded-xl shadow-xl overflow-hidden flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-gray-50 to-white">
-              {/* Left Section */}
-              <div className="flex items-center gap-3">
-                {/* Icon */}
-                <div className="p-2 bg-indigo-100 rounded-xl">
-                  <BarChart3 size={20} className="text-indigo-600" />
-                </div>
-
-                {/* Program Info */}
-                <div className="flex flex-col">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Poll Management
-                  </h2>
-
-                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
-                    <span className="font-medium text-indigo-600">
-                      {selectedProgramForPoll?.program_category?.category}
-                    </span>
-
-                    {selectedProgramForPoll?.radio_station?.station_name && (
-                      <>
-                        <span className="text-gray-300">•</span>
-                        <span className="flex items-center gap-1">
-                          <Radio size={12} className="text-gray-400" />
-                          {selectedProgramForPoll.radio_station.station_name}
-                        </span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Section */}
-              <div className="flex items-center gap-3">
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowPollModal(false)}
-                  className="p-2 rounded-lg hover:bg-red-50 group transition"
-                >
-                  <X
-                    size={20}
-                    className="text-gray-400 group-hover:text-red-600 transition"
-                  />
-                </button>
-              </div>
-            </div>
-
-            {/* Poll Component */}
-            <div className="flex-1 overflow-y-auto p-6 bg-slate-100">
-              <ProgramQuestionManagement
-                radioProgramId={selectedProgramForPoll?.id}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../../context/AuthContext";
 import ViewNewsDetails from "./ViewNewsDetails";
+import Pagination from "../../Pagination";
 
 const NewsList = () => {
   const [news, setNews] = useState([]);
@@ -232,7 +233,7 @@ const NewsList = () => {
           {(currentPage - 1) * pageSize + index + 1}
         </td>
         {/* News Details */}
-        <td className="px-6 py-4">
+        <td className="px-6 py-4 min-w-[320px] ">
           <div className="flex items-start space-x-4">
             <div className="flex-1 min-w-0">
               <h3
@@ -576,33 +577,13 @@ const NewsList = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-4 gap-4">
-            <div className="text-sm text-gray-700">
-              Showing {(currentPage - 1) * pageSize + 1} to{" "}
-              {Math.min(currentPage * pageSize, totalRecords)} of {totalRecords}{" "}
-              results
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <AddNewsModal
         isOpen={showModal}

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import AddEventModal from "../EventModal/AddEventModal";
 import EventEnquiryModal from "../EventEnquiry/EventEnquiryModal";
+import Pagination from "../../Pagination";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -389,32 +390,13 @@ const EventList = () => {
         )}
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-6 px-4 gap-4">
-            <div className="text-sm text-gray-700">
-              Showing {(currentPage - 1) * pageSize + 1}–
-              {Math.min(currentPage * pageSize, totalRecords)} of {totalRecords}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(p + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       {/* Add/Edit Modal */}

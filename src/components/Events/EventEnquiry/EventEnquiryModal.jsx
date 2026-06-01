@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
+import Pagination from "../../Pagination";
 
 const EventEnquiryModal = ({ isOpen, onClose, event }) => {
   const [enquiries, setEnquiries] = useState([]);
@@ -252,33 +253,13 @@ const EventEnquiryModal = ({ isOpen, onClose, event }) => {
                 </table>
               </div>
 
-              {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-4 mt-4">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    disabled={currentPage === 1}
-                    className="px-3 py-1.5 rounded border disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <span className="text-sm text-gray-700">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 rounded border disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                totalRecords={totalRecords}
+                onPageChange={setCurrentPage}
+              />
             </>
           )}
         </div>

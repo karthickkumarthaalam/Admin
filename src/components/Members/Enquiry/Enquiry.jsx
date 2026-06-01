@@ -5,6 +5,7 @@ import { Loader2, Search } from "lucide-react";
 import BreadCrumb from "../../BreadCrum";
 import { apiCall } from "../../../utils/apiCall";
 import ViewEnquiryModal from "./ViewEnquiryModal";
+import Pagination from "../../Pagination";
 
 const Enquiry = () => {
   const [enquiries, setEnquiries] = useState([]);
@@ -189,31 +190,13 @@ const Enquiry = () => {
               </table>
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex justify-center gap-4 mt-4">
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span>
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="px-3 py-1 border rounded disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
-            )}
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalRecords={totalRecords}
+              onPageChange={setCurrentPage}
+            />
           </>
         )}
 

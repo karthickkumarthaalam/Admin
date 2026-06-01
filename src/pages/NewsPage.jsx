@@ -3,6 +3,9 @@ import { usePermission } from "../context/PermissionContext";
 import NewsList from "../components/News/news/NewsList";
 import NewsCategory from "../components/News/newCategory/NewsCategory";
 import NewsComments from "../components/News/newsComments/NewsComments";
+import BreakingNews from "../components/News/breakingNews/BreakingNews";
+import Advertisement from "../components/News/advertisement/Advertisement";
+import NewsPoll from "../components/News/newsPoll/NewsPoll";
 
 const NewsPage = () => {
   const [activeTab, setActiveTab] = useState("news-page");
@@ -17,6 +20,21 @@ const NewsPage = () => {
     {
       id: "news-category",
       label: "News Category",
+      permission: "News",
+    },
+    {
+      id: "breaking-news",
+      label: "Breaking News",
+      permission: "News",
+    },
+    {
+      id: "advertisement",
+      label: "Advertisement",
+      permission: "News Advertisements",
+    },
+    {
+      id: "news-poll",
+      label: "News Poll",
       permission: "News",
     },
   ];
@@ -52,6 +70,9 @@ const NewsPage = () => {
       <div className="flex-1 p-1 overflow-y-auto bg-slate-100">
         {activeTab === "news-page" && <NewsList />}
         {activeTab === "news-category" && <NewsCategory />}
+        {activeTab === "breaking-news" && <BreakingNews />}
+        {activeTab === "advertisement" && <Advertisement />}
+        {activeTab === "news-poll" && <NewsPoll />}
       </div>
     </div>
   );

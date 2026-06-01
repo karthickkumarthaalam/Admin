@@ -6,6 +6,7 @@ import BreadCrumb from "../../BreadCrum";
 import { ImageOff, Loader2, MailCheck, MapPin, PhoneCall } from "lucide-react";
 import StatusUpdateModal from "./StatusUpdateModal";
 import CreatorDetailsModal from "./CreatorDetailsModal";
+import Pagination from "../../Pagination";
 
 const PodcastCreators = () => {
   const [creators, setCreators] = useState([]);
@@ -193,27 +194,13 @@ const PodcastCreators = () => {
           </table>
         </div>
 
-        {totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 mt-4">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={setCurrentPage}
+        />
       </div>
       {selectedCreator && showStatusModal && (
         <StatusUpdateModal

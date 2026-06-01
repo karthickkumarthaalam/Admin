@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { apiCall } from "../../../utils/apiCall";
 import BreadCrumb from "../../BreadCrum";
 import { usePermission } from "../../../context/PermissionContext";
+import Pagination from "../../Pagination";
 
 const NewsComments = () => {
   const [comments, setComments] = useState([]);
@@ -215,29 +216,13 @@ const NewsComments = () => {
         </div>
 
         {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-4 mt-4">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="px-3 py-1 text-sm border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalRecords={totalRecords}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );
