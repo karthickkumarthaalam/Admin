@@ -551,11 +551,11 @@ const NewsList = () => {
               <option value="all">All Categories</option>
               {categories.map((category, index) => (
                 <option
-                  key={`${category}-${index}`}
-                  value={category}
+                  key={category.id}
+                  value={category.category_name}
                   className="capitalize"
                 >
-                  {category}
+                  {category.category_name}
                 </option>
               ))}
             </select>
