@@ -497,14 +497,14 @@ const SummerFestivalRefund = () => {
                             </div>
                           </td>
 
-                          <td className="py-4 px-4 max-w-[180px]">
+                          <td className="py-4 px-4 max-w-[280px]">
                             <div className="space-y-2">
                               <button
                                 onClick={() => {
                                   setSelectedEnquiry(enquiry);
                                   setShowOrderDetails(true);
                                 }}
-                                className=" text-blue-700  text-xs font-semibold hover:text-blue-800"
+                                className=" text-blue-700  text-xs font-semibold hover:text-blue-800 whitespace-nowrap"
                               >
                                 Order #{enquiry.ORDER_ID}
                               </button>
@@ -535,11 +535,11 @@ const SummerFestivalRefund = () => {
                                 {enquiry.Attendees?.map((ticket) => (
                                   <div key={ticket.TICKET_ID}>
                                     <div className="flex justify-between">
-                                      <span className="font-medium text-gray-800">
+                                      <span className="font-medium text-gray-800 whitespace-nowrap">
                                         {ticket.TICKET_CLASS}
                                       </span>
 
-                                      <span className="text-green-600 font-semibold">
+                                      <span className="text-green-600 font-semibold whitespace-nowrap">
                                         CHF{" "}
                                         {ticket.AMOUNT_COLLECTED?.toLocaleString(
                                           "en-CH",
