@@ -391,8 +391,8 @@ const AddNewsDetails = ({ onSuccess, editNewsData }) => {
             value={news.category}
             onChange={handleChange}
             options={categories.map((c) => ({
-              value: c,
-              label: c,
+              value: c.category_name,
+              label: c.category_name,
             }))}
             required
           />

@@ -3,8 +3,6 @@ import { Trash2, X } from "lucide-react";
 import { apiCall } from "../../../utils/apiCall";
 import { toast } from "react-toastify";
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-
 const AddProgramCategoryModal = ({
   isOpen,
   onClose,
@@ -14,6 +12,7 @@ const AddProgramCategoryModal = ({
   const [form, setForm] = useState(initialFormState());
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
+  const [mobileImagePreview, setMobileImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
   function initialFormState() {
     return {
@@ -21,8 +20,10 @@ const AddProgramCategoryModal = ({
       start_time: "",
       end_time: "",
       country: "",
+      description: "",
       status: "in-active",
       image_url: null,
+      mobile_image_url: null,
     };
   }
 
@@ -36,6 +37,7 @@ const AddProgramCategoryModal = ({
     setForm(initialFormState());
     setErrors({});
     setImagePreview(null);
+    setMobileImagePreview(null);
   };
 
   const populateForm = (data) => {
@@ -44,11 +46,14 @@ const AddProgramCategoryModal = ({
       start_time: data.start_time || "",
       end_time: data.end_time || "",
       country: data.country || "",
+      description: data.description || "",
       status: data.status || "in-active",
       image_url: data.image_url || null,
+      mobile_image_url: data.mobile_image_url || null,
     });
 
-    setImagePreview(data.image_url ? data.image_url : null);
+    setImagePreview(data.image_url || null);
+    setMobileImagePreview(data.mobile_image_url || null);
   };
 
   const handleChange = (e) => {
@@ -58,22 +63,33 @@ const AddProgramCategoryModal = ({
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setForm((prev) => ({ ...prev, image_url: file }));
-      const fileReader = new FileReader();
+    const { name, files } = e.target;
 
-      fileReader.onload = () => {
-        setImagePreview(fileReader.result);
-      };
+    const file = files[0];
 
-      fileReader.onerror = () => {
-        console.error("File reading failed");
-      };
+    if (!file) return;
 
-      fileReader.readAsDataURL(file);
-      setErrors((prev) => ({ ...prev, image_url: "" }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      [name === "image" ? "image_url" : "mobile_image_url"]: file,
+    }));
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (name === "image") {
+        setImagePreview(reader.result);
+      } else {
+        setMobileImagePreview(reader.result);
+      }
+    };
+
+    reader.readAsDataURL(file);
+
+    setErrors((prev) => ({
+      ...prev,
+      [name === "image" ? "image_url" : "mobile_image_url"]: "",
+    }));
   };
 
   const validateForm = () => {
@@ -95,17 +111,28 @@ const AddProgramCategoryModal = ({
       payload.append("start_time", form.start_time);
       payload.append("end_time", form.end_time);
       payload.append("country", form.country);
+      payload.append("description", form.description);
       payload.append("status", form.status);
       if (form.image_url instanceof File) {
         payload.append("image", form.image_url);
       } else if (form.image_url === null && editCategoryData?.image_url) {
         payload.append("remove_image", "true");
       }
+
+      if (form.mobile_image_url instanceof File) {
+        payload.append("mobile_image", form.mobile_image_url);
+      } else if (
+        form.mobile_image_url === null &&
+        editCategoryData?.mobile_image_url
+      ) {
+        payload.append("remove_mobile_image", "true");
+      }
+
       if (editCategoryData) {
         await apiCall(
           `/program-category/${editCategoryData.id}`,
           "PUT",
-          payload
+          payload,
         );
         toast.success("Program category updated successfully!");
       } else {
@@ -144,21 +171,21 @@ const AddProgramCategoryModal = ({
             "category",
             form.category,
             handleChange,
-            errors.category
+            errors.category,
           )}
           {renderTimeInput(
             "Start Time",
             "start_time",
             form.start_time,
             handleChange,
-            errors.start_time
+            errors.start_time,
           )}
           {renderTimeInput(
             "End Time",
             "end_time",
             form.end_time,
             handleChange,
-            errors.end_time
+            errors.end_time,
           )}
           {renderSelectInput(
             "Country",
@@ -166,21 +193,45 @@ const AddProgramCategoryModal = ({
             form.country,
             handleChange,
             ["Switzerland"],
-            errors.country
+            errors.country,
           )}
           {renderFileInput(
             "Category Image",
+            "image",
             handleFileChange,
             imagePreview,
-            errors.image_url
+            errors.image_url,
+            "image_url",
           )}
+          {renderFileInput(
+            "Mobile Image",
+            "mobile_image",
+            handleFileChange,
+            mobileImagePreview,
+            errors.mobile_image_url,
+            "mobile_image_url",
+          )}
+          <div className="md:col-span-2">
+            <label className="font-semibold mb-1 text-sm block">
+              Description
+            </label>
+
+            <textarea
+              name="description"
+              rows={4}
+              value={form.description}
+              onChange={handleChange}
+              className="border rounded px-3 py-2 text-sm w-full focus:ring-2 focus:ring-red-500 focus:outline-none"
+              placeholder="Enter program description..."
+            />
+          </div>
           {renderSelectInput(
             "Status",
             "status",
             form.status,
             handleChange,
             ["active", "in-active"],
-            errors.status
+            errors.status,
           )}
         </div>
 
@@ -201,8 +252,8 @@ const AddProgramCategoryModal = ({
                 ? "Updating..."
                 : "update"
               : loading
-              ? "Saving..."
-              : "Save"}
+                ? "Saving..."
+                : "Save"}
           </button>
         </div>
       </div>
@@ -263,28 +314,50 @@ const AddProgramCategoryModal = ({
     );
   }
 
-  function renderFileInput(label, onChange, preview, error) {
+  function renderFileInput(
+    label,
+    inputName,
+    onChange,
+    preview,
+    error,
+    formKey,
+  ) {
     return (
       <div className="flex flex-col md:col-span-2">
         <label className="font-semibold mb-1 text-sm">{label}</label>
-        <input type="file" accept="image/*" onChange={onChange} />
+
+        <input
+          type="file"
+          name={inputName}
+          accept="image/*"
+          onChange={onChange}
+        />
 
         {preview && (
           <div className="relative mt-2 w-full max-h-60">
             <img
               src={preview}
-              alt="Preview"
+              alt={label}
               className="w-full max-h-60 object-contain rounded"
             />
+
             <button
               type="button"
               onClick={() => {
-                setForm((prev) => ({ ...prev, image_url: null }));
-                setImagePreview(null);
+                setForm((prev) => ({
+                  ...prev,
+                  [formKey]: null,
+                }));
+
+                if (formKey === "image_url") {
+                  setImagePreview(null);
+                } else {
+                  setMobileImagePreview(null);
+                }
               }}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
             >
-              <Trash2 />
+              <Trash2 size={16} />
             </button>
           </div>
         )}

@@ -190,11 +190,42 @@ const RadioPrograms = () => {
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-3 px-4 border-b">
-                          <img
-                            src={item.program_category?.image_url}
-                            alt={item.program_category?.category}
-                            className="w-32 h-auto rounded"
-                          />
+                          <div className="flex gap-4">
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 mb-1">
+                                Desktop
+                              </p>
+
+                              {item.program_category?.image_url ? (
+                                <img
+                                  src={item.program_category.image_url}
+                                  alt={`${item.program_category.category} Desktop`}
+                                  className="w-32 h-20 object-cover rounded-lg border"
+                                />
+                              ) : (
+                                <div className="w-32 h-20 flex items-center justify-center rounded-lg border bg-gray-100 text-xs text-gray-400">
+                                  No Image
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs font-medium text-gray-500 mb-1">
+                                Mobile
+                              </p>
+
+                              {item.program_category?.mobile_image_url ? (
+                                <img
+                                  src={item.program_category.mobile_image_url}
+                                  alt={`${item.program_category.category} Mobile`}
+                                  className="w-20 h-36 object-fill rounded-lg border"
+                                />
+                              ) : (
+                                <div className="w-20 h-36 flex items-center justify-center rounded-lg border bg-gray-100 text-xs text-gray-400">
+                                  No Image
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </td>
                         <td className="py-4 px-4 border-b">
                           <div className="space-y-2">

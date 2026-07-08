@@ -21,6 +21,7 @@ import AddProgramCategoryModal from "./AddProgramCategoryModal";
 import ViewProgramCategoryModal from "./ViewProgramCategoryModal";
 import { usePermission } from "../../../context/PermissionContext";
 import Pagination from "../../Pagination";
+import AddCategoryModal from "./AddCategoryModal";
 
 const ProgramCategory = () => {
   const [categories, setCategories] = useState([]);
@@ -191,7 +192,7 @@ const ProgramCategory = () => {
                           {(currentPage - 1) * pageSize + index + 1}
                         </td>
                         <td className="py-3 px-4 border-b ">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 whitespace-nowrap">
                             <Radio size={24} className="text-slate-400" />
                             <p className="font-semibold text-slate-800 text-base">
                               {" "}
@@ -200,7 +201,7 @@ const ProgramCategory = () => {
                           </div>
                         </td>
                         <td className="py-3 px-4 border-b">
-                          <div className="flex items-center gap-1 justify-center">
+                          <div className="flex items-center gap-1 justify-center whitespace-nowrap">
                             <div className="text-green-600 p-2 bg-green-50 rounded-md">
                               <Clock1 size={18} />
                             </div>
@@ -275,10 +276,10 @@ const ProgramCategory = () => {
           />
         </div>
 
-        <AddProgramCategoryModal
+        <AddCategoryModal
           isOpen={showModal}
           onClose={() => setShowModal(false)}
-          editCategoryId={editCategoryId}
+          // editCategoryId={editCategoryId}
           editCategoryData={selectedCategory}
           onSuccess={() => {
             fetchCategories();

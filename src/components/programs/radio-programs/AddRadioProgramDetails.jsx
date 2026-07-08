@@ -29,7 +29,7 @@ const AddRadioProgramDetails = ({ onSuccess, editProgramData }) => {
       show_timing: true,
       show_host_profile: true,
     }),
-    []
+    [],
   );
 
   const [form, setForm] = useState(initialState);
@@ -116,7 +116,7 @@ const AddRadioProgramDetails = ({ onSuccess, editProgramData }) => {
       await apiCall(
         `/program-category/${form.program_category_id}/image`,
         "PATCH",
-        fd
+        fd,
       );
 
       toast.success("Banner updated");
@@ -246,7 +246,7 @@ const AddRadioProgramDetails = ({ onSuccess, editProgramData }) => {
       </SectionCard>
 
       {/* BANNER */}
-      <SectionCard
+      {/* <SectionCard
         icon={<ImageIcon className="text-orange-600" />}
         title="Program Banner"
         description="Upload or update banner image"
@@ -278,7 +278,7 @@ const AddRadioProgramDetails = ({ onSuccess, editProgramData }) => {
             </div>
           )}
         </div>
-      </SectionCard>
+      </SectionCard> */}
 
       {/* ACTIONS */}
       <div className="flex justify-end gap-4">
@@ -290,8 +290,8 @@ const AddRadioProgramDetails = ({ onSuccess, editProgramData }) => {
           {loading
             ? "Saving..."
             : editProgramData
-            ? "Update Program"
-            : "Create Program"}
+              ? "Update Program"
+              : "Create Program"}
         </button>
       </div>
     </form>
